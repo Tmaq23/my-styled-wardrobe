@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-
 import prisma from '@/lib/prisma';
 import { getSessionContext, verifyAdminAccess } from '@/lib/apiAuth';
 
@@ -23,7 +22,7 @@ export async function GET(request: NextRequest) {
       }
 
       verifications = await prisma.analysisVerification.findMany({
-        where: status ? { status } : undefined,
+        ...(status && { where: { status } }),
         include: {
           user: {
             select: {
@@ -61,7 +60,6 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       verifications,
     });
-
   } catch (error) {
     console.error('Verification list error:', error);
     return NextResponse.json(
@@ -70,4 +68,3 @@ export async function GET(request: NextRequest) {
     );
   }
 }
-
