@@ -9,9 +9,10 @@ export const runtime = 'nodejs';
 
 // AI-powered wardrobe analysis using OpenAI Vision
 export async function POST(req: NextRequest) {
+  let file: File | null = null;
   try {
     const form = await req.formData();
-    const file = form.get('image');
+    file = form.get('image') as File | null;
     
     if (!file || !(file instanceof File)) {
       return Response.json({ error: 'No image provided' }, { status: 400 });
@@ -32,44 +33,28 @@ export async function POST(req: NextRequest) {
       console.log('Using fallback analysis due to invalid API key');
       return provideFallbackAnalysis(file);
     }
-
+    
     // Convert file to base64
-    const arrayBuffer = await file.arrayBuffer();
-    const base64 = Buffer.from(arrayBuffer).toString('base64');
-
-    const prompt = `Analyze this wardrobe image and identify:
-
-1. Clothing category (top, bottom, dress, outerwear, accessory)
-2. Primary color
-3. Style (casual, formal, elegant, sporty, vintage, modern, bohemian, minimalist, romantic, edgy)
-4. Pattern (solid, striped, floral, geometric, polka dot, plaid, animal print, abstract, tie-dye, embroidery)
-5. Season appropriateness (spring, summer, autumn, winter, all-season)
-6. Confidence level (0-100)
-
-Respond with ONLY this JSON:
-{
-  "category": "top|bottom|dress|outerwear|accessory",
-  "color": "primary color name",
-  "style": "style name",
-  "pattern": "pattern name", 
-  "season": "season name",
-  "confidence": 85,
-  "analysis": "Brief explanation of the analysis"
-}`;
+    const bytes = await file.arrayBuffer();
+    const buffer = Buffer.from(bytes);
+    const base64 = buffer.toString('base64');
 
     const response = await openai.chat.completions.create({
-      model: "gpt-4-turbo",
+      model: "gpt-4o",
       messages: [
-        {
-          role: "system",
-          content: "You are a professional fashion analyst. Analyze clothing images and provide detailed fashion attributes. Always respond with valid JSON in the exact format requested."
-        },
         {
           role: "user",
           content: [
             {
               type: "text",
-              text: prompt
+              text: `Analyze this wardrobe item image. Return a JSON with these fields:
+              - category: one of [top, bottom, dress, outerwear, accessory]
+              - color: main color (e.g., black, white, red, blue)
+              - style: style description (e.g., casual, formal, elegant)
+              - pattern: pattern type (e.g., solid, striped, floral)
+              - season: best season (spring, summer, autumn, winter, all-season)
+              - confidence: confidence score (0-100)
+              - analysis: brief description of the item and styling suggestions`
             },
             {
               type: "image_url",
@@ -95,10 +80,15 @@ Respond with ONLY this JSON:
     console.log('✅ AI wardrobe analysis completed successfully');
     
     return Response.json(result);
-
   } catch (error) {
     console.error('AI wardrobe analysis error:', error);
-    return provideFallbackAnalysis(file);
+    if (file && file instanceof File) {
+      return provideFallbackAnalysis(file);
+    }
+    return Response.json(
+      { error: 'Failed to analyze image' },
+      { status: 500 }
+    );
   }
 }
 
