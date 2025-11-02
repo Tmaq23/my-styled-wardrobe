@@ -22,12 +22,12 @@ export default function AboutPage() {
               The mass market often fails to cater to our unique bodies, personalities and goals. 
               Clothing affects our self-confidence, and mass market makes us lose our individuality. 
               At My Styled Wardrobe, we are determined to challenge this norm by creating tailored 
-              monthly outfits that highlight each person's distinctive style.
+              monthly outfits that highlight each person&apos;s distinctive style.
             </p>
             <p>
               Our team of expert AI stylists meticulously review each profile, taking into account 
               lifestyle and specific concerns regarding appearance. By crafting personalised outfits, 
-              we aim to accentuate each person's unique style, empowering them to reclaim their 
+              we aim to accentuate each person&apos;s unique style, empowering them to reclaim their 
               individuality and exude self-assurance in expressing themselves confidently.
             </p>
           </div>

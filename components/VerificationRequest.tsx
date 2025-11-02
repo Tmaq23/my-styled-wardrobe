@@ -160,7 +160,7 @@ export default function VerificationRequest({
               Verification in Review
             </h3>
             <p style={{ margin: '0.5rem 0 0 0', opacity: 0.9 }}>
-              Your analysis is being reviewed by a qualified stylist. You'll receive the verified results soon.
+              Your analysis is being reviewed by a qualified stylist. You&apos;ll receive the verified results soon.
             </p>
           </div>
         </div>
@@ -183,7 +183,7 @@ export default function VerificationRequest({
         </h3>
         <p style={{ margin: 0, color: '#374151', fontSize: '0.875rem', lineHeight: '1.6' }}>
           Have your AI analysis reviewed and verified by a professional stylist for £30.
-          You'll receive verified results and personalized styling recommendations.
+          You&apos;ll receive verified results and personalized styling recommendations.
         </p>
       </div>
 
@@ -243,7 +243,7 @@ export default function VerificationRequest({
         fontSize: '0.75rem',
         color: '#374151',
       }}>
-        <strong style={{ color: '#1a1a1a' }}>What you'll get:</strong>
+        <strong style={{ color: '#1a1a1a' }}>What you&apos;ll get:</strong>
         <ul style={{ margin: '0.5rem 0 0 0', paddingLeft: '1.25rem' }}>
           <li>Professional verification of your body shape</li>
           <li>Expert-confirmed color palette</li>

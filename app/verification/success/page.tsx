@@ -69,7 +69,7 @@ export default function VerificationSuccessPage() {
         <h2 style={{ margin: '0 0 1rem 0' }}>What happens next?</h2>
         <ol style={{ paddingLeft: '1.5rem', lineHeight: '1.8' }}>
           <li>A qualified stylist will review your analysis</li>
-          <li>You'll receive an email notification when your verification is complete</li>
+          <li>You&apos;ll receive an email notification when your verification is complete</li>
           <li>Verified results will appear in your style interface</li>
         </ol>
       </div>

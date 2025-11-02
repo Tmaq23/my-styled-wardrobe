@@ -21,7 +21,7 @@ export default function FAQPage() {
             <div className="faq-items">
               <div className="faq-item">
                 <h3>How do I get started with My Styled Wardrobe?</h3>
-                <p>Simply click "Get Started" on our homepage, upload a full-body photo, and our AI will analyse your body shape and colour palette to provide personalised recommendations.</p>
+                <p>Simply click &quot;Get Started&quot; on our homepage, upload a full-body photo, and our AI will analyse your body shape and colour palette to provide personalised recommendations.</p>
               </div>
               <div className="faq-item">
                 <h3>What type of photo should I upload?</h3>
@@ -43,7 +43,7 @@ export default function FAQPage() {
               </div>
               <div className="faq-item">
                 <h3>Can I re-analyse my profile?</h3>
-                <p>Absolutely! You can use the "Re-analyse with AI" button anytime to get fresh insights or if you want to update your analysis.</p>
+                <p>Absolutely! You can use the &quot;Re-analyse with AI&quot; button anytime to get fresh insights or if you want to update your analysis.</p>
               </div>
               <div className="faq-item">
                 <h3>What body shapes do you support?</h3>
@@ -94,7 +94,7 @@ export default function FAQPage() {
       <div className="contact-section">
         <div className="container">
           <h2>Still Have Questions?</h2>
-          <p>Can't find what you're looking for? Our support team is here to help!</p>
+          <p>Can&apos;t find what you&apos;re looking for? Our support team is here to help!</p>
           <div className="contact-methods">
             <div className="contact-method">
               <h3>📧 Email Support</h3>

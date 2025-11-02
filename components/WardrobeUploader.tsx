@@ -1054,10 +1054,10 @@ export default function WardrobeUploader({ onChange }: { onChange: (files: File[
           }} onClick={(e) => e.stopPropagation()}>
             <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🎁</div>
             <h3 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '1rem', color: '#1f2937' }}>
-              You've Used Your Free AI Outfit Generation!
+              You&apos;ve Used Your Free AI Outfit Generation!
             </h3>
             <p style={{ color: '#6b7280', marginBottom: '1.5rem', lineHeight: '1.6' }}>
-              You've already used your complimentary AI-generated outfit combination. Upgrade to unlock unlimited AI wardrobe analysis and premium styling features!
+              You&apos;ve already used your complimentary AI-generated outfit combination. Upgrade to unlock unlimited AI wardrobe analysis and premium styling features!
             </p>
             <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
               <button

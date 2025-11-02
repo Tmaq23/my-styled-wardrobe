@@ -308,7 +308,7 @@ Analysis: ${result.analysis}`;
 							Free Analysis Used
 						</h3>
 						<p style={{margin: '0 0 1rem 0', color: 'rgba(255, 255, 255, 0.85)', fontSize: '0.95rem', lineHeight: '1.5'}}>
-							You've already used your complimentary AI body shape and colour palette analysis. 
+							You&apos;ve already used your complimentary AI body shape and colour palette analysis. 
 							Upgrade to unlock unlimited AI analyses and premium features!
 						</p>
 						<div style={{display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap'}}>

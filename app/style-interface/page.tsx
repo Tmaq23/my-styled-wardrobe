@@ -268,7 +268,7 @@ export default function StyleInterfacePage() {
               <h3>🛍️ Finding Your Perfect Style</h3>
               <p className="loading-step">{loadingStep}</p>
               <div className="loading-info">
-                <p><strong>What we're doing:</strong></p>
+                <p><strong>What we&apos;re doing:</strong></p>
                 <ul>
                   <li>Analysing your body shape and colour palette</li>
                   <li>Searching online retailers for matching products</li>
@@ -291,7 +291,7 @@ export default function StyleInterfacePage() {
               <h3>🛍️ Shopping Recommendations</h3>
               <p>Based on your {bodyShape} body shape, {colorPalette} colour palette, and {occasion} style preferences</p>
               <div className="image-disclaimer">
-                <p><strong>📸 Image Disclaimer:</strong> The images shown are AI-generated illustrations for visual reference only. Click "Shop Now" to see the actual products on the retailer's website.</p>
+                <p><strong>📸 Image Disclaimer:</strong> The images shown are AI-generated illustrations for visual reference only. Click &quot;Shop Now&quot; to see the actual products on the retailer&apos;s website.</p>
               </div>
               {shopResults.reason && (
                 <div className="ai-reasoning">

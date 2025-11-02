@@ -255,7 +255,7 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
           style={toolbarButtonStyle}
           title="Quote"
         >
-          " Quote
+          &quot; Quote
         </button>
         
         {/* Code */}
