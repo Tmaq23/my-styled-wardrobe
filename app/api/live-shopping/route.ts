@@ -129,34 +129,34 @@ function generateLiveShoppingResults(retailer: string, searchQuery: string, pref
     const style = styles[Math.floor(Math.random() * styles.length)] || 'casual';
     
     // Normalize arguments before calling generateRealisticPrice
-    const budget = (preferences?.budget ?? 'medium').toString().toLowerCase();
+    const normalizedBudget = (preferences?.budget ?? 'medium').toString().toLowerCase();
     const normalizedType = (type ?? 'tops').toString().toLowerCase();
     const normalizedRetailer = (retailer ?? 'ASOS').toString();
     
     // Generate realistic price based on budget
-    const price = generateRealisticPrice(budget, normalizedType, normalizedRetailer);
+    const price = generateRealisticPrice(normalizedBudget, normalizedType, normalizedRetailer);
     
     // Create a simple, reliable image using a placeholder URL instead of base64
     const imageUrl = `https://via.placeholder.com/300x200/${getColorHex(color).replace('#', '')}/ffffff?text=${encodeURIComponent(`${retailer} ${color} ${style}`)}`;
     
     const product = {
       id: `live-${retailer.toLowerCase()}-${i + 1}`,
-      title: `${color} ${style} ${type}`,
+      title: `${color} ${style} ${normalizedType}`,
       brand: retailer,
       retailer: retailer,
       price: price,
       currency: 'GBP',
       image: imageUrl, // Use placeholder URL instead of base64
-      url: getRetailerSearchUrl(retailer, `${color} ${style} ${type}`),
-      link: getRetailerSearchUrl(retailer, `${color} ${style} ${type}`),
+      url: getRetailerSearchUrl(retailer, `${color} ${style} ${normalizedType}`),
+      link: getRetailerSearchUrl(retailer, `${color} ${style} ${normalizedType}`),
       rating: (Math.random() * 2 + 3).toFixed(1), // 3.0 - 5.0
       reviewCount: Math.floor(Math.random() * 500) + 50,
       inStock: Math.random() > 0.2, // 80% chance of being in stock
-      tags: [color, style, type, preferences.occasion, preferences.budget],
+      tags: [color, style, normalizedType, preferences.occasion, preferences.budget],
       color: color,
       style: style,
-      type: type,
-      material: getMaterialForType(type),
+      type: normalizedType,
+      material: getMaterialForType(normalizedType),
       occasion: preferences.occasion,
       budget: preferences.budget,
       gender: preferences.gender
