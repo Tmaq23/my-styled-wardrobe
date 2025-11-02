@@ -45,3 +45,8 @@ next-env.d.ts
 
 # prisma
 /prisma/migrations/migration_lock.toml
+
+# Large directories that shouldn't be committed
+_minimal_repro/
+deploy-dist/
+node_modules.bak*/
