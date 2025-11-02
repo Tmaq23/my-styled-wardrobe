@@ -1,0 +1,42 @@
+{
+  "pages": {
+    "/_not-found/page": [
+      "static/chunks/webpack-36c4a70a6f3a9b6d.js",
+      "static/chunks/4bd1b696-cf72ae8a39fa05aa.js",
+      "static/chunks/964-7a34cadcb7695cec.js",
+      "static/chunks/main-app-0fce74e119f93319.js",
+      "static/chunks/app/_not-found/page-cc93119fcdbc514d.js"
+    ],
+    "/layout": [
+      "static/chunks/webpack-36c4a70a6f3a9b6d.js",
+      "static/chunks/4bd1b696-cf72ae8a39fa05aa.js",
+      "static/chunks/964-7a34cadcb7695cec.js",
+      "static/chunks/main-app-0fce74e119f93319.js",
+      "static/css/ad1df2047afb0dd0.css",
+      "static/chunks/app/layout-e001a75dbd4aa33a.js"
+    ],
+    "/api/analyse-wardrobe/route": [
+      "static/chunks/webpack-36c4a70a6f3a9b6d.js",
+      "static/chunks/4bd1b696-cf72ae8a39fa05aa.js",
+      "static/chunks/964-7a34cadcb7695cec.js",
+      "static/chunks/main-app-0fce74e119f93319.js",
+      "static/chunks/app/api/analyse-wardrobe/route-0c70410090f1bbf0.js"
+    ],
+    "/api/recommend/route": [
+      "static/chunks/webpack-36c4a70a6f3a9b6d.js",
+      "static/chunks/4bd1b696-cf72ae8a39fa05aa.js",
+      "static/chunks/964-7a34cadcb7695cec.js",
+      "static/chunks/main-app-0fce74e119f93319.js",
+      "static/chunks/app/api/recommend/route-0c70410090f1bbf0.js"
+    ],
+    "/page": [
+      "static/chunks/webpack-36c4a70a6f3a9b6d.js",
+      "static/chunks/4bd1b696-cf72ae8a39fa05aa.js",
+      "static/chunks/964-7a34cadcb7695cec.js",
+      "static/chunks/main-app-0fce74e119f93319.js",
+      "static/chunks/ad2866b8-8aebfe6416a21473.js",
+      "static/chunks/998-b1f5391d8eaab34b.js",
+      "static/chunks/app/page-afb4f1415ba8d036.js"
+    ]
+  }
+}

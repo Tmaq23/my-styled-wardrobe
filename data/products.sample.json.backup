@@ -1,0 +1,327 @@
+[
+  {
+    "id": "1",
+    "title": "Tailored Navy Blazer",
+    "brand": "M&S",
+    "retailer": "M&S",
+    "price": 149,
+    "currency": "£",
+    "image": "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?q=80&w=800&auto=format&fit=crop",
+    "url": "https://www.marksandspencer.com/",
+    "tags": [
+      "work",
+      "layer",
+      "structured"
+    ],
+    "paletteHint": [
+      "Winter",
+      "Summer"
+    ],
+    "shapes": [
+      "Hourglass",
+      "Rectangle",
+      "Inverted Triangle"
+    ],
+    "occasions": [
+      "Work",
+      "Smart-casual"
+    ],
+    "priceBucket": "££"
+  },
+  {
+    "id": "2",
+    "title": "Wrap Dress in Emerald",
+    "brand": "Zara",
+    "retailer": "Zara",
+    "price": 59.99,
+    "currency": "£",
+    "image": "https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=800&auto=format&fit=crop",
+    "url": "https://www.zara.com/uk/",
+    "tags": [
+      "V-neck",
+      "defined waist"
+    ],
+    "paletteHint": [
+      "Autumn",
+      "Winter"
+    ],
+    "shapes": [
+      "Hourglass",
+      "Triangle",
+      "Round",
+      "Rectangle"
+    ],
+    "occasions": [
+      "Work",
+      "Formal",
+      "Weekend"
+    ],
+    "priceBucket": "££"
+  },
+  {
+    "id": "3",
+    "title": "High-rise Wide-leg Trousers (Stone)",
+    "brand": "Next",
+    "retailer": "Next",
+    "price": 69,
+    "currency": "£",
+    "image": "https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?q=80&w=800&auto=format&fit=crop",
+    "url": "https://www.next.co.uk/shop/gender-women-productaffiliation-trousersjeans/category-trousers",
+    "tags": [
+      "elongating",
+      "neutral"
+    ],
+    "paletteHint": [
+      "Spring",
+      "Autumn",
+      "Summer"
+    ],
+    "shapes": [
+      "Triangle",
+      "Rectangle",
+      "Round"
+    ],
+    "occasions": [
+      "Work",
+      "Smart-casual"
+    ],
+    "priceBucket": "£"
+  },
+  {
+    "id": "4",
+    "title": "Crewneck Cashmere (Cobalt)",
+    "brand": "River Island",
+    "retailer": "River Island",
+    "price": 129,
+    "currency": "£",
+    "image": "https://images.unsplash.com/photo-1434389677669-e08b4cac3105?q=80&w=800&auto=format&fit=crop",
+    "url": "https://www.riverisland.com/c/women/jumpers-cardigans",
+    "tags": [
+      "pop color",
+      "layer"
+    ],
+    "paletteHint": [
+      "Winter",
+      "Summer"
+    ],
+    "shapes": [
+      "All"
+    ],
+    "occasions": [
+      "Weekend",
+      "Smart-casual"
+    ],
+    "priceBucket": "££"
+  },
+  {
+    "id": "5",
+    "title": "Fitted Turtleneck (Rich Jewel)",
+    "brand": "M&S",
+    "retailer": "M&S",
+    "price": 45,
+    "currency": "£",
+    "image": "https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?q=80&w=800&auto=format&fit=crop",
+    "url": "https://www.marksandspencer.com/",
+    "tags": [
+      "fitted",
+      "versatile"
+    ],
+    "paletteHint": [
+      "Autumn",
+      "Winter"
+    ],
+    "shapes": [
+      "Hourglass",
+      "Rectangle"
+    ],
+    "occasions": [
+      "Work",
+      "Weekend"
+    ],
+    "priceBucket": "£"
+  },
+  {
+    "id": "6",
+    "title": "High-waisted Straight-leg Jeans",
+    "brand": "Zara",
+    "retailer": "Zara",
+    "price": 49.99,
+    "currency": "£",
+    "image": "https://images.unsplash.com/photo-1542272604-787c3835535d?q=80&w=800&auto=format&fit=crop",
+    "url": "https://www.zara.com/uk/",
+    "tags": [
+      "high-waisted",
+      "elongating"
+    ],
+    "paletteHint": [
+      "All"
+    ],
+    "shapes": [
+      "Hourglass",
+      "Rectangle",
+      "Triangle"
+    ],
+    "occasions": [
+      "Weekend",
+      "Smart-casual"
+    ],
+    "priceBucket": "£"
+  },
+  {
+    "id": "7",
+    "title": "Ankle Boots (Black Leather)",
+    "brand": "Next",
+    "retailer": "Next",
+    "price": 89,
+    "currency": "£",
+    "image": "https://images.unsplash.com/photo-1549298916-b41d501d3772?q=80&w=800&auto=format&fit=crop",
+    "url": "https://www.next.co.uk/",
+    "tags": [
+      "versatile",
+      "classic"
+    ],
+    "paletteHint": [
+      "All"
+    ],
+    "shapes": [
+      "All"
+    ],
+    "occasions": [
+      "All"
+    ],
+    "priceBucket": "£"
+  },
+  {
+    "id": "8",
+    "title": "Double-breasted Coat (Camel)",
+    "brand": "M&S",
+    "retailer": "M&S",
+    "price": 199,
+    "currency": "£",
+    "image": "https://images.unsplash.com/photo-1539533113208-f6df8cc8b543?q=80&w=800&auto=format&fit=crop",
+    "url": "https://www.marksandspencer.com/",
+    "tags": [
+      "structured",
+      "timeless"
+    ],
+    "paletteHint": [
+      "Autumn",
+      "Spring"
+    ],
+    "shapes": [
+      "Hourglass",
+      "Rectangle",
+      "Inverted Triangle"
+    ],
+    "occasions": [
+      "Work",
+      "Formal"
+    ],
+    "priceBucket": "£££"
+  },
+  {
+    "id": "9",
+    "title": "Tailored Blouse (White)",
+    "brand": "Zara",
+    "retailer": "Zara",
+    "price": 39.99,
+    "currency": "£",
+    "image": "https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=800&auto=format&fit=crop",
+    "url": "https://www.zara.com/uk/",
+    "tags": [
+      "tailored",
+      "versatile"
+    ],
+    "paletteHint": [
+      "All"
+    ],
+    "shapes": [
+      "All"
+    ],
+    "occasions": [
+      "Work",
+      "Smart-casual"
+    ],
+    "priceBucket": "£"
+  },
+  {
+    "id": "10",
+    "title": "Slightly Flared Trousers (Navy)",
+    "brand": "River Island",
+    "retailer": "River Island",
+    "price": 79,
+    "currency": "£",
+    "image": "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?q=80&w=800&auto=format&fit=crop",
+    "url": "https://www.riverisland.com/",
+    "tags": [
+      "flared",
+      "comfortable"
+    ],
+    "paletteHint": [
+      "Winter",
+      "Summer"
+    ],
+    "shapes": [
+      "Hourglass",
+      "Rectangle"
+    ],
+    "occasions": [
+      "Work",
+      "Smart-casual"
+    ],
+    "priceBucket": "££"
+  },
+  {
+    "id": "11",
+    "title": "Oversized Sweater (Cream)",
+    "brand": "Next",
+    "retailer": "Next",
+    "price": 65,
+    "currency": "£",
+    "image": "https://images.unsplash.com/photo-1434389677669-e08b4cac3105?q=80&w=800&auto=format&fit=crop",
+    "url": "https://www.next.co.uk/",
+    "tags": [
+      "oversized",
+      "comfortable"
+    ],
+    "paletteHint": [
+      "Spring",
+      "Autumn"
+    ],
+    "shapes": [
+      "All"
+    ],
+    "occasions": [
+      "Weekend",
+      "Smart-casual"
+    ],
+    "priceBucket": "£"
+  },
+  {
+    "id": "12",
+    "title": "Midi Skirt (Pleated)",
+    "brand": "Zara",
+    "retailer": "Zara",
+    "price": 45.99,
+    "currency": "£",
+    "image": "https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=800&auto=format&fit=crop",
+    "url": "https://www.zara.com/uk/",
+    "tags": [
+      "pleated",
+      "feminine"
+    ],
+    "paletteHint": [
+      "Spring",
+      "Summer"
+    ],
+    "shapes": [
+      "Hourglass",
+      "Triangle"
+    ],
+    "occasions": [
+      "Weekend",
+      "Formal"
+    ],
+    "priceBucket": "£"
+  }
+]

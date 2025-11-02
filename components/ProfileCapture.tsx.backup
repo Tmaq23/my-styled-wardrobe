@@ -1,0 +1,274 @@
+"use client";
+
+import { useRef, useState } from 'react';
+import type { BodyShape } from '../lib/bodyShape';
+
+type Palette = 'Spring'|'Summer'|'Autumn'|'Winter';
+
+export default function ProfileCapture({
+	palette, shape,
+	onPalette, onShape, onAiAnalysis
+}: {
+	palette: Palette;
+	shape: BodyShape;
+	onPalette: (p: Palette)=>void;
+	onShape: (s: BodyShape)=>void;
+	onAiAnalysis?: (analysis: any)=>void;
+}) {
+	const [busy, setBusy] = useState(false);
+	const [preview, setPreview] = useState<string | null>(null);
+	const [err, setErr] = useState<string | null>(null);
+	const [analysisComplete, setAnalysisComplete] = useState(false);
+	const [debugInfo, setDebugInfo] = useState<string>('');
+	const fileRef = useRef<HTMLInputElement>(null);
+
+	async function onFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+		const f = e.target.files?.[0];
+		if (!f) return;
+		
+		// Clear previous analysis completely
+		setPreview(URL.createObjectURL(f));
+		setAnalysisComplete(false);
+		setDebugInfo('');
+		setErr(null);
+		
+		// Force a small delay to ensure state is cleared before new analysis
+		setTimeout(() => {
+			analyzeWithAI(f);
+		}, 100);
+	}
+
+	async function analyzeWithAI(file: File) {
+		setBusy(true); 
+		setErr(null);
+		setDebugInfo('');
+		
+		try {
+			// Convert image to base64 for API
+			const base64Image = await fileToBase64(file);
+			
+			// Call our AI analysis API
+			const response = await fetch('/api/analyze-body', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({
+					image: base64Image,
+					filename: file.name
+				})
+			});
+
+			if (!response.ok) {
+				throw new Error(`Analysis failed: ${response.statusText}`);
+			}
+
+			const result = await response.json();
+			
+			// Set debug information
+			const debug = `AI Analysis Results:
+Body Shape: ${result.bodyShape}
+Color Palette: ${result.colorPalette}
+Confidence: ${result.confidence}%
+Analysis: ${result.analysis}`;
+			
+			setDebugInfo(debug);
+			
+			// Update state with AI results
+			onPalette(result.colorPalette);
+			onShape(result.bodyShape);
+			setAnalysisComplete(true);
+			
+			// Notify parent component of AI analysis results
+			if (onAiAnalysis) {
+				onAiAnalysis(result);
+			}
+			
+			console.log('AI analysis complete:', result);
+			
+		} catch (e:any) {
+			setErr(e.message || 'AI analysis failed');
+		} finally {
+			setBusy(false);
+		}
+	}
+
+	// Helper function to convert file to base64
+	function fileToBase64(file: File): Promise<string> {
+		return new Promise((resolve, reject) => {
+			const reader = new FileReader();
+			reader.readAsDataURL(file);
+			reader.onload = () => {
+				const base64 = reader.result as string;
+				// Remove the data:image/jpeg;base64, prefix
+				const base64Data = base64.split(',')[1];
+				resolve(base64Data);
+			};
+			reader.onerror = error => reject(error);
+		});
+	}
+
+	return (
+		<div className="card section compact-section">
+			<h3 style={{ marginBottom: '12px', fontSize: '16px', fontWeight: '600' }}>
+				🤖 AI-Powered Profile Analysis
+			</h3>
+			
+			<div style={{ marginBottom: '12px' }}>
+				<label>Upload Full-Body Picture</label>
+				<input 
+					ref={fileRef} 
+					className="input" 
+					type="file" 
+					accept="image/*" 
+					onChange={onFileChange}
+					style={{ marginTop: '6px' }}
+				/>
+				<div style={{ 
+					marginTop: '6px', 
+					fontSize: '12px', 
+					color: 'var(--apple-text-secondary)' 
+				}}>
+					AI will analyze your body shape and color palette from the image
+				</div>
+				<div style={{ 
+					marginTop: '4px', 
+					fontSize: '11px', 
+					color: 'var(--apple-text-secondary)',
+					lineHeight: '1.3'
+				}}>
+					💡 <strong>Tips:</strong> Use a clear, full-body photo with good lighting. Avoid group photos, blurry images, or photos with inappropriate content.
+				</div>
+			</div>
+
+			{preview && (
+				<div style={{ marginBottom: '12px' }}>
+					<label>Preview</label>
+					<div style={{ 
+						position: 'relative', 
+						marginTop: '6px',
+						borderRadius: '8px',
+						overflow: 'hidden',
+						border: '2px solid var(--apple-border)'
+					}}>
+						<img 
+							src={preview} 
+							alt="preview" 
+							style={{
+								width: '100%', 
+								height: 'auto',
+								display: 'block'
+							}} 
+						/>
+						{analysisComplete && (
+							<div style={{
+								position: 'absolute',
+								top: '8px',
+								right: '8px',
+								background: 'rgba(52, 199, 89, 0.9)',
+								color: 'white',
+								padding: '4px 8px',
+								borderRadius: '12px',
+								fontSize: '11px',
+								fontWeight: '600'
+							}}>
+								✅ AI Analyzed
+							</div>
+						)}
+					</div>
+				</div>
+			)}
+
+			<div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+				<button 
+					className="button" 
+					disabled={!fileRef.current?.files?.[0] || busy} 
+					onClick={() => analyzeWithAI(fileRef.current!.files![0])}
+					style={{ minWidth: '120px', padding: '8px 12px', fontSize: '13px' }}
+				>
+					{busy ? '🤖 AI Analyzing...' : '🔄 Re-analyze with AI'}
+				</button>
+				
+				{err && (
+					<div className="status error">
+						❌ {err}
+						<button 
+							onClick={() => analyzeWithAI(fileRef.current!.files![0])}
+							style={{
+								marginLeft: '8px',
+								background: 'none',
+								border: '1px solid currentColor',
+								borderRadius: '4px',
+								padding: '2px 6px',
+								fontSize: '10px',
+								color: 'inherit',
+								cursor: 'pointer'
+							}}
+						>
+							Retry
+						</button>
+					</div>
+				)}
+				
+				{analysisComplete && !err && (
+					<div className="status success">
+						✅ AI analysis complete
+					</div>
+				)}
+			</div>
+
+			{analysisComplete && (
+				<div style={{
+					marginTop: '12px',
+					padding: '12px',
+					background: 'rgba(0, 122, 255, 0.05)',
+					borderRadius: '8px',
+					border: '1px solid rgba(0, 122, 255, 0.2)'
+				}}>
+					<div style={{ 
+						fontSize: '12px', 
+						color: 'var(--apple-text-secondary)',
+						marginBottom: '6px'
+					}}>
+						AI Analysis Results:
+					</div>
+					<div style={{ 
+						display: 'flex', 
+						gap: '12px', 
+						flexWrap: 'wrap',
+						fontSize: '13px',
+						marginBottom: '8px'
+					}}>
+						<span><strong>Palette:</strong> {palette}</span>
+						<span><strong>Body Shape:</strong> {shape}</span>
+					</div>
+					
+					{debugInfo && (
+						<details style={{ marginTop: '8px' }}>
+							<summary style={{ 
+								fontSize: '11px', 
+								color: 'var(--apple-text-secondary)',
+								cursor: 'pointer',
+								userSelect: 'none'
+							}}>
+								🔍 Show AI Analysis Details
+							</summary>
+							<pre style={{
+								fontSize: '10px',
+								color: 'var(--apple-text-secondary)',
+								background: 'rgba(0,0,0,0.05)',
+								padding: '8px',
+								borderRadius: '4px',
+								marginTop: '6px',
+								whiteSpace: 'pre-wrap',
+								fontFamily: 'monospace'
+							}}>
+								{debugInfo}
+							</pre>
+						</details>
+					)}
+				</div>
+			)}
+		</div>
+	);
+}

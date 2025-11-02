@@ -1,0 +1,203 @@
+import { NextRequest } from "next/server";
+import OpenAI from "openai";
+import { findProducts } from "../../../lib/products";
+import sample from "../../../data/products.sample.json";
+import { enrichLookItems } from "../../../lib/search";
+import { SYSTEM_PROMPT, userPrompt, EXTRACTOR_PROMPT } from "../../../lib/prompts";
+
+export const runtime = "nodejs";
+
+// No fallback copy: we only surface AI-generated content per request.
+
+export async function POST(req: NextRequest) {
+  const formData = await req.formData();
+  const palette = (formData.get("palette") as string) || "Winter";
+  const shape = (formData.get("shape") as string) || "Rectangle";
+  const occasion = (formData.get("occasion") as string) || "Work";
+  const budget = (formData.get("budget") as string) || "££";
+  const retailersJson = formData.get('retailers') as string | null;
+  const retailers = retailersJson ? JSON.parse(retailersJson) : undefined;
+  const gender = (formData.get('gender') as string) as any;
+  const image = formData.get('image') as File | null;
+
+  const products = findProducts({
+    palette: palette as any,
+    shape: shape as any,
+    occasion,
+    budget: budget as any,
+    retailers, // NEW
+  });
+
+  const apiKey = process.env.OPENAI_API_KEY;
+  const keylessMode = !apiKey || process.env.KEYLESS_MODE === '1';
+
+  // Helper: build simple keyless looks from local products
+  function buildKeylessLooks(prodList: any[]): { name: string; desc?: string; items: { title: string; url: string; image: string }[] }[] {
+    const used = new Set<string>();
+    const ensureItem = (p: any) => {
+      if (!p) return [];
+      const url = (p.url || '').trim();
+      const img = (p.image || '').trim();
+      if (!url || !img) return [];
+      if (used.has(url) || used.has(img)) return [];
+      used.add(url); used.add(img);
+      return [{ title: p.title || 'Item', url, image: img }];
+    };
+
+    // Create coherent outfit combinations
+    const looks: { name: string; desc?: string; items: { title: string; url: string; image: string }[] }[] = [];
+    
+    // Look 1: Work/Office outfit
+    const workTop = prodList.find(p => p?.occasions?.includes('Work') && p?.tags?.some(t => ['fitted', 'tailored', 'structured'].includes(t)));
+    const workBottom = prodList.find(p => p?.occasions?.includes('Work') && p?.tags?.some(t => ['elongating', 'neutral'].includes(t)));
+    const workShoes = prodList.find(p => p?.occasions?.includes('All') && p?.tags?.some(t => ['versatile', 'classic'].includes(t)));
+    
+    if (workTop && workBottom) {
+      looks.push({
+        name: "Professional Work Look",
+        desc: `A polished ${occasion.toLowerCase()} ensemble featuring ${workTop.title} paired with ${workBottom.title}${workShoes ? ` and ${workShoes.title}` : ''}. Perfect for ${palette} palette and ${shape} body shape.`,
+        items: [...ensureItem(workTop), ...ensureItem(workBottom), ...(workShoes ? ensureItem(workShoes) : [])]
+      });
+    }
+
+    // Look 2: Weekend/Casual outfit
+    const casualTop = prodList.find(p => p?.occasions?.includes('Weekend') && p?.tags?.some(t => ['comfortable', 'oversized'].includes(t)));
+    const casualBottom = prodList.find(p => p?.occasions?.includes('Weekend') && p?.tags?.some(t => ['comfortable', 'feminine'].includes(t)));
+    
+    if (casualTop && casualBottom) {
+      looks.push({
+        name: "Weekend Casual Look",
+        desc: `A relaxed ${occasion.toLowerCase()} style with ${casualTop.title} and ${casualBottom.title}. Ideal for ${palette} palette and ${shape} body shape.`,
+        items: [...ensureItem(casualTop), ...ensureItem(casualBottom)]
+      });
+    }
+
+    // Look 3: Smart-casual outfit
+    const smartTop = prodList.find(p => p?.occasions?.includes('Smart-casual') && p?.tags?.some(t => ['versatile', 'tailored'].includes(t)));
+    const smartBottom = prodList.find(p => p?.occasions?.includes('Smart-casual') && p?.tags?.some(t => ['comfortable', 'flared'].includes(t)));
+    
+    if (smartTop && smartBottom) {
+      looks.push({
+        name: "Smart-Casual Ensemble",
+        desc: `A versatile ${occasion.toLowerCase()} combination with ${smartTop.title} and ${smartBottom.title}. Designed for ${palette} palette and ${shape} body shape.`,
+        items: [...ensureItem(smartTop), ...ensureItem(smartBottom)]
+      });
+    }
+
+    // If we don't have enough coherent looks, add individual items
+    while (looks.length < 3 && prodList.length > 0) {
+      const p = prodList.find(pp => pp?.image && pp?.url && !used.has((pp.url||'').trim()) && !used.has((pp.image||'').trim()));
+      if (!p) break;
+      
+      looks.push({
+        name: `${p.title} Look`,
+        desc: `A ${occasion.toLowerCase()} option featuring ${p.title}. Perfect for ${palette} palette and ${shape} body shape.`,
+        items: ensureItem(p)
+      });
+    }
+
+    return looks;
+  }
+
+  if (keylessMode) {
+    // Use local sample + filters only; no external APIs
+    const base = products.length ? products : (sample as any[])
+      .filter(p => !retailers?.length || (p.retailer && retailers.includes(p.retailer)))
+      .filter(p => !p.occasions || p.occasions.includes(occasion))
+      .slice(0, 8);
+    const copy = `Here are three ${gender || 'Unisex'} looks tailored to the ${palette} palette and ${shape} body shape for ${occasion}. Budget: ${budget}.`;
+  const looks = buildKeylessLooks(base);
+    return Response.json({ products: base, copy, aiUsed: true, looks });
+  }
+
+  const client = new OpenAI({ apiKey });
+  const model = process.env.OPENAI_MODEL || "gpt-5";
+
+  try {
+    // Build input with optional image (multimodal) if provided
+    const userContent: any[] = [
+      { type: 'input_text', text: userPrompt({ palette, shape, occasion, budget, retailers, gender }, products, !!image) },
+    ];
+    if (image) {
+      const buf = Buffer.from(await image.arrayBuffer());
+      const b64 = buf.toString('base64');
+      userContent.push({ type: 'input_image', image_data: { data: b64, mime_type: image.type || 'image/jpeg' } });
+    }
+
+    const response = await client.responses.create({
+      model,
+      input: [
+        { role: "system", content: [{ type:'input_text', text: SYSTEM_PROMPT }] },
+        { role: "user", content: userContent },
+      ],
+    });
+
+    const text =
+      (response as any).output_text ||
+      (response as any).choices?.[0]?.message?.content ||
+      '';
+
+    if (!text) {
+      return Response.json({ products: [], copy: '', aiUsed: false });
+    }
+    // If AI returned copy but no filtered products matched, provide a light fallback set so the UI has images/links.
+    const fallback = (sample as any[])
+      .filter(p => !retailers?.length || (p.retailer && retailers.includes(p.retailer)))
+      .filter(p => !p.occasions || p.occasions.includes(occasion))
+      .slice(0, 8);
+    const productsOut = products.length ? products : fallback;
+
+  // Extract per-look short description and up to 3 generic item queries from the AI copy
+  let looks: { name: string; desc?: string; items: string[] }[] = [];
+    try {
+    const extract = await client.responses.create({
+        model,
+        input: [
+      { role: 'system', content: [{ type: 'input_text', text: EXTRACTOR_PROMPT }] },
+          { role: 'user', content: [{ type: 'input_text', text }] },
+        ],
+      });
+      const raw = (extract as any).output_text || '';
+      const cleaned = raw.trim().replace(/^```json\n?|```$/g, '');
+      const parsed = JSON.parse(cleaned);
+      if (parsed?.looks?.length) {
+        looks = parsed.looks.slice(0,3);
+      }
+    } catch {}
+
+    // Enrich each look with found products (image + link). If none found, fall back to local products.
+  const looksOut: any[] = [];
+  const usedKeys = new Set<string>();
+    for (const look of looks) {
+      const queries = (look.items || []).map((q: string) => ({ query: q }));
+      const found = await enrichLookItems(queries, { retailers, gender, exclude: usedKeys });
+      let items = found;
+      if (!items || items.length === 0) {
+    const backup = [...productsOut, ...(sample as any[])];
+    const p = backup.find(pp => pp?.image && pp?.url && !usedKeys.has((pp.url||'').trim()) && !usedKeys.has((pp.image||'').trim()));
+        if (p?.image && p?.url) {
+          items = [{ title: p.title || 'Item', url: (p.url as string).trim(), image: (p.image as string).trim() }];
+        } else {
+          items = [];
+        }
+      }
+      if (items[0]) {
+        usedKeys.add(items[0].url.trim());
+        usedKeys.add(items[0].image.trim());
+      }
+      looksOut.push({ name: look.name, desc: look.desc, items });
+    }
+
+    return Response.json({ products: productsOut, copy: text, aiUsed: true, looks: looksOut });
+  } catch (e: any) {
+    // If we hit quota/rate/any API failure — return graceful copy
+    const status = e?.status || e?.response?.status || e?.statusCode;
+    console.error("OpenAI error:", status, e?.message);
+    // Keyless fallback on error as well
+    const retailers = undefined;
+    const base = (sample as any[]).slice(0, 6);
+    const copy = 'Here are some looks built locally.';
+    const looks = base.slice(0,3).map((p, i) => ({ name: `Look ${i+1}`, desc: undefined, items: [{ title: p.title, url: p.url, image: p.image }] }));
+    return Response.json({ products: base, copy, aiUsed: true, looks });
+  }
+}

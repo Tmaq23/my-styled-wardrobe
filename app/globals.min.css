@@ -1,0 +1,2 @@
+:root { --bg: #fff; --text:#111; font-family: system-ui; }
+html,body{margin:0;padding:0;background:var(--bg);color:var(--text);}

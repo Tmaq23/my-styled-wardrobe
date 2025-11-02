@@ -1,0 +1,397 @@
+'use client';
+
+import { useState } from 'react';
+import Image from 'next/image';
+
+import { PaletteSwatches } from '../components/PaletteSwatches';
+import { OutfitCard } from '../components/OutfitCard';
+import { detectBodyShape } from '../lib/bodyShape';
+import ProfileCapture from '../components/ProfileCapture';
+import WardrobeUploader from '../components/WardrobeUploader';
+import OutfitBoard from '../components/OutfitBoard';
+
+type Palette =
+  | 'Spring' | 'Summer' | 'Autumn' | 'Winter';
+
+const defaultSwatches: Record<Palette, string[]> = {
+  Spring: ['#f7d6a1','#ffe9c9','#f6aa1c','#6cc551','#70c9e8','#f77aa1'],
+  Summer: ['#e5d4ff','#c8d4f0','#a3c1d1','#90b4c1','#f3b0c3','#9abf8f'],
+  Autumn: ['#f2c792','#e2a36b','#c27b48','#6c8a45','#8f5d3f','#3f5a5a'],
+  Winter: ['#f2f2f2','#c9d6ff','#3a86ff','#8338ec','#ff006e','#0b0c0e'],
+};
+
+export default function Page() {
+  const [file, setFile] = useState<File | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
+  const [palette, setPalette] = useState<Palette>('Winter');
+  const [shape, setShape] = useState<'Hourglass'|'Triangle'|'Inverted Triangle'|'Rectangle'|'Round'>('Rectangle');
+  const [occasion, setOccasion] = useState<'Work'|'Smart-casual'|'Formal'|'Weekend'>('Work');
+  const [budget, setBudget] = useState<'£'|'££'|'£££'>('££');
+  const [gender, setGender] = useState<'Women'|'Men'|'Unisex'>('Women');
+  const [results, setResults] = useState<any[]>([]);
+  const [copy, setCopy] = useState<string>('');
+  const [loadingRecs, setLoadingRecs] = useState(false);
+  const [aiUsed, setAiUsed] = useState(false);
+  const [looks, setLooks] = useState<any[]>([]);
+  const [retailers, setRetailers] = useState<string[]>(['Next','River Island','M&S','Zara']);
+  const [wardrobe, setWardrobe] = useState<File[]>([]);
+  const [boardBg, setBoardBg] = useState('#efe8df');
+  
+  // AI Analysis state
+  const [aiAnalysis, setAiAnalysis] = useState<{
+    bodyShape: string;
+    colorPalette: string;
+    confidence: number;
+    analysis: string;
+  } | null>(null);
+
+  function toggleRetailer(name: string) {
+    setRetailers((cur) => cur.includes(name) ? cur.filter(x => x!==name) : [...cur, name]);
+  }
+
+  function handleAiAnalysis(analysis: any) {
+    setAiAnalysis(analysis);
+    // Update local state with AI results
+    if (analysis.bodyShape) setShape(analysis.bodyShape as any);
+    if (analysis.colorPalette) setPalette(analysis.colorPalette as any);
+  }
+
+  function onUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const f = e.target.files?.[0];
+    if (!f) return;
+    setFile(f);
+    const url = URL.createObjectURL(f);
+    setPreview(url);
+  }
+
+  async function getRecs() {
+    setLoadingRecs(true);
+    setAiUsed(false);
+    setResults([]);
+    setCopy('');
+    setLooks([]);
+    const body = new FormData();
+    if (file) body.append('image', file);
+    body.append('palette', palette);
+    body.append('shape', shape);
+    body.append('occasion', occasion);
+    body.append('budget', budget);
+    body.append('gender', gender);
+    body.append('retailers', JSON.stringify(retailers));
+    const res = await fetch('/api/recommend', { method: 'POST', body });
+    const json = await res.json();
+    setResults((json.aiUsed ? json.products : []) || []);
+    setCopy(json.aiUsed ? (json.copy || '') : '');
+    setAiUsed(!!json.aiUsed);
+    setLooks(Array.isArray(json.looks) ? json.looks : []);
+    setLoadingRecs(false);
+  }
+
+  const analysisComplete = aiAnalysis !== null;
+
+  return (
+    <div className="container">
+      <div className="header">
+        <div className="logo">MSW</div>
+        <div>
+          <h1>My Styled Wardrobe</h1>
+          <div className="subtitle">Personal colour & fit analysis for instant outfit inspiration</div>
+        </div>
+      </div>
+
+      {/* Compact 3-column layout for main sections */}
+      <div className="compact-grid">
+        <ProfileCapture
+          palette={palette as any}
+          shape={shape as any}
+          onPalette={setPalette as any}
+          onShape={setShape as any}
+          onAiAnalysis={handleAiAnalysis}
+        />
+
+        <WardrobeUploader onChange={setWardrobe} />
+
+        <div className="card section compact-section">
+          <h3 style={{ marginBottom: '16px', fontSize: '18px', fontWeight: '600' }}>
+            🛍️ Shop Preferences
+          </h3>
+
+          {/* Palette and Body Shape in one row */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+            <div>
+              <label>Palette</label>
+              <div style={{ display: 'flex', gap: '6px', margin: '6px 0 8px', flexWrap: 'wrap' }}>
+                {(['Spring','Summer','Autumn','Winter'] as Palette[]).map(p => (
+                  <button 
+                    key={p} 
+                    onClick={() => setPalette(p)} 
+                    className={`button ${palette === p ? '' : 'secondary'}`}
+                    style={{ padding: '8px 12px', fontSize: '13px' }}
+                  >
+                    {p}
+                  </button>
+                ))}
+              </div>
+              <PaletteSwatches colors={defaultSwatches[palette]} />
+            </div>
+
+            <div>
+              <label>Body Shape</label>
+              <div style={{ display: 'flex', gap: '6px', margin: '6px 0 8px', flexWrap: 'wrap' }}>
+                {['Hourglass','Triangle','Inverted Triangle','Rectangle','Round'].map((s) => (
+                  <button 
+                    key={s} 
+                    onClick={() => setShape(s as any)} 
+                    className={`button ${shape === s ? '' : 'secondary'}`}
+                    style={{ padding: '8px 12px', fontSize: '13px' }}
+                  >
+                    {s}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Quick selection row */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+            <div>
+              <label>Occasion</label>
+              <div style={{ display: 'flex', gap: '6px', margin: '6px 0 8px', flexWrap: 'wrap' }}>
+                {['Work','Smart-casual','Formal','Weekend'].map((o) => (
+                  <button 
+                    key={o} 
+                    onClick={() => setOccasion(o as any)} 
+                    className={`button ${occasion === o ? '' : 'secondary'}`}
+                    style={{ padding: '6px 10px', fontSize: '12px' }}
+                  >
+                    {o}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label>Budget</label>
+              <div style={{ display: 'flex', gap: '6px', margin: '6px 0 8px', flexWrap: 'wrap' }}>
+                {['£','££','£££'].map((b) => (
+                  <button 
+                    key={b} 
+                    onClick={() => setBudget(b as any)} 
+                    className={`button ${budget === b ? '' : 'secondary'}`}
+                    style={{ padding: '6px 10px', fontSize: '12px' }}
+                  >
+                    {b}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label>Gender</label>
+              <div style={{ display: 'flex', gap: '6px', margin: '6px 0 8px', flexWrap: 'wrap' }}>
+                {(['Women','Men','Unisex'] as const).map((g) => (
+                  <button 
+                    key={g} 
+                    onClick={() => setGender(g)} 
+                    className={`button ${gender === g ? '' : 'secondary'}`}
+                    style={{ padding: '6px 10px', fontSize: '12px' }}
+                  >
+                    {g}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Retailers in compact format */}
+          <div>
+            <label>Retailers</label>
+            <div style={{ display: 'flex', gap: '6px', margin: '6px 0 16px', flexWrap: 'wrap' }}>
+              {['Next','River Island','M&S','Zara'].map(r => (
+                <button
+                  key={r}
+                  onClick={() => toggleRetailer(r)}
+                  className={`button ${retailers.includes(r) ? '' : 'secondary'}`}
+                  style={{ padding: '6px 10px', fontSize: '12px' }}
+                  type="button"
+                >
+                  {r}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <button 
+            className="button" 
+            onClick={getRecs} 
+            disabled={loadingRecs}
+            style={{ width: '100%' }}
+          >
+            {loadingRecs ? 'Analyzing...' : 'Get Recommendations'}
+          </button>
+        </div>
+      </div>
+
+      {/* Results Section */}
+      {analysisComplete || aiUsed ? (
+        <div className="section">
+          <h2>Your Personalized Looks</h2>
+          
+          {/* AI Analysis Summary */}
+          {aiAnalysis && (
+            <div className="ai-summary">
+              <div className="summary-grid">
+                <div className="summary-item">
+                  <span className="label">Body Shape:</span>
+                  <span className="value">{aiAnalysis.bodyShape}</span>
+                </div>
+                <div className="summary-item">
+                  <span className="label">Color Palette:</span>
+                  <span className="value">{aiAnalysis.colorPalette}</span>
+                </div>
+                <div className="summary-item">
+                  <span className="label">Confidence:</span>
+                  <span className="value">{aiAnalysis.confidence}%</span>
+                </div>
+              </div>
+              {aiAnalysis.analysis && (
+                <div className="analysis-text">
+                  <p>{aiAnalysis.analysis}</p>
+                </div>
+              )}
+              
+              {/* Get Recommendations Button */}
+              <div style={{ marginTop: '20px', textAlign: 'center' }}>
+                <button 
+                  className="button" 
+                  onClick={getRecs} 
+                  disabled={loadingRecs}
+                  style={{ 
+                    background: 'var(--apple-accent)', 
+                    color: 'white',
+                    border: 'none',
+                    padding: '12px 24px',
+                    borderRadius: 'var(--apple-radius)',
+                    fontSize: '16px',
+                    fontWeight: '500',
+                    cursor: 'pointer',
+                    transition: 'var(--apple-transition)'
+                  }}
+                >
+                  {loadingRecs ? 'Getting Recommendations...' : 'Get Clothing Recommendations'}
+                </button>
+              </div>
+            </div>
+          )}
+          
+          {loadingRecs && (
+            <div className="grid" style={{ marginTop: '12px' }}>
+              <div className="skeleton" style={{ height: '200px' }} />
+              <div className="skeleton" style={{ height: '200px' }} />
+              <div className="skeleton" style={{ height: '200px' }} />
+              <div className="skeleton" style={{ height: '200px' }} />
+            </div>
+          )}
+          
+          {aiUsed && (
+            <>
+              {copy && (
+                <div style={{ 
+                  background: 'rgba(0, 122, 255, 0.05)', 
+                  border: '1px solid rgba(0, 122, 255, 0.2)', 
+                  borderRadius: '8px', 
+                  padding: '12px', 
+                  marginBottom: '16px',
+                  color: 'var(--apple-text)',
+                  lineHeight: '1.4',
+                  fontSize: '14px'
+                }}>
+                  {copy}
+                </div>
+              )}
+              
+              {looks && looks.length > 0 && (
+                <div className="outfits-section">
+                  <h3>Complete Outfits</h3>
+                  <div className="outfits-grid">
+                    {looks.map((look, index) => (
+                      <div key={index} className="outfit-card">
+                        <div className="outfit-images">
+                          {look.items.map((item, itemIndex) => (
+                            <div key={itemIndex} className="outfit-item">
+                              <img src={item.image} alt={item.title} />
+                              <div className="item-overlay">
+                                <span className="item-title">{item.title}</span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                        <div className="outfit-details">
+                          <h4>{look.name}</h4>
+                          {look.desc && <p>{look.desc}</p>}
+                          <div className="outfit-actions">
+                            {look.items.map((item, itemIndex) => (
+                              <a 
+                                key={itemIndex}
+                                href={item.url} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="view-item-btn"
+                              >
+                                View {item.title}
+                              </a>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {results.length > 0 && (
+                <div className="products-section">
+                  <h3>Individual Pieces</h3>
+                  <div className="products-grid">
+                    {results.map((p) => <OutfitCard key={p.id} product={p} />)}
+                  </div>
+                </div>
+              )}
+
+              {/* Style Board */}
+              <div className="style-board">
+                <h3>Your Style Board</h3>
+                <div className="board-items">
+                  {results.slice(0, 6).map((product, index) => (
+                    <div key={index} className="board-item">
+                      <img src={product.image} alt={product.title} />
+                      <div className="item-info">
+                        <span className="item-title">{product.title}</span>
+                        <span className="item-price">{product.currency}{product.price}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <button className="export-btn">Export Board</button>
+              </div>
+            </>
+          )}
+        </div>
+      ) : null}
+
+      {/* Compact tip section */}
+      <div style={{
+        textAlign: 'center',
+        padding: '16px',
+        background: 'rgba(0, 122, 255, 0.05)',
+        borderRadius: '8px',
+        border: '1px solid rgba(0, 122, 255, 0.1)',
+        marginTop: '20px'
+      }}>
+        <p style={{ color: 'var(--apple-text-secondary)', margin: 0, fontSize: '14px' }}>
+          💡 <strong>Pro tip:</strong> Experiment with different palettes and body shapes to discover new style combinations!
+        </p>
+      </div>
+    </div>
+  );
+}

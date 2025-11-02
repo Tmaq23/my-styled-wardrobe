@@ -1,0 +1,212 @@
+{
+  "templates": [
+    {
+      "id": "professional-work",
+      "name": "Professional Work Outfit",
+      "occasion": "Work",
+      "description": "A sophisticated and polished look perfect for the office or business meetings",
+      "items": [
+        {
+          "category": "Blazer",
+          "description": "Tailored blazer in a neutral tone",
+          "styling": "Choose a well-fitted blazer that enhances your silhouette"
+        },
+        {
+          "category": "Blouse",
+          "description": "Classic button-up or silk blouse",
+          "styling": "Opt for colours that complement your seasonal palette"
+        },
+        {
+          "category": "Trousers",
+          "description": "Tailored trousers or pencil skirt",
+          "styling": "Select cuts that flatter your body shape"
+        },
+        {
+          "category": "Shoes",
+          "description": "Classic pumps or loafers",
+          "styling": "Comfortable yet elegant footwear in neutral tones"
+        },
+        {
+          "category": "Accessories",
+          "description": "Minimal jewellery and structured handbag",
+          "styling": "Keep accessories simple and professional"
+        }
+      ],
+      "image": "/templates/professional-work.jpg"
+    },
+    {
+      "id": "casual-weekend",
+      "name": "Casual Weekend Look",
+      "occasion": "Casual",
+      "description": "Relaxed and comfortable outfit perfect for weekend activities",
+      "items": [
+        {
+          "category": "Top",
+          "description": "Casual t-shirt or knit jumper",
+          "styling": "Choose comfortable fabrics in your best colours"
+        },
+        {
+          "category": "Bottoms",
+          "description": "Well-fitted jeans or casual trousers",
+          "styling": "Select a cut that flatters your body shape"
+        },
+        {
+          "category": "Jacket",
+          "description": "Denim jacket or casual blazer",
+          "styling": "Layer for versatility and style"
+        },
+        {
+          "category": "Shoes",
+          "description": "Trainers or ankle boots",
+          "styling": "Comfortable footwear for day-long activities"
+        },
+        {
+          "category": "Accessories",
+          "description": "Crossbody bag and sunglasses",
+          "styling": "Practical accessories that complement your look"
+        }
+      ],
+      "image": "/templates/casual-weekend.jpg"
+    },
+    {
+      "id": "evening-formal",
+      "name": "Evening Formal Attire",
+      "occasion": "Formal",
+      "description": "Elegant and sophisticated look for formal events and special occasions",
+      "items": [
+        {
+          "category": "Dress",
+          "description": "Cocktail dress or elegant jumpsuit",
+          "styling": "Choose a silhouette that enhances your best features"
+        },
+        {
+          "category": "Outerwear",
+          "description": "Elegant coat or wrap",
+          "styling": "Coordinate with your dress colour palette"
+        },
+        {
+          "category": "Shoes",
+          "description": "Heeled sandals or pumps",
+          "styling": "Elegant footwear that complements your outfit"
+        },
+        {
+          "category": "Accessories",
+          "description": "Statement jewellery and clutch bag",
+          "styling": "Elevate your look with carefully chosen accessories"
+        },
+        {
+          "category": "Beauty",
+          "description": "Polished hair and makeup",
+          "styling": "Complete the look with refined beauty choices"
+        }
+      ],
+      "image": "/templates/evening-formal.jpg"
+    },
+    {
+      "id": "smart-casual",
+      "name": "Smart Casual Ensemble",
+      "occasion": "Smart Casual",
+      "description": "Perfect balance between professional and relaxed for various social settings",
+      "items": [
+        {
+          "category": "Top",
+          "description": "Smart blouse or fitted shirt",
+          "styling": "Choose refined tops in complementary colours"
+        },
+        {
+          "category": "Bottoms",
+          "description": "Chinos or smart jeans",
+          "styling": "Well-fitted trousers in neutral or seasonal tones"
+        },
+        {
+          "category": "Layer",
+          "description": "Cardigan or lightweight blazer",
+          "styling": "Add sophistication with layering pieces"
+        },
+        {
+          "category": "Shoes",
+          "description": "Loafers or smart ankle boots",
+          "styling": "Polished footwear that's comfortable"
+        },
+        {
+          "category": "Accessories",
+          "description": "Watch and leather bag",
+          "styling": "Refined accessories to complete the look"
+        }
+      ],
+      "image": "/templates/smart-casual.jpg"
+    },
+    {
+      "id": "date-night",
+      "name": "Date Night Outfit",
+      "occasion": "Date",
+      "description": "Romantic and stylish look perfect for an evening out",
+      "items": [
+        {
+          "category": "Dress/Top",
+          "description": "Flattering dress or stylish top",
+          "styling": "Choose pieces that make you feel confident"
+        },
+        {
+          "category": "Bottoms",
+          "description": "If not dress: elegant trousers or skirt",
+          "styling": "Select cuts that enhance your silhouette"
+        },
+        {
+          "category": "Shoes",
+          "description": "Heels or stylish flats",
+          "styling": "Comfortable yet elegant footwear"
+        },
+        {
+          "category": "Outerwear",
+          "description": "Elegant jacket or coat",
+          "styling": "Coordinate with your overall colour scheme"
+        },
+        {
+          "category": "Accessories",
+          "description": "Delicate jewellery and evening bag",
+          "styling": "Subtle accessories that add sophistication"
+        }
+      ],
+      "image": "/templates/date-night.jpg"
+    },
+    {
+      "id": "active-lifestyle",
+      "name": "Active Lifestyle Look",
+      "occasion": "Active",
+      "description": "Comfortable and functional outfit for active pursuits and exercise",
+      "items": [
+        {
+          "category": "Top",
+          "description": "Performance t-shirt or sports top",
+          "styling": "Breathable fabrics in flattering cuts"
+        },
+        {
+          "category": "Bottoms",
+          "description": "Leggings or sports trousers",
+          "styling": "Supportive and comfortable activewear"
+        },
+        {
+          "category": "Layer",
+          "description": "Zip-up hoodie or sports jacket",
+          "styling": "Functional layering for temperature control"
+        },
+        {
+          "category": "Shoes",
+          "description": "Quality trainers",
+          "styling": "Proper support for your chosen activity"
+        },
+        {
+          "category": "Accessories",
+          "description": "Sports bag and water bottle",
+          "styling": "Practical accessories for active lifestyle"
+        }
+      ],
+      "image": "/templates/active-lifestyle.jpg"
+    }
+  ]
+}
+
+
+
+

@@ -1,0 +1,40 @@
+import type { Product } from './products';
+
+export const SYSTEM_PROMPT = `You are an upbeat personal stylist. Write precise outfit advice aligned with the provided preferences and product list.
+Rules:
+- Strictly respect the user's seasonal palette, body shape, occasion, budget, retailer scope, and gender presentation.
+- If a photo is provided, align silhouettes and vibe to it; do not describe the person beyond clothing/fit context.
+- Build 2–3 concise looks. Each look: 1 sentence outfit + 1 sentence rationale. No more than 3–4 items per look.
+- Only reference items from the provided list by generic name (e.g., “navy blazer”) without inventing SKUs.
+- No markdown, no bullet code fences, no JSON. Plain sentences only.`;
+
+export function userPrompt(
+  info: { palette: string; shape: string; occasion: string; budget: string; retailers?: string[]; gender?: 'Women'|'Men'|'Unisex' },
+  products: Product[],
+  hasPhoto: boolean
+) {
+  const { palette, shape, occasion, budget, retailers, gender } = info;
+  const header = `User: palette=${palette}; shape=${shape}; occasion=${occasion}; budget=${budget}`
+    + (gender ? `; gender=${gender}` : '')
+    + (retailers?.length ? `; retailers in scope=${retailers.join(', ')}` : '')
+    + (hasPhoto ? '; photo=provided' : '');
+
+  const catalog = products.map(p => {
+    const bits = [
+      p.title,
+      p.brand ? `brand: ${p.brand}` : '',
+      p.retailer ? `retailer: ${p.retailer}` : '',
+      p.price ? `price: ${p.price}${p.currency || ''}` : '',
+      p.tags?.length ? `tags: ${p.tags.join(', ')}` : ''
+    ].filter(Boolean).join(' | ');
+    return `- ${bits}`;
+  }).join('\n');
+
+  const tail = products.length ? `\n\nUse up to 4 suitable items from the list when helpful. Avoid items that clash with the ${palette} palette or ${shape} shape.` : '';
+
+  return `${header}\n\nProduct list:\n${catalog || '- (empty)'}${tail}\n\nWrite 2–3 concise looks with rationale.`;
+}
+
+// A stricter extractor for search-friendly item queries per look
+export const EXTRACTOR_PROMPT = `From the stylist text, extract each look with a very short description and up to 3 shopping queries. Make queries search-ready and specific: include category + color + fabric/material + fit/silhouette + occasion + gender (e.g., "+women" or "+men").
+Return strict JSON only: {"looks":[{"name":string,"desc":string,"items":string[]}]} (max 3 looks, max 3 items per look). No prose, no markdown.`;

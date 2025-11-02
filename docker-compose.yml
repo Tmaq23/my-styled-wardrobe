@@ -1,0 +1,16 @@
+version: '3.9'
+services:
+  web:
+    build: .
+    container_name: my-styled-wardrobe
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      # Copy these into an .env file or define here:
+      # - KEYLESS_MODE=1
+      # - OPENAI_API_KEY=...
+      # - BING_SEARCH_KEY=...
+    env_file:
+      - ./.env.production

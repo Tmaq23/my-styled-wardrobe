@@ -1,0 +1,264 @@
+// This is your Prisma schema file for My Styled Wardrobe
+// Learn more: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Users table (extends NextAuth default user)
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  password      String?   // Hashed password for email/password auth
+  emailVerified DateTime?
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  isAdmin       Boolean   @default(false)  // Admin privilege flag
+
+  // Relations
+  accounts      Account[]
+  sessions      Session[]
+  subscription  UserSubscription?
+  limits        UserLimit?
+  wardrobeItems WardrobeItem[]
+  outfits       Outfit[]
+  affiliateClicks AffiliateClick[]
+  lookbooks     Lookbook[]
+  blogPosts     BlogPost[]
+  blogComments  BlogComment[]
+  analysisVerifications AnalysisVerification[]
+  
+  // User preferences
+  bodyShape     String?
+  colorPalette  String?
+  
+  @@map("users")
+}
+
+// NextAuth Account
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+// NextAuth Session
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+// NextAuth Verification Token
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verificationtokens")
+}
+
+// User Subscriptions
+model UserSubscription {
+  id                   String    @id @default(cuid())
+  userId               String    @unique
+  tier                 String    @default("free") // free, premium, stylist_pro
+  stripeSubscriptionId String?
+  stripeCustomerId     String?
+  activeUntil          DateTime?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_subscriptions")
+}
+
+// User Limits (tracks usage)
+model UserLimit {
+  userId                    String   @id
+  itemsUploaded             Int      @default(0)
+  outfitsGenerated          Int      @default(0)
+  aiAnalysesUsed            Int      @default(0)  // Track AI body shape/color analyses
+  wardrobeOutfitsGenerated  Int      @default(0)  // Track wardrobe outfit combinations generated
+  tierLimitItems            Int      @default(6)
+  tierLimitOutfits          Int      @default(10)
+  tierLimitAnalyses         Int      @default(1)  // Free tier gets 1 free analysis
+  tierLimitWardrobeOutfits  Int      @default(1)  // Free tier gets 1 free wardrobe outfit generation
+  resetDate                 DateTime @default(now())
+  updatedAt                 DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_limits")
+}
+
+// Wardrobe Items
+model WardrobeItem {
+  id          String   @id @default(cuid())
+  userId      String
+  imageUrl    String
+  category    String   // tops, bottoms, shoes, accessories, etc.
+  color       String?
+  brand       String?
+  season      String?  // Spring, Summer, Autumn, Winter
+  tags        String[] // casual, formal, sporty, etc.
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("wardrobe_items")
+}
+
+// Generated Outfits
+model Outfit {
+  id                String   @id @default(cuid())
+  userId            String
+  occasion          String   // Casual, Business, Evening, etc.
+  bodyShape         String
+  colorPalette      String
+  items             Json     // Array of product details
+  aiReasoning       String?
+  totalPrice        Float?
+  imageUrl          String?  // AI-generated outfit image
+  createdAt         DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("outfits")
+}
+
+// Affiliate Click Tracking
+model AffiliateClick {
+  id               String    @id @default(cuid())
+  userId           String?
+  productUrl       String
+  affiliateUrl     String
+  retailer         String
+  clickedAt        DateTime  @default(now())
+  purchaseTracked  Boolean   @default(false)
+  commissionAmount Float?
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@map("affiliate_clicks")
+}
+
+// Lookbooks
+model Lookbook {
+  id          String   @id @default(cuid())
+  userId      String
+  title       String
+  description String?
+  outfitIds   String[] // References to Outfit IDs
+  pdfUrl      String?  // Stored in Supabase Storage
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("lookbooks")
+}
+
+// Blog Posts
+model BlogPost {
+  id            String   @id @default(cuid())
+  title         String
+  slug          String   @unique
+  content       String   @db.Text
+  excerpt       String?
+  coverImage    String?
+  authorId      String
+  published     Boolean  @default(false)
+  publishedAt   DateTime?
+  views         Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  author        User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  comments      BlogComment[]
+
+  @@map("blog_posts")
+  @@index([slug])
+  @@index([published])
+  @@index([publishedAt])
+}
+
+// Blog Comments
+model BlogComment {
+  id        String   @id @default(cuid())
+  postId    String
+  userId    String
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  post      BlogPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("blog_comments")
+  @@index([postId])
+  @@index([userId])
+}
+
+// Analysis Verification (Stylist Review)
+model AnalysisVerification {
+  id                String    @id @default(cuid())
+  userId            String
+  bodyShape         String    // Original AI result
+  colorPalette      String    // Original AI result
+  bodyImageUrl      String?   // URL to body image (stored in Supabase Storage)
+  faceImageUrl      String?   // URL to face image (stored in Supabase Storage)
+  
+  // Payment details
+  stripePaymentIntentId String? // Stripe payment intent ID
+  amount            Float     @default(30.0) // £30
+  currency          String    @default("gbp")
+  paymentStatus     String    @default("pending") // pending, paid, failed, refunded
+  
+  // Verification details
+  verifiedBodyShape String?   // Stylist's verified body shape
+  verifiedColorPalette String? // Stylist's verified color palette
+  stylistNotes      String?   @db.Text // Stylist's notes/recommendations
+  stylistId         String?   // ID of admin/stylist who verified
+  status            String    @default("pending") // pending, in_review, verified, rejected
+  verifiedAt        DateTime?
+  
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  user              User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
+  @@index([paymentStatus])
+  @@map("analysis_verifications")
+}
+

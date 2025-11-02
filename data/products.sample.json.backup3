@@ -1,0 +1,283 @@
+[
+  {
+    "id": "1",
+    "title": "Tailored Navy Blazer",
+    "brand": "M&S",
+    "retailer": "M&S",
+    "price": 149,
+    "currency": "£",
+    "image": "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?q=80&w=800&auto=format&fit=crop",
+    "url": "https://www.marksandspencer.com/",
+    "tags": [
+      "work",
+      "layer",
+      "structured"
+    ],
+    "paletteHint": [
+      "Winter",
+      "Summer"
+    ],
+    "shapes": [
+      "Hourglass",
+      "Rectangle",
+      "Inverted Triangle"
+    ],
+    "occasions": [
+      "Work",
+      "Smart-casual"
+    ],
+    "priceBucket": "££"
+  },
+  {
+    "id": "2",
+    "title": "Red Wrap Dress",
+    "brand": "Zara",
+    "retailer": "Zara",
+    "price": 59.99,
+    "currency": "£",
+    "image": "https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=800&auto=format&fit=crop",
+    "url": "https://www.zara.com/uk/",
+    "tags": [
+      "V-neck",
+      "defined waist",
+      "flowing"
+    ],
+    "paletteHint": [
+      "Winter",
+      "Autumn"
+    ],
+    "shapes": [
+      "Hourglass",
+      "Triangle",
+      "Rectangle"
+    ],
+    "occasions": [
+      "Work",
+      "Smart-casual",
+      "Formal"
+    ],
+    "priceBucket": "£"
+  },
+  {
+    "id": "3",
+    "title": "Pink Jogger Pants",
+    "brand": "Next",
+    "retailer": "Next",
+    "price": 45,
+    "currency": "£",
+    "image": "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?q=80&w=800&auto=format&fit=crop",
+    "url": "https://www.next.co.uk/",
+    "tags": [
+      "comfortable",
+      "casual",
+      "jogger-style"
+    ],
+    "paletteHint": [
+      "Spring",
+      "Summer"
+    ],
+    "shapes": [
+      "Rectangle",
+      "Triangle"
+    ],
+    "occasions": [
+      "Weekend",
+      "Casual"
+    ],
+    "priceBucket": "£"
+  },
+  {
+    "id": "4",
+    "title": "High-Waisted Skinny Jeans",
+    "brand": "River Island",
+    "retailer": "River Island",
+    "price": 65,
+    "currency": "£",
+    "image": "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?q=80&w=800&auto=format&fit=crop",
+    "url": "https://www.riverisland.com/",
+    "tags": [
+      "comfortable",
+      "elongating",
+      "versatile"
+    ],
+    "paletteHint": [
+      "Autumn",
+      "Winter"
+    ],
+    "shapes": [
+      "Hourglass",
+      "Rectangle",
+      "Inverted Triangle"
+    ],
+    "occasions": [
+      "Weekend",
+      "Smart-casual"
+    ],
+    "priceBucket": "£"
+  },
+  {
+    "id": "5",
+    "title": "Oversized Knit Sweater",
+    "brand": "M&S",
+    "retailer": "M&S",
+    "price": 89,
+    "currency": "£",
+    "image": "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?q=80&w=800&auto=format&fit=crop",
+    "url": "https://www.marksandspencer.com/",
+    "tags": [
+      "comfortable",
+      "oversized",
+      "warm"
+    ],
+    "paletteHint": [
+      "Autumn",
+      "Winter"
+    ],
+    "shapes": [
+      "Rectangle",
+      "Triangle",
+      "Round"
+    ],
+    "occasions": [
+      "Weekend",
+      "Smart-casual"
+    ],
+    "priceBucket": "££"
+  },
+  {
+    "id": "6",
+    "title": "A-Line Midi Skirt",
+    "brand": "Zara",
+    "retailer": "Zara",
+    "price": 49.99,
+    "currency": "£",
+    "image": "https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=800&auto=format&fit=crop",
+    "url": "https://www.zara.com/uk/",
+    "tags": [
+      "feminine",
+      "flattering",
+      "versatile"
+    ],
+    "paletteHint": [
+      "Spring",
+      "Summer"
+    ],
+    "shapes": [
+      "Hourglass",
+      "Triangle",
+      "Rectangle"
+    ],
+    "occasions": [
+      "Work",
+      "Smart-casual"
+    ],
+    "priceBucket": "£"
+  },
+  {
+    "id": "7",
+    "title": "Structured Shoulder Bag",
+    "brand": "Next",
+    "retailer": "Next",
+    "price": 75,
+    "currency": "£",
+    "image": "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?q=80&w=800&auto=format&fit=crop",
+    "url": "https://www.next.co.uk/",
+    "tags": [
+      "structured",
+      "versatile",
+      "classic"
+    ],
+    "paletteHint": [
+      "All"
+    ],
+    "shapes": [
+      "All"
+    ],
+    "occasions": [
+      "All"
+    ],
+    "priceBucket": "££"
+  },
+  {
+    "id": "8",
+    "title": "Pointed Toe Pumps",
+    "brand": "River Island",
+    "retailer": "River Island",
+    "price": 55,
+    "currency": "£",
+    "image": "https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=800&auto=format&fit=crop",
+    "url": "https://www.riverisland.com/",
+    "tags": [
+      "versatile",
+      "classic",
+      "elegant"
+    ],
+    "paletteHint": [
+      "All"
+    ],
+    "shapes": [
+      "All"
+    ],
+    "occasions": [
+      "Work",
+      "Formal"
+    ],
+    "priceBucket": "£"
+  },
+  {
+    "id": "9",
+    "title": "Silk Blouse",
+    "brand": "M&S",
+    "retailer": "M&S",
+    "price": 95,
+    "currency": "£",
+    "image": "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?q=80&w=800&auto=format&fit=crop",
+    "url": "https://www.marksandspencer.com/",
+    "tags": [
+      "luxury",
+      "versatile",
+      "elegant"
+    ],
+    "paletteHint": [
+      "Spring",
+      "Summer"
+    ],
+    "shapes": [
+      "Hourglass",
+      "Rectangle"
+    ],
+    "occasions": [
+      "Work",
+      "Formal"
+    ],
+    "priceBucket": "££"
+  },
+  {
+    "id": "10",
+    "title": "Wide-Leg Trousers",
+    "brand": "River Island",
+    "retailer": "River Island",
+    "price": 79,
+    "currency": "£",
+    "image": "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?q=80&w=800&auto=format&fit=crop",
+    "url": "https://www.riverisland.com/",
+    "tags": [
+      "comfortable",
+      "flared",
+      "versatile"
+    ],
+    "paletteHint": [
+      "Autumn",
+      "Winter"
+    ],
+    "shapes": [
+      "Rectangle",
+      "Inverted Triangle"
+    ],
+    "occasions": [
+      "Work",
+      "Smart-casual"
+    ],
+    "priceBucket": "£"
+  }
+]

@@ -1,0 +1,68 @@
+{
+  "name": "my-styled-wardrobe",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --port 3000 --hostname 127.0.0.1",
+    "dev:poll": "cross-env CHOKIDAR_USEPOLLING=1 WATCHPACK_POLLING=true NEXT_DISABLE_FS_CACHE=1 next dev --port 3000 --hostname 127.0.0.1",
+    "dev:legacy": "cross-env NEXT_PRIVATE_TEST_WEBPACK=1 next dev --port 3000 --hostname 127.0.0.1",
+    "build": "prisma generate && next build",
+    "start": "next start --port 3000 --hostname 127.0.0.1",
+    "dev:custom": "node server.js",
+    "lint": "next lint",
+    "type-check": "tsc --noEmit",
+    "analyze": "ANALYZE=true next build",
+    "build:analyze": "cross-env ANALYZE=true next build",
+    "performance": "lighthouse http://localhost:3000 --output=json --output-path=./lighthouse-report.json",
+    "test:performance": "npm run build && npm run start & sleep 10 && npm run performance && pkill -f 'next start'",
+    "bundle-analyzer": "cross-env ANALYZE=true npm run build",
+    "optimize-images": "next-image-optimization",
+    "cache-clear": "rm -rf .next && rm -rf node_modules/.cache",
+    "postinstall": "next telemetry disable",
+    "db:generate": "prisma generate",
+    "db:push": "prisma db push",
+    "db:studio": "prisma studio"
+  },
+  "dependencies": {
+    "@auth/supabase-adapter": "^1.10.0",
+    "@prisma/client": "^6.2.0",
+    "@supabase/supabase-js": "^2.57.4",
+    "@types/jsdom": "^21.1.7",
+    "bcryptjs": "^3.0.2",
+    "html2canvas": "^1.4.1",
+    "jsdom": "^26.1.0",
+    "next": "15.4.6",
+    "next-auth": "^4.24.11",
+    "openai": "^5.12.2",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "swr": "^2.3.6"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "@next/bundle-analyzer": "^15.4.6",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/node": "^24.3.0",
+    "@types/react": "^19.1.10",
+    "cross-env": "^7.0.3",
+    "eslint": "^9",
+    "eslint-config-next": "15.4.6",
+    "lighthouse": "^11.6.0",
+    "prisma": "^6.2.0",
+    "typescript": "^5.9.2",
+    "webpack-bundle-analyzer": "^4.10.1"
+  },
+  "engines": {
+    "node": ">=18.17.0",
+    "npm": ">=9.0.0"
+  },
+  "browserslist": [
+    "defaults",
+    "not ie 11",
+    "not ie_mob 11"
+  ],
+  "resolutions": {
+    "react": "19.1.0",
+    "react-dom": "19.1.0"
+  }
+}
