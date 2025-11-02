@@ -36,10 +36,14 @@ export async function GET(request: NextRequest) {
     const userLimit = await prisma.userLimit.findUnique({
       where: { userId },
       select: {
-        currentWardrobeItems: true,
-        currentOutfits: true,
-        maxWardrobeItems: true,
-        maxOutfits: true,
+        itemsUploaded: true,
+        outfitsGenerated: true,
+        aiAnalysesUsed: true,
+        wardrobeOutfitsGenerated: true,
+        tierLimitItems: true,
+        tierLimitOutfits: true,
+        tierLimitAnalyses: true,
+        tierLimitWardrobeOutfits: true,
       },
     });
 
