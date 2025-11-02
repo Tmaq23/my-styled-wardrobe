@@ -128,11 +128,13 @@ function generateLiveShoppingResults(retailer: string, searchQuery: string, pref
     const color = colors[Math.floor(Math.random() * colors.length)] || 'black';
     const style = styles[Math.floor(Math.random() * styles.length)] || 'casual';
     
-    // Coerce budget to a known string value
-    const budget: string = (preferences?.budget ?? '££') as string;
+    // Normalize arguments before calling generateRealisticPrice
+    const budget = (preferences?.budget ?? 'medium').toString().toLowerCase();
+    const normalizedType = (type ?? 'tops').toString().toLowerCase();
+    const normalizedRetailer = (retailer ?? 'ASOS').toString();
     
     // Generate realistic price based on budget
-    const price = generateRealisticPrice(budget, type, retailer);
+    const price = generateRealisticPrice(budget, normalizedType, normalizedRetailer);
     
     // Create a simple, reliable image using a placeholder URL instead of base64
     const imageUrl = `https://via.placeholder.com/300x200/${getColorHex(color).replace('#', '')}/ffffff?text=${encodeURIComponent(`${retailer} ${color} ${style}`)}`;
