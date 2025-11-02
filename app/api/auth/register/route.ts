@@ -42,7 +42,7 @@ export async function POST(request: Request) {
     if (!validation.success) {
       const error = validation.error.errors[0];
       return NextResponse.json(
-        { message: error.message },
+        { message: error?.message || 'Validation error' },
         { status: 400 }
       );
     }
