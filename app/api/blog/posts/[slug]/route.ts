@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-
 import prisma from '@/lib/prisma';
 import { verifyAdminAccess } from '@/lib/apiAuth';
 
@@ -63,17 +62,21 @@ export async function PUT(
   try {
     const { slug } = await params;
     const access = await verifyAdminAccess(req);
-
     if (access.status === 'unauthenticated') {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
-
     if (access.status === 'forbidden') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
     
     const body = await req.json();
     const { title, content, excerpt, coverImage, published } = body;
+    
+    // Fetch existing post first to check its publishedAt status
+    const existingPost = await prisma.blogPost.findUnique({
+      where: { slug },
+      select: { publishedAt: true }
+    });
     
     // Generate new slug if title changed
     const newSlug = title
@@ -93,7 +96,7 @@ export async function PUT(
         ...(coverImage !== undefined && { coverImage }),
         ...(published !== undefined && {
           published,
-          publishedAt: published && !post ? new Date() : undefined
+          publishedAt: published && !existingPost?.publishedAt ? new Date() : undefined
         })
       },
       include: {
@@ -122,11 +125,9 @@ export async function DELETE(
   try {
     const { slug } = await params;
     const access = await verifyAdminAccess(req);
-
     if (access.status === 'unauthenticated') {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
-
     if (access.status === 'forbidden') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
@@ -141,4 +142,3 @@ export async function DELETE(
     return NextResponse.json({ error: 'Failed to delete post' }, { status: 500 });
   }
 }
-
