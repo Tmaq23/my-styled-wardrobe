@@ -3,13 +3,13 @@ import { checkUserLimits } from '../../../lib/subscription';
 
 export async function POST(request: NextRequest) {
   try {
-    const { userId, action } = await request.json();
+    const { action } = await request.json();
     
-    if (!userId || !action) {
-      return NextResponse.json({ error: 'Missing userId or action' }, { status: 400 });
+    if (!action) {
+      return NextResponse.json({ error: 'Missing action' }, { status: 400 });
     }
     
-    const limitCheck = await checkUserLimits(userId, action);
+    const limitCheck = await checkUserLimits(action);
     
     return NextResponse.json(limitCheck);
     
