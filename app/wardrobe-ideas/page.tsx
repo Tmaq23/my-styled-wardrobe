@@ -1,10 +1,15 @@
 'use client';
 
-import { useState } from 'react';
 import Image from 'next/image';
 import WardrobeUploader from '../../components/WardrobeUploader';
 
 export default function WardrobeIdeasPage() {
+  const handleWardrobeFilesChange = (files: File[]) => {
+    // Handle the uploaded files here if needed
+    // The WardrobeUploader component manages its own state and outfit generation
+    console.log('Wardrobe files updated:', files.length);
+  };
+
   return (
     <div className="style-interface-page">
       {/* Main Content */}
@@ -21,7 +26,7 @@ export default function WardrobeIdeasPage() {
               </h3>
               <p className="upload-instruction">Upload your clothing items to see AI-generated outfit combinations</p>
               
-              <WardrobeUploader />
+              <WardrobeUploader onChange={handleWardrobeFilesChange} />
             </div>
           </div>
         </div>
