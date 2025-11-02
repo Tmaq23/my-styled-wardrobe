@@ -129,7 +129,7 @@ function generateLiveShoppingResults(retailer: string, searchQuery: string, pref
     const style = styles[Math.floor(Math.random() * styles.length)] || 'casual';
     
     // Coerce budget to a known string value
-    const budget = (preferences?.budget ?? 'medium').toString().toLowerCase();
+    const budget = (preferences?.budget ?? '££').toString().toLowerCase();
     
     // Generate realistic price based on budget
     const price = generateRealisticPrice(budget, type, retailer);
