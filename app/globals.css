@@ -2923,6 +2923,34 @@ div[style*="position: absolute"] {
   background: transparent !important;
 }
 
+/* NUCLEAR OPTION: Hide ALL hr elements and divs with borders on blog pages */
+.blog-content-wrapper hr,
+.blog-content-wrapper div hr,
+.blog-article hr,
+.blog-article div hr,
+.blog-content hr,
+.blog-content div hr,
+body hr,
+html hr {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  height: 0 !important;
+  max-height: 0 !important;
+  overflow: hidden !important;
+  position: absolute !important;
+  left: -9999px !important;
+}
+
+/* Hide any div or span that might be creating lines */
+.blog-content-wrapper div[style*="border"],
+.blog-article div[style*="border"],
+.blog-content div[style*="border"] {
+  border: none !important;
+  border-top: none !important;
+  border-bottom: none !important;
+}
+
 /* Mobile Optimization for Blog Posts */
 @media (max-width: 768px) {
   body {
