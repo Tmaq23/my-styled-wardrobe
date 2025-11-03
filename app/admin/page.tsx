@@ -208,9 +208,28 @@ export default function AdminPage() {
         }, 500);
       } else {
         const errorMsg = data?.error || 'Invalid credentials';
+        const errorType = data?.errorType || '';
+        const errorMessage = data?.errorMessage || '';
         const errorDetails = data?.details ? `: ${data.details}` : '';
-        console.error('Admin login failed:', errorMsg, errorDetails);
-        setError(errorMsg + errorDetails);
+        
+        console.error('Admin login failed:', {
+          error: errorMsg,
+          errorType,
+          errorMessage,
+          details: errorDetails,
+          fullResponse: data,
+        });
+        
+        // Show more detailed error if available
+        let displayError = errorMsg;
+        if (errorType || errorMessage) {
+          displayError += ` (${errorType || 'Error'}: ${errorMessage})`;
+        }
+        if (errorDetails) {
+          displayError += errorDetails;
+        }
+        
+        setError(displayError);
         setActionLoading(false);
       }
     } catch (error) {

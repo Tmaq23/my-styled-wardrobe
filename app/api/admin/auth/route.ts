@@ -94,11 +94,30 @@ export async function POST(request: NextRequest) {
       adminUsername: adminUsername ? adminUsername.substring(0, 3) + '***' : 'NOT SET',
       passwordLength: suppliedPassword.length,
       adminPasswordLength: adminPassword ? adminPassword.length : 0,
+      rawUsernameFull: rawUsername,
+      adminUsernameFull: adminUsername,
     });
 
-    const usernameMatch = safeCompare(rawUsername, adminUsername);
-    const passwordMatch = safeCompare(suppliedPassword, adminPassword);
-    console.log('Credential comparison:', { usernameMatch, passwordMatch });
+    // For debugging: use regular comparison if safeCompare fails
+    let usernameMatch = false;
+    let passwordMatch = false;
+    
+    try {
+      usernameMatch = safeCompare(rawUsername, adminUsername);
+      passwordMatch = safeCompare(suppliedPassword, adminPassword);
+    } catch (compareError) {
+      console.error('SafeCompare error, falling back to regular comparison:', compareError);
+      // Fallback to regular comparison if safeCompare fails
+      usernameMatch = rawUsername === adminUsername;
+      passwordMatch = suppliedPassword === adminPassword;
+    }
+    
+    console.log('Credential comparison:', { 
+      usernameMatch, 
+      passwordMatch,
+      rawUsernameEquals: rawUsername === adminUsername,
+      passwordEquals: suppliedPassword === adminPassword,
+    });
 
     if (usernameMatch && passwordMatch) {
       try {
@@ -223,15 +242,23 @@ export async function POST(request: NextRequest) {
     console.error('Admin auth error:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     const errorStack = error instanceof Error ? error.stack : '';
+    const errorName = error instanceof Error ? error.name : 'Unknown';
+    
     console.error('Admin auth error details:', {
+      name: errorName,
       message: errorMessage,
       stack: errorStack,
       error: String(error),
     });
+    
+    // Return more detailed error for debugging
     return NextResponse.json(
       { 
         success: false, 
         error: 'Authentication failed',
+        errorType: errorName,
+        errorMessage: errorMessage,
+        // Only show details in development
         details: process.env.NODE_ENV === 'development' ? errorMessage : undefined,
       },
       { status: 500 }
