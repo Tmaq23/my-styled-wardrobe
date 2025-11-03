@@ -82,10 +82,9 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Use NEXTAUTH_URL first, fallback to VERCEL_URL, then localhost
-    const baseUrl = process.env['NEXTAUTH_URL'] || 
-                     (process.env['VERCEL_URL'] ? `https://${process.env['VERCEL_URL']}` : 'http://localhost:3000');
-
+    // Always use the production domain to avoid DNS issues
+    const baseUrl = 'https://www.mystyledwardrobe.com';
+    
     console.log('Creating Stripe checkout with baseUrl:', baseUrl);
 
     // Create Stripe Checkout Session
