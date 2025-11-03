@@ -44,6 +44,9 @@ export default function VerificationRequest({
           setVerificationStatus(matchingVerification.status as any);
           setVerificationData(matchingVerification);
         }
+      } else if (response.status === 401) {
+        // User not logged in - this is fine, just means no verifications to show
+        console.log('User not authenticated - no existing verifications to display');
       }
     } catch (err) {
       console.error('Error checking verification status:', err);
@@ -94,6 +97,12 @@ export default function VerificationRequest({
       const checkoutData = await checkoutResponse.json();
 
       if (!checkoutResponse.ok) {
+        // Handle authentication error specifically
+        if (checkoutResponse.status === 401) {
+          setError('Please log in or create an account to request verification. Click the "Sign In" button in the navigation menu.');
+          setIsLoading(false);
+          return;
+        }
         throw new Error(checkoutData.error || 'Failed to create checkout session');
       }
 
@@ -196,8 +205,28 @@ export default function VerificationRequest({
           color: '#991b1b',
           marginBottom: '1rem',
           fontSize: '0.875rem',
+          lineHeight: '1.6',
         }}>
           {error}
+          {error.includes('log in or create an account') && (
+            <div style={{ marginTop: '0.75rem' }}>
+              <a 
+                href="/auth/signin" 
+                style={{
+                  display: 'inline-block',
+                  padding: '0.5rem 1rem',
+                  background: '#6366f1',
+                  color: 'white',
+                  borderRadius: '6px',
+                  textDecoration: 'none',
+                  fontSize: '0.875rem',
+                  fontWeight: '600',
+                }}
+              >
+                Sign In / Create Account
+              </a>
+            </div>
+          )}
         </div>
       )}
 
