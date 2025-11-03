@@ -1,15 +1,17 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
-export default function SignIn() {
+function SignInForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirect = searchParams.get('redirect');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,8 +30,9 @@ export default function SignIn() {
       const data = await res.json();
 
       if (res.ok && data.success) {
-        // Redirect to style interface page
-        router.push('/style-interface');
+        // Redirect to specified page or default to style interface
+        const redirectPath = redirect || '/style-interface';
+        router.push(redirectPath);
         router.refresh();
       } else {
         setError(data.error || 'Invalid email or password');
@@ -164,5 +167,31 @@ export default function SignIn() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function SignIn() {
+  return (
+    <Suspense fallback={
+      <div className="home-page compact-home">
+        <div className="hero-section hero-compressed auth-full-height">
+          <div className="hero-background">
+            <div className="hero-image">
+              <div className="image-overlay" />
+            </div>
+          </div>
+          <div className="hero-content auth-hero-flex">
+            <div className="hero-text-overlay auth-hero-width">
+              <div className="auth-panel-glass">
+                <h1 className="auth-title">Sign In</h1>
+                <p className="auth-subtitle">Loading...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    }>
+      <SignInForm />
+    </Suspense>
   );
 }

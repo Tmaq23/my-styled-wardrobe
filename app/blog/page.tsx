@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Header from '@/components/Header';
 import Image from 'next/image';
@@ -23,12 +24,35 @@ interface BlogPost {
 }
 
 export default function BlogPage() {
+  const router = useRouter();
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<any>(null);
+  const [checkingAuth, setCheckingAuth] = useState(true);
 
   useEffect(() => {
-    fetchPosts();
+    checkAuth();
   }, []);
+
+  const checkAuth = async () => {
+    try {
+      const response = await fetch('/api/simple-auth/session');
+      const data = await response.json();
+      
+      if (data.user) {
+        setUser(data.user);
+        fetchPosts();
+      } else {
+        // Not logged in - redirect to sign in
+        router.push('/auth/signin?redirect=/blog');
+      }
+    } catch (error) {
+      console.error('Error checking auth:', error);
+      router.push('/auth/signin?redirect=/blog');
+    } finally {
+      setCheckingAuth(false);
+    }
+  };
 
   const fetchPosts = async () => {
     try {
@@ -51,6 +75,29 @@ export default function BlogPage() {
       day: 'numeric'
     });
   };
+
+  // Show loading state while checking authentication
+  if (checkingAuth) {
+    return (
+      <div
+        style={{
+          minHeight: '100vh',
+          background: 'radial-gradient(circle at top, rgba(90,76,219,0.18) 0%, rgba(10,14,34,0.9) 35%, rgba(4,7,20,1) 90%)',
+          color: 'white'
+        }}
+      >
+        <Header />
+        <div style={{ maxWidth: '800px', margin: '0 auto', padding: '8rem 2rem', textAlign: 'center' }}>
+          <p style={{ fontSize: '1.1rem', color: 'rgba(226,232,255,0.7)' }}>Checking authentication...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // If not logged in, don't render content (redirect will happen)
+  if (!user) {
+    return null;
+  }
 
   return (
     <div

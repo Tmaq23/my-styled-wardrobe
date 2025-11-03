@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { use } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Header from '@/components/Header';
 import Image from 'next/image';
@@ -33,17 +34,38 @@ interface BlogPost {
 }
 
 export default function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
+  const router = useRouter();
   const { slug } = use(params);
   const [post, setPost] = useState<BlogPost | null>(null);
   const [loading, setLoading] = useState(true);
   const [commentText, setCommentText] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [user, setUser] = useState<any>(null);
+  const [checkingAuth, setCheckingAuth] = useState(true);
 
   useEffect(() => {
-    fetchPost();
-    fetchUser();
+    checkAuth();
   }, [slug]);
+
+  const checkAuth = async () => {
+    try {
+      const response = await fetch('/api/simple-auth/session');
+      const data = await response.json();
+      
+      if (data.user) {
+        setUser(data.user);
+        fetchPost();
+      } else {
+        // Not logged in - redirect to sign in
+        router.push(`/auth/signin?redirect=/blog/${slug}`);
+      }
+    } catch (error) {
+      console.error('Error checking auth:', error);
+      router.push(`/auth/signin?redirect=/blog/${slug}`);
+    } finally {
+      setCheckingAuth(false);
+    }
+  };
 
   const fetchUser = async () => {
     try {
@@ -104,6 +126,29 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
       day: 'numeric'
     });
   };
+
+  // Show loading state while checking authentication
+  if (checkingAuth) {
+    return (
+      <div
+        style={{
+          minHeight: '100vh',
+          background: 'radial-gradient(circle at top, rgba(90,76,219,0.18) 0%, rgba(10,14,34,0.9) 35%, rgba(4,7,20,1) 90%)',
+          color: 'white'
+        }}
+      >
+        <Header />
+        <div style={{ maxWidth: '800px', margin: '0 auto', padding: '8rem 2rem', textAlign: 'center' }}>
+          <p style={{ fontSize: '1.1rem', color: 'rgba(226,232,255,0.7)' }}>Checking authentication...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // If not logged in, don't render content (redirect will happen)
+  if (!user) {
+    return null;
+  }
 
   if (loading) {
     return (
