@@ -2854,6 +2854,16 @@ label {
   text-decoration: none !important;
 }
 
+/* Hide horizontal lines in blog content that create visual clutter */
+.blog-content hr {
+  display: none !important;
+  visibility: hidden !important;
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+}
+
 /* Mobile Optimization for Blog Posts */
 @media (max-width: 768px) {
   body {
