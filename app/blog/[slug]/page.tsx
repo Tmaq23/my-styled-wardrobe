@@ -153,44 +153,45 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
       <Header />
       
       {/* Article Header */}
-      <article className="blog-article">
-        <Link
-          href="/blog"
-          className="blog-back-link"
-        >
-          ← Back to Blog
-        </Link>
+      <div className="blog-content-wrapper">
+        <article className="blog-article">
+          <Link
+            href="/blog"
+            className="blog-back-link"
+          >
+            ← Back to Blog
+          </Link>
 
-        <h1 className="blog-title">
-          {post.title}
-        </h1>
+          <h1 className="blog-title">
+            {post.title}
+          </h1>
 
-        <div className="blog-meta">
-          <span style={{ fontWeight: '600' }}>
-            {post.author.name || post.author.email}
-          </span>
-          <span>•</span>
-          <span>{post.publishedAt ? formatDate(post.publishedAt) : 'Draft'}</span>
-          <span>•</span>
-          <span>{post.views} views</span>
-        </div>
-
-        {post.coverImage && (
-          <div className="blog-cover-image">
-            <Image
-              src={post.coverImage}
-              alt={post.title}
-              fill
-              style={{ objectFit: 'cover' }}
-            />
+          <div className="blog-meta">
+            <span style={{ fontWeight: '600' }}>
+              {post.author.name || post.author.email}
+            </span>
+            <span>•</span>
+            <span>{post.publishedAt ? formatDate(post.publishedAt) : 'Draft'}</span>
+            <span>•</span>
+            <span>{post.views} views</span>
           </div>
-        )}
 
-        {/* Article Content */}
-        <div 
-          className="blog-content"
-          dangerouslySetInnerHTML={{ __html: post.content }}
-        />
+          {post.coverImage && (
+            <div className="blog-cover-image">
+              <Image
+                src={post.coverImage}
+                alt={post.title}
+                fill
+                style={{ objectFit: 'cover' }}
+              />
+            </div>
+          )}
+
+          {/* Article Content */}
+          <div 
+            className="blog-content"
+            dangerouslySetInnerHTML={{ __html: post.content }}
+          />
         
         <style jsx>{`
           div :global(h1) {
@@ -376,7 +377,8 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
             ))}
           </div>
         </div>
-      </article>
+        </article>
+      </div>
     </div>
   );
 }

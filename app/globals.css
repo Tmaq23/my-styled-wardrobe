@@ -2749,17 +2749,24 @@ label {
    BLOG POST MOBILE OPTIMIZATION
    ============================================ */
 
+.blog-content-wrapper {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.98);
+  min-height: 100vh;
+  padding: 0;
+}
+
 .blog-article {
   max-width: 800px;
   width: 100%;
   margin: 0 auto;
-  padding: 6rem 2rem 0;
+  padding: 6rem 2rem 2rem;
   box-sizing: border-box;
 }
 
 .blog-back-link {
   display: inline-block;
-  color: rgba(129,140,248,0.95);
+  color: #667eea;
   text-decoration: none;
   font-weight: 600;
   margin-bottom: 2rem;
@@ -2767,7 +2774,7 @@ label {
 }
 
 .blog-back-link:hover {
-  color: rgba(168,85,247,1);
+  color: #764ba2;
 }
 
 .blog-title {
@@ -2775,7 +2782,7 @@ label {
   font-weight: 700;
   line-height: 1.2;
   margin-bottom: 1.5rem;
-  color: white;
+  color: #1a1a1a;
   word-wrap: break-word;
   overflow-wrap: break-word;
 }
@@ -2786,7 +2793,7 @@ label {
   gap: 1rem;
   margin-bottom: 2rem;
   fontSize: 0.95rem;
-  color: rgba(196,203,255,0.7);
+  color: #64748b;
   flex-wrap: wrap;
 }
 
@@ -2802,7 +2809,7 @@ label {
 .blog-content {
   font-size: 1.1rem;
   line-height: 1.8;
-  color: rgba(226,232,255,0.88);
+  color: #374151;
   margin-bottom: 4rem;
   word-wrap: break-word;
   overflow-wrap: break-word;
