@@ -27,12 +27,12 @@ export async function sendVerificationRequestToAdmin({
   verificationId: string;
 }) {
   try {
-    const imageAttachments = imageUrls.map((url, index) => ({
-      filename: `analysis-photo-${index + 1}.jpg`,
-      path: url,
-    }));
+    console.log('📧 Attempting to send verification request to admin...');
+    console.log('   - Customer:', customerEmail);
+    console.log('   - Image URLs:', imageUrls.length, 'images');
+    console.log('   - Verification ID:', verificationId);
 
-    await resend.emails.send({
+    const emailResult = await resend.emails.send({
       from: FROM_EMAIL,
       to: ADMIN_EMAIL,
       subject: `🎨 New Verification Request - ${customerEmail}`,
@@ -77,39 +77,52 @@ export async function sendVerificationRequestToAdmin({
                 </tr>
               </table>
 
-              <h2 style="color: #667eea;">Customer Photos</h2>
-              <p style="color: #6b7280; margin-bottom: 20px;">The customer's analysis photos are attached to this email.</p>
+              <h2 style="color: #667eea;">Customer Photos for Review</h2>
+              <p style="color: #6b7280; margin-bottom: 20px; background-color: #fef3c7; padding: 12px; border-radius: 8px; border-left: 4px solid #f59e0b;">
+                <strong>⚠️ Important:</strong> Please review these photos carefully before completing the verification.
+              </p>
+              
               ${imageUrls.map((url, index) => `
-                <div style="margin-bottom: 15px;">
-                  <p style="margin: 5px 0;"><strong>Photo ${index + 1}:</strong></p>
-                  <img src="${url}" alt="Analysis Photo ${index + 1}" style="max-width: 100%; height: auto; border-radius: 8px; border: 2px solid #e5e7eb;" />
+                <div style="margin-bottom: 25px; background-color: #f9fafb; padding: 15px; border-radius: 12px; border: 2px solid #e5e7eb;">
+                  <p style="margin: 0 0 10px 0; font-weight: 600; color: #374151;">📸 Photo ${index + 1}:</p>
+                  <a href="${url}" target="_blank" style="color: #667eea; text-decoration: none; font-size: 13px; word-break: break-all; display: block; margin-bottom: 10px;">
+                    🔗 Open Full Size Image →
+                  </a>
+                  <img src="${url}" alt="Customer Analysis Photo ${index + 1}" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); display: block;" />
                 </div>
               `).join('')}
 
               <div style="background-color: #f3f4f6; padding: 20px; border-radius: 12px; margin-top: 30px;">
-                <h3 style="margin-top: 0; color: #374151;">Next Steps</h3>
-                <ol style="color: #6b7280; padding-left: 20px;">
-                  <li>Review the AI analysis results and customer photos</li>
+                <h3 style="margin-top: 0; color: #374151;">📋 Next Steps</h3>
+                <ol style="color: #6b7280; padding-left: 20px; line-height: 1.8;">
+                  <li>Review the AI analysis results above: <strong>${bodyShape}</strong> body shape and <strong>${colorPalette}</strong> color palette</li>
+                  <li>Carefully examine all customer photos</li>
                   <li>Log in to the admin dashboard</li>
                   <li>Navigate to Stylist Verifications</li>
-                  <li>Complete the verification for ${customerEmail}</li>
+                  <li>Complete the verification for <strong>${customerEmail}</strong></li>
                 </ol>
-                <a href="https://www.mystyledwardrobe.com/admin/verifications" style="display: inline-block; margin-top: 15px; padding: 12px 24px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-decoration: none; border-radius: 8px; font-weight: 600;">Go to Dashboard →</a>
+                <a href="https://www.mystyledwardrobe.com/admin/verifications" style="display: inline-block; margin-top: 15px; padding: 12px 24px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);">Go to Verification Dashboard →</a>
               </div>
             </div>
 
             <div style="text-align: center; margin-top: 20px; color: #9ca3af; font-size: 14px;">
               <p>MyStyled Wardrobe Admin Notification</p>
+              <p style="font-size: 12px; margin-top: 10px;">If images don't load, <a href="https://www.mystyledwardrobe.com/admin/verifications" style="color: #667eea;">view them in the dashboard</a></p>
             </div>
           </body>
         </html>
       `,
     });
 
-    console.log('✅ Verification request email sent to admin');
-    return { success: true };
+    console.log('✅ Verification request email sent to admin. Email ID:', emailResult.data?.id);
+    return { success: true, emailId: emailResult.data?.id };
   } catch (error) {
-    console.error('❌ Failed to send verification request email to admin:', error);
+    console.error('❌ Failed to send verification request email to admin:');
+    console.error('   Error details:', error);
+    if (error instanceof Error) {
+      console.error('   Error message:', error.message);
+      console.error('   Error stack:', error.stack);
+    }
     return { success: false, error };
   }
 }
