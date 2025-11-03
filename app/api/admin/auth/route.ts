@@ -241,25 +241,31 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Admin auth error:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    const errorStack = error instanceof Error ? error.stack : '';
     const errorName = error instanceof Error ? error.name : 'Unknown';
     
-    console.error('Admin auth error details:', {
-      name: errorName,
-      message: errorMessage,
-      stack: errorStack,
-      error: String(error),
-    });
+    // Check if it's a database connection error
+    const isDatabaseError = errorMessage.includes('Can\'t reach database server') || 
+                           errorMessage.includes('PrismaClientInitializationError') ||
+                           errorMessage.includes('database server');
     
-    // Return more detailed error for debugging
+    if (isDatabaseError) {
+      console.error('Database connection error detected');
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: 'Database connection failed. Please check your database configuration.',
+          errorType: 'DatabaseError',
+        },
+        { status: 503 } // Service Unavailable
+      );
+    }
+    
+    // For other errors, return generic message
     return NextResponse.json(
       { 
         success: false, 
-        error: 'Authentication failed',
+        error: 'Authentication failed. Please try again.',
         errorType: errorName,
-        errorMessage: errorMessage,
-        // Only show details in development
-        details: process.env.NODE_ENV === 'development' ? errorMessage : undefined,
       },
       { status: 500 }
     );

@@ -213,24 +213,19 @@ export default function AdminPage() {
       } else {
         const errorMsg = data?.error || 'Invalid credentials';
         const errorType = data?.errorType || '';
-        const errorMessage = data?.errorMessage || '';
-        const errorDetails = data?.details ? `: ${data.details}` : '';
         
         console.error('Admin login failed:', {
           error: errorMsg,
           errorType,
-          errorMessage,
-          details: errorDetails,
           fullResponse: data,
         });
         
-        // Show more detailed error if available
+        // Show user-friendly error message
         let displayError = errorMsg;
-        if (errorType || errorMessage) {
-          displayError += ` (${errorType || 'Error'}: ${errorMessage})`;
-        }
-        if (errorDetails) {
-          displayError += errorDetails;
+        
+        // Don't show technical details to users
+        if (errorType === 'DatabaseError') {
+          displayError = 'Database connection issue. Please check your Supabase database is active and try again.';
         }
         
         setError(displayError);
