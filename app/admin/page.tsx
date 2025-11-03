@@ -14,9 +14,29 @@ interface User {
   isAdmin?: boolean;
 }
 
+interface Verification {
+  id: string;
+  userId: string;
+  bodyShape: string;
+  colorPalette: string;
+  amount: number;
+  currency: string;
+  paymentStatus: string;
+  status: string;
+  createdAt: string;
+  verifiedAt?: string;
+  user: {
+    id: string;
+    email: string | null;
+    name: string | null;
+  };
+}
+
 export default function AdminPage() {
   const [users, setUsers] = useState<User[]>([]);
+  const [verifications, setVerifications] = useState<Verification[]>([]);
   const [loading, setLoading] = useState(true);
+  const [verificationsLoading, setVerificationsLoading] = useState(false);
   const [adminUsername, setAdminUsername] = useState('');
   const [adminPassword, setAdminPassword] = useState('');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -45,6 +65,7 @@ export default function AdminPage() {
         setIsAuthenticated(true);
         setError('');
         loadUsers();
+        loadVerifications(); // Load verification purchases
         
         // Trigger session update in Header component
         window.dispatchEvent(new Event('sessionUpdated'));
@@ -76,6 +97,23 @@ export default function AdminPage() {
       setError('Failed to load users');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadVerifications = async () => {
+    try {
+      setVerificationsLoading(true);
+      const res = await fetch('/api/verification/list?admin=true');
+      if (res.ok) {
+        const data = await res.json();
+        setVerifications(data.verifications || []);
+      } else {
+        console.error('Failed to load verifications');
+      }
+    } catch (error) {
+      console.error('Failed to load verifications:', error);
+    } finally {
+      setVerificationsLoading(false);
     }
   };
 
@@ -417,6 +455,184 @@ export default function AdminPage() {
           </div>
         )}
 
+        {/* Verification Purchases Section */}
+        <div style={{
+          background: 'rgba(255, 255, 255, 0.1)',
+          backdropFilter: 'blur(10px)',
+          borderRadius: '12px',
+          border: '1px solid rgba(255, 255, 255, 0.2)',
+          padding: '1.5rem',
+          marginBottom: '2rem',
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+            <h2 style={{ color: 'white', margin: 0, fontSize: '1.5rem', fontWeight: '600' }}>
+              💳 Verification Purchases
+            </h2>
+            <button
+              onClick={loadVerifications}
+              disabled={verificationsLoading}
+              style={{
+                padding: '0.5rem 1rem',
+                background: 'rgba(59, 130, 246, 0.2)',
+                border: '1px solid rgba(59, 130, 246, 0.5)',
+                borderRadius: '6px',
+                color: '#60a5fa',
+                cursor: verificationsLoading ? 'wait' : 'pointer',
+                opacity: verificationsLoading ? 0.6 : 1,
+              }}
+            >
+              {verificationsLoading ? '🔄 Refreshing...' : '🔄 Refresh'}
+            </button>
+          </div>
+
+          {verificationsLoading && verifications.length === 0 ? (
+            <div style={{ color: 'rgba(255, 255, 255, 0.7)', textAlign: 'center', padding: '2rem' }}>
+              Loading verification purchases...
+            </div>
+          ) : verifications.length === 0 ? (
+            <div style={{ color: 'rgba(255, 255, 255, 0.5)', textAlign: 'center', padding: '2rem' }}>
+              No verification purchases yet
+            </div>
+          ) : (
+            <>
+              {/* Summary Stats */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
+                <div style={{ background: 'rgba(59, 130, 246, 0.2)', padding: '1rem', borderRadius: '8px', border: '1px solid rgba(59, 130, 246, 0.3)' }}>
+                  <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#60a5fa' }}>
+                    {verifications.length}
+                  </div>
+                  <div style={{ fontSize: '0.875rem', color: 'rgba(255, 255, 255, 0.7)' }}>Total Purchases</div>
+                </div>
+                <div style={{ background: 'rgba(245, 158, 11, 0.2)', padding: '1rem', borderRadius: '8px', border: '1px solid rgba(245, 158, 11, 0.3)' }}>
+                  <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#fbbf24' }}>
+                    {verifications.filter(v => v.status === 'pending').length}
+                  </div>
+                  <div style={{ fontSize: '0.875rem', color: 'rgba(255, 255, 255, 0.7)' }}>Pending</div>
+                </div>
+                <div style={{ background: 'rgba(139, 92, 246, 0.2)', padding: '1rem', borderRadius: '8px', border: '1px solid rgba(139, 92, 246, 0.3)' }}>
+                  <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#a78bfa' }}>
+                    {verifications.filter(v => v.status === 'in_review').length}
+                  </div>
+                  <div style={{ fontSize: '0.875rem', color: 'rgba(255, 255, 255, 0.7)' }}>In Review</div>
+                </div>
+                <div style={{ background: 'rgba(16, 185, 129, 0.2)', padding: '1rem', borderRadius: '8px', border: '1px solid rgba(16, 185, 129, 0.3)' }}>
+                  <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#34d399' }}>
+                    {verifications.filter(v => v.status === 'verified').length}
+                  </div>
+                  <div style={{ fontSize: '0.875rem', color: 'rgba(255, 255, 255, 0.7)' }}>Verified</div>
+                </div>
+              </div>
+
+              {/* Verification List Table */}
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                  <thead>
+                    <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.2)' }}>
+                      <th style={{ padding: '0.75rem', textAlign: 'left', color: 'rgba(255, 255, 255, 0.8)', fontWeight: '600' }}>User</th>
+                      <th style={{ padding: '0.75rem', textAlign: 'left', color: 'rgba(255, 255, 255, 0.8)', fontWeight: '600' }}>Analysis</th>
+                      <th style={{ padding: '0.75rem', textAlign: 'left', color: 'rgba(255, 255, 255, 0.8)', fontWeight: '600' }}>Amount</th>
+                      <th style={{ padding: '0.75rem', textAlign: 'center', color: 'rgba(255, 255, 255, 0.8)', fontWeight: '600' }}>Payment</th>
+                      <th style={{ padding: '0.75rem', textAlign: 'center', color: 'rgba(255, 255, 255, 0.8)', fontWeight: '600' }}>Status</th>
+                      <th style={{ padding: '0.75rem', textAlign: 'left', color: 'rgba(255, 255, 255, 0.8)', fontWeight: '600' }}>Date</th>
+                      <th style={{ padding: '0.75rem', textAlign: 'center', color: 'rgba(255, 255, 255, 0.8)', fontWeight: '600' }}>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {verifications.map((verification) => {
+                      const paymentStatusColors = {
+                        pending: { bg: 'rgba(251, 191, 36, 0.2)', border: 'rgba(251, 191, 36, 0.5)', text: '#fbbf24' },
+                        paid: { bg: 'rgba(34, 197, 94, 0.2)', border: 'rgba(34, 197, 94, 0.5)', text: '#22c55e' },
+                        failed: { bg: 'rgba(239, 68, 68, 0.2)', border: 'rgba(239, 68, 68, 0.5)', text: '#ef4444' },
+                      };
+                      const statusColors = {
+                        pending: { bg: 'rgba(251, 191, 36, 0.2)', border: 'rgba(251, 191, 36, 0.5)', text: '#fbbf24' },
+                        in_review: { bg: 'rgba(139, 92, 246, 0.2)', border: 'rgba(139, 92, 246, 0.5)', text: '#a78bfa' },
+                        verified: { bg: 'rgba(16, 185, 129, 0.2)', border: 'rgba(16, 185, 129, 0.5)', text: '#10b981' },
+                        rejected: { bg: 'rgba(239, 68, 68, 0.2)', border: 'rgba(239, 68, 68, 0.5)', text: '#ef4444' },
+                      };
+                      
+                      const paymentColor = paymentStatusColors[verification.paymentStatus as keyof typeof paymentStatusColors] || paymentStatusColors.pending;
+                      const statusColor = statusColors[verification.status as keyof typeof statusColors] || statusColors.pending;
+                      
+                      return (
+                        <tr key={verification.id} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                          <td style={{ padding: '1rem' }}>
+                            <div style={{ color: 'white', fontWeight: '500' }}>
+                              {verification.user.name || 'Unnamed User'}
+                            </div>
+                            <div style={{ fontSize: '0.875rem', color: 'rgba(255, 255, 255, 0.6)' }}>
+                              {verification.user.email}
+                            </div>
+                          </td>
+                          <td style={{ padding: '1rem' }}>
+                            <div style={{ fontSize: '0.875rem', color: 'rgba(255, 255, 255, 0.9)' }}>
+                              <strong>Shape:</strong> {verification.bodyShape}
+                            </div>
+                            <div style={{ fontSize: '0.875rem', color: 'rgba(255, 255, 255, 0.9)' }}>
+                              <strong>Palette:</strong> {verification.colorPalette}
+                            </div>
+                          </td>
+                          <td style={{ padding: '1rem', color: 'rgba(255, 255, 255, 0.9)' }}>
+                            £{verification.amount.toFixed(2)}
+                          </td>
+                          <td style={{ padding: '1rem', textAlign: 'center' }}>
+                            <span style={{
+                              padding: '0.25rem 0.75rem',
+                              borderRadius: '12px',
+                              fontSize: '0.75rem',
+                              fontWeight: '600',
+                              background: paymentColor.bg,
+                              border: `1px solid ${paymentColor.border}`,
+                              color: paymentColor.text,
+                              textTransform: 'capitalize',
+                            }}>
+                              {verification.paymentStatus}
+                            </span>
+                          </td>
+                          <td style={{ padding: '1rem', textAlign: 'center' }}>
+                            <span style={{
+                              padding: '0.25rem 0.75rem',
+                              borderRadius: '12px',
+                              fontSize: '0.75rem',
+                              fontWeight: '600',
+                              background: statusColor.bg,
+                              border: `1px solid ${statusColor.border}`,
+                              color: statusColor.text,
+                              textTransform: 'capitalize',
+                            }}>
+                              {verification.status.replace('_', ' ')}
+                            </span>
+                          </td>
+                          <td style={{ padding: '1rem', color: 'rgba(255, 255, 255, 0.7)', fontSize: '0.875rem' }}>
+                            {new Date(verification.createdAt).toLocaleDateString()}
+                          </td>
+                          <td style={{ padding: '1rem', textAlign: 'center' }}>
+                            <button
+                              onClick={() => router.push('/admin/verifications')}
+                              style={{
+                                padding: '0.5rem 1rem',
+                                background: 'rgba(59, 130, 246, 0.2)',
+                                border: '1px solid rgba(59, 130, 246, 0.5)',
+                                borderRadius: '6px',
+                                color: '#60a5fa',
+                                cursor: 'pointer',
+                                fontSize: '0.875rem',
+                              }}
+                            >
+                              {verification.status === 'pending' || verification.status === 'in_review' ? 'Review' : 'View'}
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          )}
+        </div>
+
+        {/* User Management Section */}
         <div style={{
           background: 'rgba(255, 255, 255, 0.1)',
           backdropFilter: 'blur(10px)',
