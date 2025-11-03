@@ -72,7 +72,14 @@ export async function GET(request: NextRequest) {
         status: 'in_review',
         stripePaymentIntentId: session.payment_intent || null,
       },
-      include: {
+      select: {
+        id: true,
+        bodyShape: true,
+        colorPalette: true,
+        bodyImageUrl: true,
+        faceImageUrl: true,
+        paymentStatus: true,
+        status: true,
         user: {
           select: {
             id: true,
@@ -83,6 +90,13 @@ export async function GET(request: NextRequest) {
       },
     });
 
+    // Construct imageUrls array from individual image fields
+    const imageUrls: string[] = [];
+    if (verification.bodyImageUrl) imageUrls.push(verification.bodyImageUrl);
+    if (verification.faceImageUrl) imageUrls.push(verification.faceImageUrl);
+
+    console.log('📧 Sending emails with', imageUrls.length, 'images');
+
     // Send emails asynchronously (don't block the response)
     Promise.all([
       // Send notification to admin with customer's photos
@@ -91,7 +105,7 @@ export async function GET(request: NextRequest) {
         customerName: verification.user.name || undefined,
         bodyShape: verification.bodyShape,
         colorPalette: verification.colorPalette,
-        imageUrls: verification.imageUrls,
+        imageUrls: imageUrls,
         verificationId: verification.id,
       }),
       // Send confirmation to customer
