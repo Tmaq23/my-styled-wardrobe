@@ -360,20 +360,6 @@ export default function Register() {
                 </p>
               </div>
               
-              <div style={{
-                background: 'linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%)',
-                padding: '1rem',
-                borderRadius: '12px',
-                textAlign: 'center'
-              }}>
-                <p style={{ fontSize: '0.8rem', color: '#475569', marginBottom: '0.5rem', fontWeight: '500' }}>
-                  🎁 Try the demo account
-                </p>
-                <p style={{ fontSize: '0.75rem', color: '#64748b' }}>
-                  demo@mystyledwardrobe.com / demo123
-                </p>
-              </div>
-              
               <p style={{
                 fontSize: '0.75rem',
                 color: '#94a3b8',

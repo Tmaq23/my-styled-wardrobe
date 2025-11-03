@@ -159,11 +159,6 @@ export default function SignIn() {
                   </button>
                 </div>
               </form>
-              <div className="demo-box">
-                <div className="demo-title">Demo Account</div>
-                <div className="demo-cred">demo@mystyledwardrobe.com</div>
-                <div className="demo-cred">demo123</div>
-              </div>
             </div>
           </div>
         </div>
