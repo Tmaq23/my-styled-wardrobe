@@ -82,7 +82,11 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    const baseUrl = process.env['NEXTAUTH_URL'] || 'http://localhost:3000';
+    // Use NEXTAUTH_URL first, fallback to VERCEL_URL, then localhost
+    const baseUrl = process.env['NEXTAUTH_URL'] || 
+                     (process.env['VERCEL_URL'] ? `https://${process.env['VERCEL_URL']}` : 'http://localhost:3000');
+
+    console.log('Creating Stripe checkout with baseUrl:', baseUrl);
 
     // Create Stripe Checkout Session
     const params = new URLSearchParams({
@@ -111,9 +115,15 @@ export async function POST(request: NextRequest) {
 
     if (!checkoutResponse.ok) {
       const errorText = await checkoutResponse.text();
-      console.error('Stripe Checkout error:', errorText);
+      console.error('Stripe Checkout error:', {
+        status: checkoutResponse.status,
+        statusText: checkoutResponse.statusText,
+        error: errorText,
+        hasStripeKey: !!STRIPE_SECRET_KEY,
+        stripeKeyPrefix: STRIPE_SECRET_KEY?.substring(0, 10)
+      });
       return NextResponse.json(
-        { error: 'Failed to create checkout session' },
+        { error: `Failed to create checkout session: ${errorText.substring(0, 200)}` },
         { status: 500 }
       );
     }
@@ -128,7 +138,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Checkout creation error:', error);
     return NextResponse.json(
-      { error: 'Failed to create checkout' },
+      { error: `Failed to create checkout: ${error instanceof Error ? error.message : 'Unknown error'}` },
       { status: 500 }
     );
   }

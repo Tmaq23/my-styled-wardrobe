@@ -192,8 +192,8 @@ async function tryOfficialAPI(url: string, retailer: string): Promise<Extraction
       if (images.length > 0) {
         return {
           images,
-          title: data.name || data.title,
-          description: data.description,
+          title: data.name || data.title || '',
+          description: data.description || '',
           source: 'json-ld'
         };
       }
@@ -258,8 +258,8 @@ async function extractJSONLD(html: string, baseUrl: string): Promise<ExtractionR
           if (images.length > 0) {
             return {
               images,
-              title: data.name,
-              description: data.description,
+              title: data.name || '',
+              description: data.description || '',
               source: 'json-ld'
             };
           }

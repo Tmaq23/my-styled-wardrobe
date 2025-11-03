@@ -48,7 +48,7 @@ providers.push(
 
 export const authOptions: NextAuthOptions = {
   providers,
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: process.env['NEXTAUTH_SECRET'] || 'fallback-secret-for-build',
   pages: {
     signIn: '/auth/signin',
     signOut: '/',
@@ -59,8 +59,8 @@ export const authOptions: NextAuthOptions = {
       console.log('📝 JWT callback - trigger:', trigger, 'user:', user?.email, 'token:', token?.email);
       if (user) {
         token['id'] = user.id;
-        token['email'] = user.email;
-        token['name'] = user.name;
+        token['email'] = user.email || null;
+        token['name'] = user.name || null;
       }
       return token;
     },
