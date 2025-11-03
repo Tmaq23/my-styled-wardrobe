@@ -2965,7 +2965,10 @@ html hr {
 
 .blog-content li:empty,
 .blog-article li:empty,
-.blog-content-wrapper li:empty {
+.blog-content-wrapper li:empty,
+.blog-content li:not(:has(*)):not(:has(text())),
+.blog-article li:not(:has(*)):not(:has(text())),
+.blog-content-wrapper li:not(:has(*)):not(:has(text())) {
   display: none !important;
 }
 
@@ -2974,6 +2977,24 @@ html hr {
 .blog-article li::before,
 .blog-article li::after {
   content: none !important;
+  display: none !important;
+}
+
+/* Hide empty or near-empty clickable elements (links with no meaningful content) */
+.blog-content a:empty,
+.blog-article a:empty,
+.blog-content-wrapper a:empty,
+.blog-content a:not(:has(img)):not(:has(span)):not(:has(div)):has(:only-child:empty),
+.blog-article a:not(:has(img)):not(:has(span)):not(:has(div)):has(:only-child:empty) {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+/* Hide elements that are essentially empty (just whitespace or dashes) */
+.blog-content *:empty:not(img):not(br):not(hr),
+.blog-article *:empty:not(img):not(br):not(hr),
+.blog-content-wrapper *:empty:not(img):not(br):not(hr) {
   display: none !important;
 }
 
