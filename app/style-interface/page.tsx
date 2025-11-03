@@ -250,6 +250,8 @@ export default function StyleInterfacePage() {
                 <VerificationRequest
                   bodyShape={aiAnalysis.bodyShape}
                   colorPalette={aiAnalysis.colorPalette}
+                  bodyImageUrl={aiAnalysis.bodyImageUrl}
+                  faceImageUrl={aiAnalysis.faceImageUrl}
                   onVerificationComplete={() => {
                     // Refresh or update UI after verification
                     console.log('Verification requested successfully');

@@ -230,7 +230,14 @@ Respond with ONLY this JSON:
       // Don't fail the request if database update fails
     }
     
-    return NextResponse.json(result);
+    // Include image data URLs in the response for verification purposes
+    const resultWithImages = {
+      ...result,
+      bodyImageUrl: `data:image/jpeg;base64,${bodyImage}`,
+      faceImageUrl: `data:image/jpeg;base64,${faceImage}`,
+    };
+    
+    return NextResponse.json(resultWithImages);
 
   } catch (error) {
     console.error('AI analysis error:', error);
