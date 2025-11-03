@@ -5,8 +5,8 @@ import { Resend } from 'resend';
 const RESEND_API_KEY = process.env['RESEND_API_KEY'] || 're_dummy_key_for_build';
 const resend = new Resend(RESEND_API_KEY);
 
-const ADMIN_EMAIL = 'admin@mystyledwardrobe.com';
-const FROM_EMAIL = 'MyStyled Wardrobe <admin@mystyledwardrobe.com>';
+const ADMIN_EMAIL = 'marldon@smalling.biz';
+const FROM_EMAIL = 'MyStyled Wardrobe <noreply@mystyledwardrobe.com>';
 
 /**
  * Send verification request notification to admin with customer's AI analysis photo
