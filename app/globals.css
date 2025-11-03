@@ -2854,6 +2854,26 @@ label {
   text-decoration: none !important;
 }
 
+/* Remove decorative horizontal lines on blog posts */
+.blog-content-wrapper::before,
+.blog-content-wrapper::after,
+.blog-article::before,
+.blog-article::after {
+  display: none !important;
+  content: none !important;
+  background: none !important;
+  border: none !important;
+  visibility: hidden !important;
+}
+
+/* Hide any fixed positioned elements that might be creating horizontal lines */
+.blog-content-wrapper > div[style*="position: fixed"],
+.blog-content-wrapper > div[style*="position:fixed"],
+.blog-article > div[style*="position: fixed"],
+.blog-article > div[style*="position:fixed"] {
+  display: none !important;
+}
+
 /* Mobile Optimization for Blog Posts */
 @media (max-width: 768px) {
   body {
