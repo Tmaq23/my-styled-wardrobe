@@ -2893,7 +2893,9 @@ hr {
 .blog-content-wrapper::before,
 .blog-content-wrapper::after,
 .blog-article::before,
-.blog-article::after {
+.blog-article::after,
+body::before,
+body::after {
   display: none !important;
   content: none !important;
   background: none !important;
@@ -2901,12 +2903,24 @@ hr {
   visibility: hidden !important;
 }
 
-/* Hide any fixed positioned elements that might be creating horizontal lines */
+/* Hide any fixed/absolute positioned decorative elements */
 .blog-content-wrapper > div[style*="position: fixed"],
 .blog-content-wrapper > div[style*="position:fixed"],
 .blog-article > div[style*="position: fixed"],
-.blog-article > div[style*="position:fixed"] {
-  display: none !important;
+.blog-article > div[style*="position:fixed"],
+div[style*="position: fixed"],
+div[style*="position: absolute"] {
+  background-image: none !important;
+  background: transparent !important;
+}
+
+/* Specifically target decorative line elements on blog pages */
+.blog-content-wrapper *[style*="linear-gradient"],
+.blog-article *[style*="linear-gradient"],
+.blog-content-wrapper *[style*="repeating-linear-gradient"],
+.blog-article *[style*="repeating-linear-gradient"] {
+  background-image: none !important;
+  background: transparent !important;
 }
 
 /* Mobile Optimization for Blog Posts */
