@@ -50,6 +50,13 @@ export async function POST(request: NextRequest) {
     const adminUsername = process.env['ADMIN_USERNAME'];
     const adminPassword = process.env['ADMIN_PASSWORD'];
 
+    console.log('Admin credentials check:', {
+      hasUsername: !!adminUsername,
+      hasPassword: !!adminPassword,
+      usernameLength: adminUsername?.length || 0,
+      passwordLength: adminPassword?.length || 0,
+    });
+
     if (!adminUsername || !adminPassword) {
       console.error('Admin credentials are not configured. Set ADMIN_USERNAME and ADMIN_PASSWORD.');
       return NextResponse.json(
@@ -96,17 +103,11 @@ export async function POST(request: NextRequest) {
     if (usernameMatch && passwordMatch) {
       try {
         console.log('Master admin credentials match, creating/updating admin record...');
-        const adminRecord = await prisma.user.upsert({
+        console.log('Using email:', adminUsername);
+        
+        // First try to find existing user
+        let adminRecord = await prisma.user.findUnique({
           where: { email: adminUsername },
-          update: {
-            name: 'Master Admin',
-            isAdmin: true,
-          },
-          create: {
-            email: adminUsername,
-            name: 'Master Admin',
-            isAdmin: true,
-          },
           select: {
             id: true,
             email: true,
@@ -115,11 +116,47 @@ export async function POST(request: NextRequest) {
           },
         });
 
+        if (adminRecord) {
+          // Update existing user
+          console.log('Updating existing admin user');
+          adminRecord = await prisma.user.update({
+            where: { email: adminUsername },
+            data: {
+              name: 'Master Admin',
+              isAdmin: true,
+            },
+            select: {
+              id: true,
+              email: true,
+              name: true,
+              isAdmin: true,
+            },
+          });
+        } else {
+          // Create new user
+          console.log('Creating new admin user');
+          adminRecord = await prisma.user.create({
+            data: {
+              email: adminUsername,
+              name: 'Master Admin',
+              isAdmin: true,
+            },
+            select: {
+              id: true,
+              email: true,
+              name: true,
+              isAdmin: true,
+            },
+          });
+        }
+
         console.log('Admin record:', adminRecord);
         authenticatedUser = adminRecord;
         isSuperAdmin = true;
       } catch (dbError) {
         console.error('Database error creating admin record:', dbError);
+        const dbErrorMessage = dbError instanceof Error ? dbError.message : String(dbError);
+        console.error('Database error details:', dbErrorMessage);
         throw dbError; // Re-throw to be caught by outer catch
       }
     } else {
