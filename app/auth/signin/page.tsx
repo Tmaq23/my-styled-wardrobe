@@ -1,17 +1,24 @@
 'use client';
 
-import { useState, Suspense } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
-function SignInForm() {
+export default function SignIn() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [redirect, setRedirect] = useState<string | null>(null);
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const redirect = searchParams.get('redirect');
+
+  useEffect(() => {
+    // Get redirect parameter from URL
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      setRedirect(params.get('redirect'));
+    }
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -167,31 +174,5 @@ function SignInForm() {
         </div>
       </div>
     </div>
-  );
-}
-
-export default function SignIn() {
-  return (
-    <Suspense fallback={
-      <div className="home-page compact-home">
-        <div className="hero-section hero-compressed auth-full-height">
-          <div className="hero-background">
-            <div className="hero-image">
-              <div className="image-overlay" />
-            </div>
-          </div>
-          <div className="hero-content auth-hero-flex">
-            <div className="hero-text-overlay auth-hero-width">
-              <div className="auth-panel-glass">
-                <h1 className="auth-title">Sign In</h1>
-                <p className="auth-subtitle">Loading...</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    }>
-      <SignInForm />
-    </Suspense>
   );
 }
