@@ -87,6 +87,35 @@ export default function AdminPage() {
     }
   };
 
+  const deleteVerification = async (verificationId: string, userEmail: string | null) => {
+    if (!confirm(`Are you sure you want to delete this verification for ${userEmail}?\n\nThis action cannot be undone.`)) {
+      return;
+    }
+
+    try {
+      setActionLoading(true);
+      const res = await fetch(`/api/verification/delete?id=${verificationId}`, {
+        method: 'DELETE',
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setSuccessMessage('Verification deleted successfully');
+        loadVerifications(); // Reload the list
+        setTimeout(() => setSuccessMessage(''), 3000);
+      } else {
+        setError(data.error || 'Failed to delete verification');
+        setTimeout(() => setError(''), 3000);
+      }
+    } catch (error) {
+      setError('Failed to delete verification');
+      setTimeout(() => setError(''), 3000);
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   // Check for existing admin session on mount
   useEffect(() => {
     const checkExistingSession = async () => {
@@ -631,20 +660,38 @@ export default function AdminPage() {
                             {new Date(verification.createdAt).toLocaleDateString()}
                           </td>
                           <td style={{ padding: '1rem', textAlign: 'center' }}>
-                            <button
-                              onClick={() => router.push('/admin/verifications')}
-                              style={{
-                                padding: '0.5rem 1rem',
-                                background: 'rgba(59, 130, 246, 0.2)',
-                                border: '1px solid rgba(59, 130, 246, 0.5)',
-                                borderRadius: '6px',
-                                color: '#60a5fa',
-                                cursor: 'pointer',
-                                fontSize: '0.875rem',
-                              }}
-                            >
-                              {verification.status === 'pending' || verification.status === 'in_review' ? 'Review' : 'View'}
-                            </button>
+                            <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center' }}>
+                              <button
+                                onClick={() => router.push('/admin/verifications')}
+                                style={{
+                                  padding: '0.5rem 1rem',
+                                  background: 'rgba(59, 130, 246, 0.2)',
+                                  border: '1px solid rgba(59, 130, 246, 0.5)',
+                                  borderRadius: '6px',
+                                  color: '#60a5fa',
+                                  cursor: 'pointer',
+                                  fontSize: '0.875rem',
+                                }}
+                              >
+                                {verification.status === 'pending' || verification.status === 'in_review' ? 'Review' : 'View'}
+                              </button>
+                              <button
+                                onClick={() => deleteVerification(verification.id, verification.user.email)}
+                                disabled={actionLoading}
+                                style={{
+                                  padding: '0.5rem 1rem',
+                                  background: 'rgba(239, 68, 68, 0.2)',
+                                  border: '1px solid rgba(239, 68, 68, 0.5)',
+                                  borderRadius: '6px',
+                                  color: '#ef4444',
+                                  cursor: actionLoading ? 'not-allowed' : 'pointer',
+                                  fontSize: '0.875rem',
+                                  opacity: actionLoading ? 0.5 : 1,
+                                }}
+                              >
+                                Delete
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       );
