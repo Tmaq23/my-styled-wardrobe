@@ -1,11 +1,11 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 import prisma from '@/lib/prisma';
 import { verifyAdminAccess } from '@/lib/apiAuth';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const access = await verifyAdminAccess();
+    const access = await verifyAdminAccess(request);
 
     if (access.status === 'unauthenticated') {
       return NextResponse.json(

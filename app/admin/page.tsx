@@ -58,7 +58,9 @@ export default function AdminPage() {
       setLoading(true);
       setError(''); // Clear any previous errors
       console.log('Loading users...');
-      const res = await fetch('/api/admin/users');
+      const res = await fetch('/api/admin/users', {
+        credentials: 'include', // Important: include cookies
+      });
       console.log('Users API response status:', res.status);
       if (res.ok) {
         const data = await res.json();
@@ -81,7 +83,9 @@ export default function AdminPage() {
     try {
       setVerificationsLoading(true);
       console.log('Loading verifications...');
-      const res = await fetch('/api/verification/list?admin=true');
+      const res = await fetch('/api/verification/list?admin=true', {
+        credentials: 'include', // Important: include cookies
+      });
       console.log('Verifications API response status:', res.status);
       if (res.ok) {
         const data = await res.json();
