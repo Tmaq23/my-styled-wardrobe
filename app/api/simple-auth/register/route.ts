@@ -5,6 +5,7 @@ import bcrypt from 'bcryptjs';
 import prisma from '@/lib/prisma';
 import { consumeRateLimit } from '@/lib/rateLimit';
 import { createSessionValue, writeSessionCookie } from '@/lib/session';
+import { sendNewSignupAlert } from '@/lib/email';
 
 const WINDOW_MS = 15 * 60 * 1000; // 15 minutes
 const MAX_ATTEMPTS_PER_WINDOW = 10;
@@ -126,6 +127,16 @@ export async function POST(request: NextRequest) {
     });
 
     writeSessionCookie(cookieStore, sessionValue);
+
+    // Send signup alert to admin (non-blocking)
+    sendNewSignupAlert({
+      userEmail: user.email,
+      userName: user.name || undefined,
+      signupDate: new Date(),
+    }).catch((error) => {
+      // Log email errors but don't fail the request
+      console.error('Signup alert email error (non-blocking):', error);
+    });
 
     return NextResponse.json({
       success: true,

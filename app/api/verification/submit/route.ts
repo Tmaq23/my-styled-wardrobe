@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import prisma from '@/lib/prisma';
 import { verifyAdminAccess } from '@/lib/apiAuth';
+import { sendVerificationCompleteToCustomer } from '@/lib/email';
 
 export async function POST(request: NextRequest) {
   try {
@@ -81,6 +82,18 @@ export async function POST(request: NextRequest) {
           },
         },
       },
+    });
+
+    // Send completion notification to customer (non-blocking)
+    sendVerificationCompleteToCustomer({
+      customerEmail: updatedVerification.user.email || 'Unknown',
+      customerName: updatedVerification.user.name || undefined,
+      verifiedBodyShape,
+      verifiedColorPalette,
+      stylistNotes: stylistNotes || undefined,
+    }).catch((error) => {
+      // Log email errors but don't fail the request
+      console.error('Verification complete email error (non-blocking):', error);
     });
 
     return NextResponse.json({

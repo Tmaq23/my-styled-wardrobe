@@ -1,146 +1,341 @@
-// Email templates and retention logic
-const RESEND_API_KEY = process.env['RESEND_API_KEY'];
+import { Resend } from 'resend';
 
-export interface EmailTemplate {
-  subject: string;
-  html: string;
-  trigger: 'weekly_nudge' | 'new_items_match' | 'outfit_reminder' | 'seasonal_update';
-}
+const resend = new Resend(process.env['RESEND_API_KEY']);
 
-export const EMAIL_TEMPLATES: Record<string, EmailTemplate> = {
-  weekly_outfit_nudge: {
-    subject: 'New outfit ideas for your {PALETTE} palette 💫',
-    html: `
-      <h2>Hi {USER_NAME}!</h2>
-      <p>We've created some fresh outfit combinations just for you:</p>
-      
-      <div style="margin: 20px 0;">
-        <h3>This Week's Spotlight: {OUTFIT_NAME}</h3>
-        <p>{OUTFIT_DESCRIPTION}</p>
-        <img src="{OUTFIT_IMAGE}" alt="{OUTFIT_NAME}" style="max-width: 300px;" />
-      </div>
-      
-      <p><strong>3 ways to wear your {FEATURED_ITEM}:</strong></p>
-      <ol>
-        <li>{STYLING_TIP_1}</li>
-        <li>{STYLING_TIP_2}</li>
-        <li>{STYLING_TIP_3}</li>
-      </ol>
-      
-      <a href="{APP_URL}/style-interface" style="background: #6366f1; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px;">
-        Get More Outfit Ideas
-      </a>
-    `,
-    trigger: 'weekly_nudge'
-  },
-  
-  wardrobe_insights: {
-    subject: 'Your wardrobe stats are in! 📊',
-    html: `
-      <h2>Monthly Wardrobe Report</h2>
-      <p>Hi {USER_NAME}, here's how you styled this month:</p>
-      
-      <div style="background: #f8fafc; padding: 20px; border-radius: 8px; margin: 20px 0;">
-        <h3>Your Style Stats</h3>
-        <ul>
-          <li>You've worn <strong>{WEAR_PERCENTAGE}%</strong> of your wardrobe this month</li>
-          <li>Most loved item: <strong>{TOP_ITEM}</strong> (worn {WEAR_COUNT} times)</li>
-          <li>Average cost per wear: <strong>£{COST_PER_WEAR}</strong></li>
-        </ul>
-      </div>
-      
-      <p><strong>Style tip:</strong> {PERSONALIZED_TIP}</p>
-    `,
-    trigger: 'weekly_nudge'
-  },
-  
-  shopping_match: {
-    subject: 'Perfect match found for your wardrobe! 🎯',
-    html: `
-      <h2>We found something perfect for you</h2>
-      <p>This {ITEM_TYPE} would be amazing with items you already own:</p>
-      
-      <div style="border: 1px solid #e2e8f0; padding: 20px; border-radius: 8px; margin: 20px 0;">
-        <img src="{ITEM_IMAGE}" alt="{ITEM_NAME}" style="max-width: 200px;" />
-        <h3>{ITEM_NAME}</h3>
-        <p>{ITEM_DESCRIPTION}</p>
-        <p><strong>£{ITEM_PRICE}</strong> at {RETAILER}</p>
-        
-        <a href="{AFFILIATE_URL}" style="background: #10b981; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px;">
-          Shop Now
-        </a>
-      </div>
-      
-      <p><strong>Why this works for you:</strong> {STYLING_REASON}</p>
-    `,
-    trigger: 'new_items_match'
-  }
-};
+const ADMIN_EMAIL = 'admin@mystyledwardrobe.com';
+const FROM_EMAIL = 'MyStyled Wardrobe <admin@mystyledwardrobe.com>';
 
-export async function sendEmail(to: string, templateKey: string, variables: Record<string, string>) {
-  const template = EMAIL_TEMPLATES[templateKey];
-  if (!template) {
-    throw new Error(`Email template ${templateKey} not found`);
-  }
-  
-  let { subject, html } = template;
-  
-  // Replace variables in template
-  Object.entries(variables).forEach(([key, value]) => {
-    const placeholder = `{${key.toUpperCase()}}`;
-    subject = subject.replace(new RegExp(placeholder, 'g'), value);
-    html = html.replace(new RegExp(placeholder, 'g'), value);
-  });
-  
-  try {
-    const response = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${RESEND_API_KEY}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        from: 'stylist@mystyledwardrobe.com',
-        to: [to],
-        subject,
-        html
-      })
-    });
-    
-    if (!response.ok) {
-      throw new Error(`Email API failed: ${response.status}`);
-    }
-    
-    const result = await response.json();
-    console.log(`Email sent successfully: ${result.id}`);
-    return result;
-    
-  } catch (error) {
-    console.error('Failed to send email:', error);
-    throw error;
-  }
-}
-
-export async function scheduleWeeklyNudges(userId: string, userEmail: string, userProfile: {
-  name: string;
+/**
+ * Send verification request notification to admin with customer's AI analysis photo
+ */
+export async function sendVerificationRequestToAdmin({
+  customerEmail,
+  customerName,
+  bodyShape,
+  colorPalette,
+  imageUrls,
+  verificationId,
+}: {
+  customerEmail: string;
+  customerName?: string;
   bodyShape: string;
-  palette: string;
+  colorPalette: string;
+  imageUrls: string[];
+  verificationId: string;
 }) {
-  // This would typically be handled by a cron job or background worker
-  // For now, we'll just expose the function for manual triggering
-  
-  const variables = {
-    user_name: userProfile.name,
-    palette: userProfile.palette,
-    outfit_name: 'Casual Friday Chic',
-    outfit_description: 'Perfect blend of professional and relaxed',
-    outfit_image: 'https://picsum.photos/300/400?random=outfit',
-    featured_item: 'blazer',
-    styling_tip_1: 'Pair with jeans for a smart-casual look',
-    styling_tip_2: 'Layer over a dress for extra sophistication', 
-    styling_tip_3: 'Wear with trousers for a classic office outfit',
-    app_url: 'https://mystyledwardrobe.com'
-  };
-  
-  return await sendEmail(userEmail, 'weekly_outfit_nudge', variables);
+  try {
+    const imageAttachments = imageUrls.map((url, index) => ({
+      filename: `analysis-photo-${index + 1}.jpg`,
+      path: url,
+    }));
+
+    await resend.emails.send({
+      from: FROM_EMAIL,
+      to: ADMIN_EMAIL,
+      subject: `🎨 New Verification Request - ${customerEmail}`,
+      html: `
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          </head>
+          <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9fafb;">
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 16px 16px 0 0; text-align: center;">
+              <h1 style="color: white; margin: 0; font-size: 24px;">✨ New Verification Request</h1>
+            </div>
+            
+            <div style="background: white; padding: 30px; border-radius: 0 0 16px 16px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+              <h2 style="color: #667eea; margin-top: 0;">Customer Details</h2>
+              <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                <tr>
+                  <td style="padding: 10px; border-bottom: 1px solid #e5e7eb;"><strong>Name:</strong></td>
+                  <td style="padding: 10px; border-bottom: 1px solid #e5e7eb;">${customerName || 'N/A'}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 10px; border-bottom: 1px solid #e5e7eb;"><strong>Email:</strong></td>
+                  <td style="padding: 10px; border-bottom: 1px solid #e5e7eb;">${customerEmail}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 10px; border-bottom: 1px solid #e5e7eb;"><strong>Verification ID:</strong></td>
+                  <td style="padding: 10px; border-bottom: 1px solid #e5e7eb; font-family: monospace; font-size: 12px;">${verificationId}</td>
+                </tr>
+              </table>
+
+              <h2 style="color: #667eea;">AI Analysis Results</h2>
+              <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                <tr>
+                  <td style="padding: 10px; border-bottom: 1px solid #e5e7eb;"><strong>Body Shape:</strong></td>
+                  <td style="padding: 10px; border-bottom: 1px solid #e5e7eb;">${bodyShape}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 10px; border-bottom: 1px solid #e5e7eb;"><strong>Color Palette:</strong></td>
+                  <td style="padding: 10px; border-bottom: 1px solid #e5e7eb;">${colorPalette}</td>
+                </tr>
+              </table>
+
+              <h2 style="color: #667eea;">Customer Photos</h2>
+              <p style="color: #6b7280; margin-bottom: 20px;">The customer's analysis photos are attached to this email.</p>
+              ${imageUrls.map((url, index) => `
+                <div style="margin-bottom: 15px;">
+                  <p style="margin: 5px 0;"><strong>Photo ${index + 1}:</strong></p>
+                  <img src="${url}" alt="Analysis Photo ${index + 1}" style="max-width: 100%; height: auto; border-radius: 8px; border: 2px solid #e5e7eb;" />
+                </div>
+              `).join('')}
+
+              <div style="background-color: #f3f4f6; padding: 20px; border-radius: 12px; margin-top: 30px;">
+                <h3 style="margin-top: 0; color: #374151;">Next Steps</h3>
+                <ol style="color: #6b7280; padding-left: 20px;">
+                  <li>Review the AI analysis results and customer photos</li>
+                  <li>Log in to the admin dashboard</li>
+                  <li>Navigate to Stylist Verifications</li>
+                  <li>Complete the verification for ${customerEmail}</li>
+                </ol>
+                <a href="https://www.mystyledwardrobe.com/admin/verifications" style="display: inline-block; margin-top: 15px; padding: 12px 24px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-decoration: none; border-radius: 8px; font-weight: 600;">Go to Dashboard →</a>
+              </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 20px; color: #9ca3af; font-size: 14px;">
+              <p>MyStyled Wardrobe Admin Notification</p>
+            </div>
+          </body>
+        </html>
+      `,
+    });
+
+    console.log('✅ Verification request email sent to admin');
+    return { success: true };
+  } catch (error) {
+    console.error('❌ Failed to send verification request email to admin:', error);
+    return { success: false, error };
+  }
+}
+
+/**
+ * Send purchase confirmation to customer
+ */
+export async function sendVerificationConfirmationToCustomer({
+  customerEmail,
+  customerName,
+  bodyShape,
+  colorPalette,
+}: {
+  customerEmail: string;
+  customerName?: string;
+  bodyShape: string;
+  colorPalette: string;
+}) {
+  try {
+    await resend.emails.send({
+      from: FROM_EMAIL,
+      to: customerEmail,
+      subject: '✅ Verification Request Received - MyStyled Wardrobe',
+      html: `
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          </head>
+          <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9fafb;">
+            <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 30px; border-radius: 16px 16px 0 0; text-align: center;">
+              <h1 style="color: white; margin: 0; font-size: 24px;">✅ Payment Successful!</h1>
+            </div>
+            
+            <div style="background: white; padding: 30px; border-radius: 0 0 16px 16px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+              <h2 style="color: #10b981; margin-top: 0;">Thank You, ${customerName || 'Valued Customer'}!</h2>
+              <p style="color: #6b7280; font-size: 16px; line-height: 1.8;">
+                We've received your payment for professional stylist verification. A qualified stylist will now review your AI analysis results.
+              </p>
+
+              <div style="background-color: #f0fdf4; border-left: 4px solid #10b981; padding: 15px; margin: 20px 0; border-radius: 4px;">
+                <h3 style="margin-top: 0; color: #065f46;">Your AI Analysis Results</h3>
+                <p style="margin: 5px 0; color: #047857;"><strong>Body Shape:</strong> ${bodyShape}</p>
+                <p style="margin: 5px 0; color: #047857;"><strong>Color Palette:</strong> ${colorPalette}</p>
+              </div>
+
+              <h3 style="color: #374151;">What Happens Next?</h3>
+              <ol style="color: #6b7280; padding-left: 20px; line-height: 1.8;">
+                <li><strong>Professional Review:</strong> A qualified stylist will carefully review your AI analysis and photos</li>
+                <li><strong>Email Notification:</strong> You'll receive an email when your verification is complete (usually within 24-48 hours)</li>
+                <li><strong>Verified Results:</strong> Your verified body shape, color palette, and personalized styling recommendations will appear in your account</li>
+              </ol>
+
+              <div style="background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%); padding: 20px; border-radius: 12px; margin-top: 30px; text-align: center;">
+                <p style="color: #374151; margin: 0 0 15px 0; font-size: 15px;">
+                  <strong>⏰ Expected Timeline:</strong> Most verifications are completed within 24-48 hours
+                </p>
+                <a href="https://www.mystyledwardrobe.com/style-interface" style="display: inline-block; padding: 12px 24px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-decoration: none; border-radius: 8px; font-weight: 600;">View Your Style Interface →</a>
+              </div>
+
+              <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
+                <p style="color: #9ca3af; font-size: 14px; margin: 5px 0;">
+                  <strong>Order Details:</strong>
+                </p>
+                <p style="color: #9ca3af; font-size: 14px; margin: 5px 0;">
+                  Service: Professional Stylist Verification<br>
+                  Amount: £30.00<br>
+                  Email: ${customerEmail}
+                </p>
+              </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 20px; color: #9ca3af; font-size: 14px;">
+              <p>Questions? Reply to this email or visit our <a href="https://www.mystyledwardrobe.com/faq" style="color: #667eea; text-decoration: none;">FAQ page</a></p>
+              <p style="margin-top: 10px;">MyStyled Wardrobe</p>
+            </div>
+          </body>
+        </html>
+      `,
+    });
+
+    console.log('✅ Confirmation email sent to customer');
+    return { success: true };
+  } catch (error) {
+    console.error('❌ Failed to send confirmation email to customer:', error);
+    return { success: false, error };
+  }
+}
+
+/**
+ * Send new signup alert to admin
+ */
+export async function sendNewSignupAlert({
+  userEmail,
+  userName,
+  signupDate,
+}: {
+  userEmail: string;
+  userName?: string;
+  signupDate: Date;
+}) {
+  try {
+    await resend.emails.send({
+      from: FROM_EMAIL,
+      to: ADMIN_EMAIL,
+      subject: `🎉 New User Signup - ${userEmail}`,
+      html: `
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          </head>
+          <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9fafb;">
+            <div style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); padding: 30px; border-radius: 16px 16px 0 0; text-align: center;">
+              <h1 style="color: white; margin: 0; font-size: 24px;">🎉 New User Signup!</h1>
+            </div>
+            
+            <div style="background: white; padding: 30px; border-radius: 0 0 16px 16px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+              <p style="color: #6b7280; font-size: 16px; line-height: 1.8; margin-top: 0;">
+                A new user has just created an account on MyStyled Wardrobe!
+              </p>
+
+              <div style="background-color: #eff6ff; border-left: 4px solid #3b82f6; padding: 15px; margin: 20px 0; border-radius: 4px;">
+                <h3 style="margin-top: 0; color: #1e40af;">User Details</h3>
+                <p style="margin: 5px 0; color: #1e3a8a;"><strong>Name:</strong> ${userName || 'Not provided'}</p>
+                <p style="margin: 5px 0; color: #1e3a8a;"><strong>Email:</strong> ${userEmail}</p>
+                <p style="margin: 5px 0; color: #1e3a8a;"><strong>Signup Date:</strong> ${signupDate.toLocaleString('en-GB', { 
+                  dateStyle: 'full', 
+                  timeStyle: 'short',
+                  timeZone: 'Europe/London'
+                })}</p>
+              </div>
+
+              <div style="background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%); padding: 20px; border-radius: 12px; margin-top: 30px; text-align: center;">
+                <p style="color: #374151; margin: 0 0 15px 0;">View this user in your admin dashboard</p>
+                <a href="https://www.mystyledwardrobe.com/admin" style="display: inline-block; padding: 12px 24px; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; text-decoration: none; border-radius: 8px; font-weight: 600;">Go to Admin Dashboard →</a>
+              </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 20px; color: #9ca3af; font-size: 14px;">
+              <p>MyStyled Wardrobe Admin Notification</p>
+            </div>
+          </body>
+        </html>
+      `,
+    });
+
+    console.log('✅ New signup alert sent to admin');
+    return { success: true };
+  } catch (error) {
+    console.error('❌ Failed to send signup alert to admin:', error);
+    return { success: false, error };
+  }
+}
+
+/**
+ * Send verification completion notification to customer
+ */
+export async function sendVerificationCompleteToCustomer({
+  customerEmail,
+  customerName,
+  verifiedBodyShape,
+  verifiedColorPalette,
+  stylistNotes,
+}: {
+  customerEmail: string;
+  customerName?: string;
+  verifiedBodyShape: string;
+  verifiedColorPalette: string;
+  stylistNotes?: string;
+}) {
+  try {
+    await resend.emails.send({
+      from: FROM_EMAIL,
+      to: customerEmail,
+      subject: '🎨 Your Verification is Complete! - MyStyled Wardrobe',
+      html: `
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          </head>
+          <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9fafb;">
+            <div style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); padding: 30px; border-radius: 16px 16px 0 0; text-align: center;">
+              <h1 style="color: white; margin: 0; font-size: 24px;">🎨 Verification Complete!</h1>
+            </div>
+            
+            <div style="background: white; padding: 30px; border-radius: 0 0 16px 16px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+              <h2 style="color: #8b5cf6; margin-top: 0;">Great News, ${customerName || 'Valued Customer'}!</h2>
+              <p style="color: #6b7280; font-size: 16px; line-height: 1.8;">
+                A professional stylist has completed your verification. Your personalized style profile is now ready!
+              </p>
+
+              <div style="background-color: #faf5ff; border-left: 4px solid #8b5cf6; padding: 15px; margin: 20px 0; border-radius: 4px;">
+                <h3 style="margin-top: 0; color: #6b21a8;">Your Verified Results</h3>
+                <p style="margin: 5px 0; color: #7e22ce;"><strong>Body Shape:</strong> ${verifiedBodyShape}</p>
+                <p style="margin: 5px 0; color: #7e22ce;"><strong>Color Palette:</strong> ${verifiedColorPalette}</p>
+              </div>
+
+              ${stylistNotes ? `
+              <div style="background-color: #f0fdf4; border-left: 4px solid #10b981; padding: 15px; margin: 20px 0; border-radius: 4px;">
+                <h3 style="margin-top: 0; color: #065f46;">Stylist Notes</h3>
+                <p style="margin: 0; color: #047857; line-height: 1.8;">${stylistNotes}</p>
+              </div>
+              ` : ''}
+
+              <div style="background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%); padding: 20px; border-radius: 12px; margin-top: 30px; text-align: center;">
+                <h3 style="color: #374151; margin-top: 0;">Ready to Start Styling?</h3>
+                <p style="color: #6b7280; margin-bottom: 15px;">View your verified results and get personalized recommendations</p>
+                <a href="https://www.mystyledwardrobe.com/style-interface" style="display: inline-block; padding: 12px 24px; background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); color: white; text-decoration: none; border-radius: 8px; font-weight: 600;">View Your Style Profile →</a>
+              </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 20px; color: #9ca3af; font-size: 14px;">
+              <p>Questions? Reply to this email or visit our <a href="https://www.mystyledwardrobe.com/faq" style="color: #667eea; text-decoration: none;">FAQ page</a></p>
+              <p style="margin-top: 10px;">MyStyled Wardrobe</p>
+            </div>
+          </body>
+        </html>
+      `,
+    });
+
+    console.log('✅ Verification complete email sent to customer');
+    return { success: true };
+  } catch (error) {
+    console.error('❌ Failed to send verification complete email to customer:', error);
+    return { success: false, error };
+  }
 }

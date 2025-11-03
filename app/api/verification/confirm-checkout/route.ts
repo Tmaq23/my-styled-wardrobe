@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import prisma from '@/lib/prisma';
 import { getSessionContext } from '@/lib/apiAuth';
+import { sendVerificationRequestToAdmin, sendVerificationConfirmationToCustomer } from '@/lib/email';
 
 const STRIPE_SECRET_KEY = process.env['STRIPE_SECRET_KEY'];
 
@@ -80,6 +81,29 @@ export async function GET(request: NextRequest) {
           },
         },
       },
+    });
+
+    // Send emails asynchronously (don't block the response)
+    Promise.all([
+      // Send notification to admin with customer's photos
+      sendVerificationRequestToAdmin({
+        customerEmail: verification.user.email || 'Unknown',
+        customerName: verification.user.name || undefined,
+        bodyShape: verification.bodyShape,
+        colorPalette: verification.colorPalette,
+        imageUrls: verification.imageUrls,
+        verificationId: verification.id,
+      }),
+      // Send confirmation to customer
+      sendVerificationConfirmationToCustomer({
+        customerEmail: verification.user.email || 'Unknown',
+        customerName: verification.user.name || undefined,
+        bodyShape: verification.bodyShape,
+        colorPalette: verification.colorPalette,
+      }),
+    ]).catch((error) => {
+      // Log email errors but don't fail the request
+      console.error('Email sending error (non-blocking):', error);
     });
 
     return NextResponse.json({
