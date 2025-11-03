@@ -2868,6 +2868,22 @@ hr {
   opacity: 0 !important;
 }
 
+/* Remove all borders from blog content elements (tables, divs, etc.) */
+.blog-content *,
+.blog-content table,
+.blog-content tr,
+.blog-content td,
+.blog-content th,
+.blog-content div,
+.blog-content span {
+  border: none !important;
+  border-top: none !important;
+  border-bottom: none !important;
+  border-left: none !important;
+  border-right: none !important;
+  outline: none !important;
+}
+
 /* Remove decorative horizontal lines on blog posts */
 .blog-content-wrapper::before,
 .blog-content-wrapper::after,
