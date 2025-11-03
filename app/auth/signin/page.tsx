@@ -26,27 +26,35 @@ export default function SignIn() {
     setError('');
 
     try {
+      console.log('Attempting login for:', email);
       const res = await fetch('/api/simple-auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ email, password }),
+        credentials: 'include', // Important: include cookies
       });
 
+      console.log('Login response status:', res.status);
       const data = await res.json();
+      console.log('Login response data:', data);
 
       if (res.ok && data.success) {
         // Redirect to specified page or default to style interface
         const redirectPath = redirect || '/style-interface';
+        console.log('Login successful, redirecting to:', redirectPath);
         router.push(redirectPath);
         router.refresh();
       } else {
-        setError(data.error || 'Invalid email or password');
+        const errorMsg = data.error || 'Invalid email or password';
+        console.error('Login failed:', errorMsg);
+        setError(errorMsg);
+        setIsLoading(false);
       }
     } catch (error) {
+      console.error('Login error:', error);
       setError('Something went wrong. Please try again.');
-    } finally {
       setIsLoading(false);
     }
   };

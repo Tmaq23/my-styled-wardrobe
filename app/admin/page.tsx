@@ -131,13 +131,21 @@ export default function AdminPage() {
   useEffect(() => {
     const checkExistingSession = async () => {
       try {
-        const res = await fetch('/api/admin/check-session');
+        console.log('Checking existing admin session...');
+        const res = await fetch('/api/admin/check-session', {
+          credentials: 'include', // Important: include cookies
+        });
+        console.log('Session check response status:', res.status);
         if (res.ok) {
           const data = await res.json();
+          console.log('Session check data:', data);
           if (data.authenticated) {
+            console.log('Admin session exists, authenticating...');
             setIsAuthenticated(true);
             loadUsers();
             loadVerifications();
+          } else {
+            console.log('No admin session found');
           }
         }
       } catch (error) {
@@ -153,13 +161,20 @@ export default function AdminPage() {
 
   const checkAdminAuth = async (username: string, password: string) => {
     try {
+      console.log('Attempting admin login for:', username);
       const res = await fetch('/api/admin/auth', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password }),
+        credentials: 'include', // Important: include cookies
       });
 
-      if (res.ok) {
+      console.log('Admin login response status:', res.status);
+      const data = await res.json();
+      console.log('Admin login response data:', data);
+
+      if (res.ok && data.success) {
+        console.log('Admin login successful');
         setIsAuthenticated(true);
         setError('');
         loadUsers();
@@ -173,10 +188,12 @@ export default function AdminPage() {
           window.dispatchEvent(new Event('sessionUpdated'));
         }, 500);
       } else {
-        const data = await res.json();
-        setError(data.error || 'Invalid credentials');
+        const errorMsg = data.error || 'Invalid credentials';
+        console.error('Admin login failed:', errorMsg);
+        setError(errorMsg);
       }
     } catch (error) {
+      console.error('Admin login error:', error);
       setError('Authentication failed');
     }
   };
