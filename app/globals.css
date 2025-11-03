@@ -2847,6 +2847,13 @@ label {
   display: block;
 }
 
+/* Remove strikethrough styling */
+.blog-content del,
+.blog-content s,
+.blog-content strike {
+  text-decoration: none !important;
+}
+
 /* Mobile Optimization for Blog Posts */
 @media (max-width: 768px) {
   body {
