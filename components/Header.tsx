@@ -149,28 +149,28 @@ export default function Header() {
               
               <div className="mobile-menu-links">
                 <Link href="/" className="mobile-nav-link" onClick={() => setMobileMenuOpen(false)}>
-                  🏠 Home
+                  Home
                 </Link>
                 <Link href="/about" className="mobile-nav-link" onClick={() => setMobileMenuOpen(false)}>
-                  ℹ️ About Us
+                  About Us
                 </Link>
                 <Link href="/style-interface" className="mobile-nav-link" onClick={() => setMobileMenuOpen(false)}>
-                  ✨ AI Style Analysis
+                  AI Style Analysis
                 </Link>
                 <Link href="/wardrobe-ideas" className="mobile-nav-link" onClick={() => setMobileMenuOpen(false)}>
-                  👗 Wardrobe Ideas
+                  Wardrobe Ideas
                 </Link>
                 <Link href="/styling" className="mobile-nav-link" onClick={() => setMobileMenuOpen(false)}>
-                  💅 Styling
+                  Styling
                 </Link>
                 <Link href="/blog" className="mobile-nav-link" onClick={() => setMobileMenuOpen(false)}>
-                  📝 Blog
+                  Blog
                 </Link>
                 <Link href="/pricing" className="mobile-nav-link" onClick={() => setMobileMenuOpen(false)}>
-                  💰 Pricing
+                  Pricing
                 </Link>
                 <Link href="/faq" className="mobile-nav-link" onClick={() => setMobileMenuOpen(false)}>
-                  ❓ FAQ
+                  FAQ
                 </Link>
               </div>
 
