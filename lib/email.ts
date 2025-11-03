@@ -1,6 +1,9 @@
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env['RESEND_API_KEY']);
+// Initialize Resend with a dummy key if not provided (build time)
+// The real key will be used at runtime from environment variables
+const RESEND_API_KEY = process.env['RESEND_API_KEY'] || 're_dummy_key_for_build';
+const resend = new Resend(RESEND_API_KEY);
 
 const ADMIN_EMAIL = 'admin@mystyledwardrobe.com';
 const FROM_EMAIL = 'MyStyled Wardrobe <admin@mystyledwardrobe.com>';
