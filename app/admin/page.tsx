@@ -53,36 +53,6 @@ export default function AdminPage() {
   const [newUserIsAdmin, setNewUserIsAdmin] = useState(false);
   const router = useRouter();
 
-  const checkAdminAuth = async (username: string, password: string) => {
-    try {
-      const res = await fetch('/api/admin/auth', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password }),
-      });
-
-      if (res.ok) {
-        setIsAuthenticated(true);
-        setError('');
-        loadUsers();
-        loadVerifications(); // Load verification purchases
-        
-        // Trigger session update in Header component
-        window.dispatchEvent(new Event('sessionUpdated'));
-        
-        // Also check session immediately after a short delay to ensure cookie is set
-        setTimeout(() => {
-          window.dispatchEvent(new Event('sessionUpdated'));
-        }, 500);
-      } else {
-        const data = await res.json();
-        setError(data.error || 'Invalid credentials');
-      }
-    } catch (error) {
-      setError('Authentication failed');
-    }
-  };
-
   const loadUsers = async () => {
     try {
       setLoading(true);
@@ -114,6 +84,60 @@ export default function AdminPage() {
       console.error('Failed to load verifications:', error);
     } finally {
       setVerificationsLoading(false);
+    }
+  };
+
+  // Check for existing admin session on mount
+  useEffect(() => {
+    const checkExistingSession = async () => {
+      try {
+        const res = await fetch('/api/admin/check-session');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.authenticated) {
+            setIsAuthenticated(true);
+            loadUsers();
+            loadVerifications();
+          }
+        }
+      } catch (error) {
+        console.error('Session check failed:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    checkExistingSession();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const checkAdminAuth = async (username: string, password: string) => {
+    try {
+      const res = await fetch('/api/admin/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
+      });
+
+      if (res.ok) {
+        setIsAuthenticated(true);
+        setError('');
+        loadUsers();
+        loadVerifications(); // Load verification purchases
+        
+        // Trigger session update in Header component
+        window.dispatchEvent(new Event('sessionUpdated'));
+        
+        // Also check session immediately after a short delay to ensure cookie is set
+        setTimeout(() => {
+          window.dispatchEvent(new Event('sessionUpdated'));
+        }, 500);
+      } else {
+        const data = await res.json();
+        setError(data.error || 'Invalid credentials');
+      }
+    } catch (error) {
+      setError('Authentication failed');
     }
   };
 
