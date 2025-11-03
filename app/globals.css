@@ -2875,13 +2875,18 @@ hr {
 .blog-content td,
 .blog-content th,
 .blog-content div,
-.blog-content span {
+.blog-content span,
+.blog-article *,
+.blog-content-wrapper * {
   border: none !important;
   border-top: none !important;
   border-bottom: none !important;
   border-left: none !important;
   border-right: none !important;
   outline: none !important;
+  box-shadow: none !important;
+  text-decoration: none !important;
+  background-image: none !important;
 }
 
 /* Remove decorative horizontal lines on blog posts */
