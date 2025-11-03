@@ -153,41 +153,19 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
       <Header />
       
       {/* Article Header */}
-      <article style={{ maxWidth: '800px', margin: '0 auto', padding: '6rem 2rem 0' }}>
+      <article className="blog-article">
         <Link
           href="/blog"
-          style={{
-            display: 'inline-block',
-            color: 'rgba(129,140,248,0.95)',
-            textDecoration: 'none',
-            fontWeight: '600',
-            marginBottom: '2rem',
-            transition: 'color 0.2s'
-          }}
-          onMouseEnter={(e) => e.currentTarget.style.color = 'rgba(168,85,247,1)'}
-          onMouseLeave={(e) => e.currentTarget.style.color = 'rgba(129,140,248,0.95)'}
+          className="blog-back-link"
         >
           ← Back to Blog
         </Link>
 
-        <h1 style={{
-          fontSize: '3rem',
-          fontWeight: '700',
-          lineHeight: '1.2',
-          marginBottom: '1.5rem',
-          color: 'white'
-        }}>
+        <h1 className="blog-title">
           {post.title}
         </h1>
 
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '1rem',
-          marginBottom: '2rem',
-          fontSize: '0.95rem',
-          color: 'rgba(196,203,255,0.7)'
-        }}>
+        <div className="blog-meta">
           <span style={{ fontWeight: '600' }}>
             {post.author.name || post.author.email}
           </span>
@@ -198,14 +176,7 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
         </div>
 
         {post.coverImage && (
-          <div style={{
-            position: 'relative',
-            width: '100%',
-            height: '500px',
-            borderRadius: '12px',
-            overflow: 'hidden',
-            marginBottom: '3rem'
-          }}>
+          <div className="blog-cover-image">
             <Image
               src={post.coverImage}
               alt={post.title}
@@ -217,12 +188,7 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
 
         {/* Article Content */}
         <div 
-          style={{
-            fontSize: '1.1rem',
-            lineHeight: '1.8',
-            color: 'rgba(226,232,255,0.88)',
-            marginBottom: '4rem'
-          }}
+          className="blog-content"
           dangerouslySetInnerHTML={{ __html: post.content }}
         />
         
