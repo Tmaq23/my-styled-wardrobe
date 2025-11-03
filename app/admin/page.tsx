@@ -56,15 +56,22 @@ export default function AdminPage() {
   const loadUsers = async () => {
     try {
       setLoading(true);
+      setError(''); // Clear any previous errors
+      console.log('Loading users...');
       const res = await fetch('/api/admin/users');
+      console.log('Users API response status:', res.status);
       if (res.ok) {
         const data = await res.json();
+        console.log('Users loaded:', data.users?.length || 0);
         setUsers(data.users);
       } else {
-        setError('Failed to load users');
+        const errorText = await res.text();
+        console.error('Failed to load users:', res.status, errorText);
+        setError(`Failed to load users: ${res.status}`);
       }
     } catch (error) {
-      setError('Failed to load users');
+      console.error('Failed to load users exception:', error);
+      setError('Failed to load users: Network error');
     } finally {
       setLoading(false);
     }
