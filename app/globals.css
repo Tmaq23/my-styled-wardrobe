@@ -2854,16 +2854,6 @@ label {
   text-decoration: none !important;
 }
 
-/* Remove horizontal rule lines */
-.blog-content hr,
-.blog-article hr {
-  display: none !important;
-  border: none !important;
-  height: 0 !important;
-  margin: 0 !important;
-  padding: 0 !important;
-}
-
 /* Mobile Optimization for Blog Posts */
 @media (max-width: 768px) {
   body {
