@@ -2951,6 +2951,32 @@ html hr {
   border-bottom: none !important;
 }
 
+/* Hide empty list items and bullets that appear as dashes/lines */
+.blog-content ul,
+.blog-content ol,
+.blog-article ul,
+.blog-article ol,
+.blog-content-wrapper ul,
+.blog-content-wrapper ol {
+  list-style: none !important;
+  padding-left: 0 !important;
+  margin-left: 0 !important;
+}
+
+.blog-content li:empty,
+.blog-article li:empty,
+.blog-content-wrapper li:empty {
+  display: none !important;
+}
+
+.blog-content li::before,
+.blog-content li::after,
+.blog-article li::before,
+.blog-article li::after {
+  content: none !important;
+  display: none !important;
+}
+
 /* Mobile Optimization for Blog Posts */
 @media (max-width: 768px) {
   body {
