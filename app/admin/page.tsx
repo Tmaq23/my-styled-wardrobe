@@ -160,8 +160,16 @@ export default function AdminPage() {
   }, []);
 
   const checkAdminAuth = async (username: string, password: string) => {
+    if (!username || !password) {
+      setError('Please enter both username and password');
+      return;
+    }
+
     try {
+      setError('');
+      setActionLoading(true);
       console.log('Attempting admin login for:', username);
+      
       const res = await fetch('/api/admin/auth', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -170,13 +178,24 @@ export default function AdminPage() {
       });
 
       console.log('Admin login response status:', res.status);
-      const data = await res.json();
-      console.log('Admin login response data:', data);
+      console.log('Admin login response ok:', res.ok);
+      
+      let data;
+      try {
+        data = await res.json();
+        console.log('Admin login response data:', data);
+      } catch (parseError) {
+        console.error('Failed to parse response:', parseError);
+        setError('Failed to parse server response');
+        setActionLoading(false);
+        return;
+      }
 
       if (res.ok && data.success) {
         console.log('Admin login successful');
         setIsAuthenticated(true);
         setError('');
+        setActionLoading(false);
         loadUsers();
         loadVerifications(); // Load verification purchases
         
@@ -188,13 +207,15 @@ export default function AdminPage() {
           window.dispatchEvent(new Event('sessionUpdated'));
         }, 500);
       } else {
-        const errorMsg = data.error || 'Invalid credentials';
+        const errorMsg = data?.error || 'Invalid credentials';
         console.error('Admin login failed:', errorMsg);
         setError(errorMsg);
+        setActionLoading(false);
       }
     } catch (error) {
       console.error('Admin login error:', error);
-      setError('Authentication failed');
+      setError('Authentication failed. Please try again.');
+      setActionLoading(false);
     }
   };
 
@@ -403,18 +424,22 @@ export default function AdminPage() {
           />
           <button
             onClick={() => checkAdminAuth(adminUsername, adminPassword)}
+            disabled={actionLoading}
             style={{
               width: '100%',
               padding: '0.75rem',
-              background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+              background: actionLoading 
+                ? 'rgba(99, 102, 241, 0.5)' 
+                : 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
               border: 'none',
               borderRadius: '8px',
               color: 'white',
               fontWeight: '600',
-              cursor: 'pointer',
+              cursor: actionLoading ? 'not-allowed' : 'pointer',
+              opacity: actionLoading ? 0.6 : 1,
             }}
           >
-            Authenticate
+            {actionLoading ? 'Authenticating...' : 'Authenticate'}
           </button>
         </div>
       </div>
