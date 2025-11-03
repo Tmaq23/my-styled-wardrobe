@@ -342,3 +342,97 @@ export async function sendVerificationCompleteToCustomer({
     return { success: false, error };
   }
 }
+
+/**
+ * Send welcome email to new customer
+ */
+export async function sendWelcomeEmail({
+  customerEmail,
+  customerName,
+}: {
+  customerEmail: string;
+  customerName?: string;
+}) {
+  try {
+    await resend.emails.send({
+      from: FROM_EMAIL,
+      to: customerEmail,
+      subject: '👋 Welcome to MyStyled Wardrobe!',
+      html: `
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          </head>
+          <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9fafb;">
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 16px 16px 0 0; text-align: center;">
+              <h1 style="color: white; margin: 0; font-size: 28px;">👋 Welcome!</h1>
+            </div>
+            
+            <div style="background: white; padding: 30px; border-radius: 0 0 16px 16px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+              <h2 style="color: #667eea; margin-top: 0;">Hi ${customerName || 'there'}! 🎉</h2>
+              <p style="color: #6b7280; font-size: 16px; line-height: 1.8;">
+                Thank you for joining <strong>MyStyled Wardrobe</strong>! We're thrilled to help you discover your perfect style and make the most of your wardrobe.
+              </p>
+
+              <div style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); padding: 20px; border-radius: 12px; margin: 25px 0; border-left: 4px solid #f59e0b;">
+                <h3 style="margin-top: 0; color: #78350f; font-size: 18px;">✨ What You Can Do Now</h3>
+                <ul style="color: #92400e; padding-left: 20px; margin: 10px 0; line-height: 2;">
+                  <li><strong>AI Style Analysis:</strong> Upload your photos and discover your body shape and color palette</li>
+                  <li><strong>Wardrobe Upload:</strong> Add your existing clothes and get outfit recommendations</li>
+                  <li><strong>Professional Verification:</strong> Get your AI results verified by a qualified stylist (£30)</li>
+                  <li><strong>Personalized Styling:</strong> Receive recommendations tailored to your unique style</li>
+                </ul>
+              </div>
+
+              <div style="background-color: #f0f9ff; border-left: 4px solid #3b82f6; padding: 15px; margin: 20px 0; border-radius: 4px;">
+                <h3 style="margin-top: 0; color: #1e40af;">🎁 Your Free Trial</h3>
+                <p style="margin: 5px 0; color: #1e3a8a; line-height: 1.8;">
+                  <strong>1 FREE AI Analysis</strong> - Discover your body shape and color palette<br>
+                  <strong>Upload up to 6 items</strong> - Build your digital wardrobe<br>
+                  <strong>10 outfit generations</strong> - Get styling ideas from your clothes
+                </p>
+              </div>
+
+              <div style="text-align: center; margin: 30px 0;">
+                <a href="https://www.mystyledwardrobe.com/style-interface" style="display: inline-block; padding: 15px 30px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);">Start Your Style Journey →</a>
+              </div>
+
+              <div style="background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%); padding: 20px; border-radius: 12px; margin-top: 30px;">
+                <h3 style="color: #374151; margin-top: 0; font-size: 16px;">💡 Quick Start Tips</h3>
+                <ol style="color: #6b7280; padding-left: 20px; margin: 10px 0; line-height: 1.8;">
+                  <li>Head to the <strong>Style Interface</strong> to run your AI analysis</li>
+                  <li>Upload clear, well-lit photos for the best results</li>
+                  <li>Explore your wardrobe and generate outfit ideas</li>
+                  <li>Consider professional verification for expert confirmation</li>
+                </ol>
+              </div>
+
+              <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb; text-align: center;">
+                <p style="color: #6b7280; font-size: 14px; line-height: 1.8; margin: 5px 0;">
+                  <strong>Need help?</strong> We're here for you!<br>
+                  Reply to this email or check out our <a href="https://www.mystyledwardrobe.com/faq" style="color: #667eea; text-decoration: none;">FAQ page</a>
+                </p>
+              </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 20px; color: #9ca3af; font-size: 14px;">
+              <p style="margin: 5px 0;">Happy styling! ✨</p>
+              <p style="margin: 5px 0;">The MyStyled Wardrobe Team</p>
+              <p style="margin: 15px 0 5px 0; font-size: 12px;">
+                <a href="https://www.mystyledwardrobe.com" style="color: #9ca3af; text-decoration: none;">mystyledwardrobe.com</a>
+              </p>
+            </div>
+          </body>
+        </html>
+      `,
+    });
+
+    console.log('✅ Welcome email sent to customer');
+    return { success: true };
+  } catch (error) {
+    console.error('❌ Failed to send welcome email to customer:', error);
+    return { success: false, error };
+  }
+}
