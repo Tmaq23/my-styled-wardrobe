@@ -82,28 +82,46 @@ export async function POST(request: NextRequest) {
     let authenticatedUser: { id: string; email: string | null; name: string | null; isAdmin: boolean } | null = null;
     let isSuperAdmin = false;
 
-    if (safeCompare(rawUsername, adminUsername) && safeCompare(suppliedPassword, adminPassword)) {
-      const adminRecord = await prisma.user.upsert({
-        where: { email: adminUsername },
-        update: {
-          name: 'Master Admin',
-          isAdmin: true,
-        },
-        create: {
-          email: adminUsername,
-          name: 'Master Admin',
-          isAdmin: true,
-        },
-        select: {
-          id: true,
-          email: true,
-          name: true,
-          isAdmin: true,
-        },
-      });
+    console.log('Comparing credentials:', {
+      rawUsername: rawUsername.substring(0, 3) + '***',
+      adminUsername: adminUsername ? adminUsername.substring(0, 3) + '***' : 'NOT SET',
+      passwordLength: suppliedPassword.length,
+      adminPasswordLength: adminPassword ? adminPassword.length : 0,
+    });
 
-      authenticatedUser = adminRecord;
-      isSuperAdmin = true;
+    const usernameMatch = safeCompare(rawUsername, adminUsername);
+    const passwordMatch = safeCompare(suppliedPassword, adminPassword);
+    console.log('Credential comparison:', { usernameMatch, passwordMatch });
+
+    if (usernameMatch && passwordMatch) {
+      try {
+        console.log('Master admin credentials match, creating/updating admin record...');
+        const adminRecord = await prisma.user.upsert({
+          where: { email: adminUsername },
+          update: {
+            name: 'Master Admin',
+            isAdmin: true,
+          },
+          create: {
+            email: adminUsername,
+            name: 'Master Admin',
+            isAdmin: true,
+          },
+          select: {
+            id: true,
+            email: true,
+            name: true,
+            isAdmin: true,
+          },
+        });
+
+        console.log('Admin record:', adminRecord);
+        authenticatedUser = adminRecord;
+        isSuperAdmin = true;
+      } catch (dbError) {
+        console.error('Database error creating admin record:', dbError);
+        throw dbError; // Re-throw to be caught by outer catch
+      }
     } else {
       const adminUser = await prisma.user.findUnique({
         where: { email: normalizedUsername },
@@ -166,8 +184,19 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error('Admin auth error:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const errorStack = error instanceof Error ? error.stack : '';
+    console.error('Admin auth error details:', {
+      message: errorMessage,
+      stack: errorStack,
+      error: String(error),
+    });
     return NextResponse.json(
-      { success: false, error: 'Authentication failed' },
+      { 
+        success: false, 
+        error: 'Authentication failed',
+        details: process.env.NODE_ENV === 'development' ? errorMessage : undefined,
+      },
       { status: 500 }
     );
   }

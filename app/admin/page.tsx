@@ -208,8 +208,9 @@ export default function AdminPage() {
         }, 500);
       } else {
         const errorMsg = data?.error || 'Invalid credentials';
-        console.error('Admin login failed:', errorMsg);
-        setError(errorMsg);
+        const errorDetails = data?.details ? `: ${data.details}` : '';
+        console.error('Admin login failed:', errorMsg, errorDetails);
+        setError(errorMsg + errorDetails);
         setActionLoading(false);
       }
     } catch (error) {
