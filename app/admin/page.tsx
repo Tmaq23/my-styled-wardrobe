@@ -73,12 +73,16 @@ export default function AdminPage() {
   const loadVerifications = async () => {
     try {
       setVerificationsLoading(true);
+      console.log('Loading verifications...');
       const res = await fetch('/api/verification/list?admin=true');
+      console.log('Verifications API response status:', res.status);
       if (res.ok) {
         const data = await res.json();
+        console.log('Verifications loaded:', data.verifications?.length || 0);
         setVerifications(data.verifications || []);
       } else {
-        console.error('Failed to load verifications');
+        const errorText = await res.text();
+        console.error('Failed to load verifications:', res.status, errorText);
       }
     } catch (error) {
       console.error('Failed to load verifications:', error);
