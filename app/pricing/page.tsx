@@ -19,18 +19,17 @@ export default function PricingPage() {
           <div className="pricing-grid">
             <div className="pricing-card">
               <div className="plan-header">
-                <h3>Basic</h3>
+                <h3>Professional Review</h3>
                 <div className="price">
                   <span className="currency">£</span>
-                  <span className="amount">0</span>
-                  <span className="period">/month</span>
+                  <span className="amount">30</span>
+                  <span className="period">one off payment</span>
                 </div>
               </div>
               <ul className="features">
                 <li><span className="icon-inline small"><img src="/icons/check.svg" alt="Included" width={14} height={14} /></span>Body Shape Analysis</li>
                 <li><span className="icon-inline small"><img src="/icons/check.svg" alt="Included" width={14} height={14} /></span>Color Palette Discovery</li>
                 <li><span className="icon-inline small"><img src="/icons/check.svg" alt="Included" width={14} height={14} /></span>Basic Outfit Suggestions</li>
-                <li><span className="icon-inline small"><img src="/icons/check.svg" alt="Included" width={14} height={14} /></span>Limited Shopping Links</li>
               </ul>
               <Link href="/" className="plan-button">
                 Get Started Free
