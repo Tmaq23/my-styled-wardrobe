@@ -95,7 +95,7 @@ export default function PricingPage() {
                 <li><span className="icon-inline small"><img src="/icons/check.svg" alt="Included" width={14} height={14} /></span>Basic Outfit Suggestions</li>
               </ul>
               <Link href="#" onClick={handleGetStarted} className="plan-button">
-                {isLoading ? 'Loading...' : 'Get Started Free'}
+                {isLoading ? 'Loading...' : 'Get Started'}
               </Link>
             </div>
 
