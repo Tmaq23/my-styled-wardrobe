@@ -59,6 +59,8 @@ export default function CustomShopRequestModal({
     setError('');
 
     try {
+      console.log('🛒 Starting custom shop payment process...');
+      
       // Create Stripe Checkout session
       const response = await fetch('/api/custom-shop/create-checkout', {
         method: 'POST',
@@ -77,21 +79,36 @@ export default function CustomShopRequestModal({
         }),
       });
 
+      console.log('📡 Response status:', response.status);
+
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to create checkout session');
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        console.error('❌ Payment error:', errorData);
+        
+        // Provide user-friendly error messages
+        if (response.status === 401) {
+          throw new Error('Please sign in to request a custom shop. Click the LOG IN button at the top of the page.');
+        } else if (response.status === 500 && errorData.error?.includes('not configured')) {
+          throw new Error('Payment system is currently unavailable. Please contact support at support@mystyledwardrobe.com');
+        } else {
+          throw new Error(errorData.error || `Payment failed (Error ${response.status}). Please try again.`);
+        }
       }
 
       const data = await response.json();
+      console.log('✅ Checkout session created:', data);
       
       // Redirect to Stripe Checkout
       if (data.checkoutUrl) {
+        console.log('🔄 Redirecting to Stripe Checkout...');
         window.location.href = data.checkoutUrl;
       } else {
-        throw new Error('No checkout URL received');
+        throw new Error('No payment URL received. Please contact support.');
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to start checkout. Please try again.');
+      console.error('💥 Payment error:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Failed to start checkout. Please try again.';
+      setError(errorMessage);
       setIsSubmitting(false);
     }
   };
