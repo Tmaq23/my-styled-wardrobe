@@ -59,7 +59,8 @@ export default function CustomShopRequestModal({
     setError('');
 
     try {
-      const response = await fetch('/api/request-custom-shop', {
+      // Create Stripe Checkout session
+      const response = await fetch('/api/custom-shop/create-checkout', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -77,13 +78,20 @@ export default function CustomShopRequestModal({
       });
 
       if (!response.ok) {
-        throw new Error('Failed to submit request');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to create checkout session');
       }
 
-      setSubmitted(true);
+      const data = await response.json();
+      
+      // Redirect to Stripe Checkout
+      if (data.checkoutUrl) {
+        window.location.href = data.checkoutUrl;
+      } else {
+        throw new Error('No checkout URL received');
+      }
     } catch (err) {
-      setError('Failed to submit request. Please try again.');
-    } finally {
+      setError(err instanceof Error ? err.message : 'Failed to start checkout. Please try again.');
       setIsSubmitting(false);
     }
   };
@@ -136,6 +144,19 @@ export default function CustomShopRequestModal({
               >
                 ×
               </button>
+            </div>
+
+            <div style={{
+              background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+              color: 'white',
+              padding: '1rem',
+              borderRadius: '8px',
+              marginBottom: '1rem',
+              textAlign: 'center'
+            }}>
+              <p style={{ margin: 0, fontSize: '1.125rem', fontWeight: '600' }}>
+                Service Fee: £120
+              </p>
             </div>
 
             <p style={{ color: '#64748b', marginBottom: '1.5rem', lineHeight: '1.6' }}>
@@ -291,11 +312,11 @@ export default function CustomShopRequestModal({
 
               <button
                 type="submit"
-                disabled={isSubmitting}
+                disabled={isSubmitting || selectedRetailers.length === 0}
                 style={{
                   width: '100%',
                   padding: '1rem',
-                  background: isSubmitting
+                  background: (isSubmitting || selectedRetailers.length === 0)
                     ? '#9ca3af'
                     : 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
                   color: 'white',
@@ -303,12 +324,22 @@ export default function CustomShopRequestModal({
                   borderRadius: '8px',
                   fontSize: '1rem',
                   fontWeight: '600',
-                  cursor: isSubmitting ? 'not-allowed' : 'pointer',
+                  cursor: (isSubmitting || selectedRetailers.length === 0) ? 'not-allowed' : 'pointer',
                   boxShadow: '0 4px 15px rgba(99, 102, 241, 0.4)',
                 }}
               >
-                {isSubmitting ? 'Submitting...' : 'Submit Request'}
+                {isSubmitting ? 'Processing...' : 'Proceed to Payment (£120)'}
               </button>
+              
+              <p style={{ 
+                fontSize: '0.875rem', 
+                color: '#64748b', 
+                textAlign: 'center',
+                marginTop: '0.75rem',
+                marginBottom: 0 
+              }}>
+                Secure payment powered by Stripe
+              </p>
             </form>
           </>
         ) : (
