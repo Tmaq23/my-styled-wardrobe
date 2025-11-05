@@ -208,6 +208,39 @@ export default function StyleInterfacePage() {
           </div>
         </div>
 
+        {/* Analysis Results Section */}
+        {aiAnalysis && (
+          <div className="analysis-results-section">
+            <div className="results-card">
+              <h3>AI Analysis Results</h3>
+              <div className="results-grid">
+                <div className="result-item">
+                  <span className="result-label">Body Shape:</span>
+                  <span className="result-value">{aiAnalysis.bodyShape}</span>
+                </div>
+                <div className="result-item">
+                  <span className="result-label">Colour Palette:</span>
+                  <span className="result-value">{aiAnalysis.colorPalette}</span>
+                </div>
+              </div>
+              
+              {/* Verification Request Component */}
+              {aiAnalysis?.bodyShape && aiAnalysis?.colorPalette && (
+                <VerificationRequest
+                  bodyShape={aiAnalysis.bodyShape}
+                  colorPalette={aiAnalysis.colorPalette}
+                  bodyImageUrl={aiAnalysis.bodyImageUrl}
+                  faceImageUrl={aiAnalysis.faceImageUrl}
+                  onVerificationComplete={() => {
+                    // Refresh or update UI after verification
+                    console.log('Verification requested successfully');
+                  }}
+                />
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Shop Preferences Section */}
         <div className="preferences-section">
           <div className="preferences-card">
@@ -284,39 +317,6 @@ export default function StyleInterfacePage() {
             </button>
           </div>
         </div>
-
-        {/* Analysis Results Section */}
-        {aiAnalysis && (
-          <div className="analysis-results-section">
-            <div className="results-card">
-              <h3>AI Analysis Results</h3>
-              <div className="results-grid">
-                <div className="result-item">
-                  <span className="result-label">Body Shape:</span>
-                  <span className="result-value">{aiAnalysis.bodyShape}</span>
-                </div>
-                <div className="result-item">
-                  <span className="result-label">Colour Palette:</span>
-                  <span className="result-value">{aiAnalysis.colorPalette}</span>
-                </div>
-              </div>
-              
-              {/* Verification Request Component */}
-              {aiAnalysis?.bodyShape && aiAnalysis?.colorPalette && (
-                <VerificationRequest
-                  bodyShape={aiAnalysis.bodyShape}
-                  colorPalette={aiAnalysis.colorPalette}
-                  bodyImageUrl={aiAnalysis.bodyImageUrl}
-                  faceImageUrl={aiAnalysis.faceImageUrl}
-                  onVerificationComplete={() => {
-                    // Refresh or update UI after verification
-                    console.log('Verification requested successfully');
-                  }}
-                />
-              )}
-            </div>
-          </div>
-        )}
 
         {/* Loading State */}
         {isLoading && (
