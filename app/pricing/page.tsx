@@ -18,6 +18,7 @@ export default function PricingPage() {
       try {
         const response = await fetch('/api/simple-auth/session', {
           cache: 'no-store',
+          credentials: 'include', // Important: send cookies
           headers: {
             'Cache-Control': 'no-cache, no-store, must-revalidate',
             'Pragma': 'no-cache'
@@ -25,8 +26,11 @@ export default function PricingPage() {
         });
         if (response.ok) {
           const data = await response.json();
+          console.log('Auth check result:', data);
           setIsSignedIn(!!data.user);
+          console.log('isSignedIn set to:', !!data.user);
         } else {
+          console.log('Auth check failed, response not OK');
           setIsSignedIn(false);
         }
       } catch (error) {
@@ -77,7 +81,7 @@ export default function PricingPage() {
     }
   };
 
-  const handleSubscribeClick = async (e: React.MouseEvent<HTMLAnchorElement>) => {
+  const handleSubscribeClick = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     
     console.log('🔵 Subscribe button clicked');
@@ -188,9 +192,18 @@ export default function PricingPage() {
                 <li><span className="icon-inline small"><img src="/icons/check.svg" alt="Included" width={14} height={14} /></span>Unlimited AI outfit Combination Generator</li>
                 <li><span className="icon-inline small"><img src="/icons/check.svg" alt="Included" width={14} height={14} /></span>Access to Style Blog</li>
               </ul>
-              <Link href="#" onClick={handleSubscribeClick} className="plan-button">
+              <button 
+                onClick={handleSubscribeClick} 
+                className="plan-button"
+                disabled={isLoading}
+                style={{
+                  width: '100%',
+                  border: 'none',
+                  cursor: isLoading ? 'not-allowed' : 'pointer',
+                }}
+              >
                 {isLoading ? 'Processing...' : 'Subscribe'}
-              </Link>
+              </button>
             </div>
           </div>
         </div>
