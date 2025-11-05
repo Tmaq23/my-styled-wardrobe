@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import prisma from '@/lib/prisma';
 import { getSessionContext } from '@/lib/apiAuth';
+import { sendCustomShopRequestToAdmin, sendCustomShopConfirmationToCustomer } from '@/lib/email';
 
 const STRIPE_SECRET_KEY = process.env['STRIPE_SECRET_KEY'];
 
@@ -82,13 +83,38 @@ export async function GET(request: NextRequest) {
       },
     });
 
-    // TODO: Send confirmation emails
-    // 1. Send confirmation to customer
-    // 2. Send notification to admin/styling team
     console.log('✅ Custom shop request payment confirmed:', {
       requestId: customShopRequest.id,
       userEmail: customShopRequest.userEmail,
       amount: customShopRequest.amount,
+    });
+
+    // Send confirmation emails asynchronously
+    Promise.all([
+      // Send notification to admin with all request details
+      sendCustomShopRequestToAdmin({
+        customerEmail: customShopRequest.user.email || customShopRequest.userEmail,
+        customerName: customShopRequest.user.name || customShopRequest.userName,
+        bodyShape: customShopRequest.bodyShape,
+        colorPalette: customShopRequest.colorPalette,
+        occasion: customShopRequest.occasion,
+        budget: customShopRequest.budget,
+        retailers: customShopRequest.retailers,
+        preferences: customShopRequest.preferences || undefined,
+        requestId: customShopRequest.id,
+      }),
+      // Send confirmation to customer
+      sendCustomShopConfirmationToCustomer({
+        customerEmail: customShopRequest.user.email || customShopRequest.userEmail,
+        customerName: customShopRequest.user.name || customShopRequest.userName,
+        occasion: customShopRequest.occasion,
+        budget: customShopRequest.budget,
+        requestId: customShopRequest.id,
+      }),
+    ]).then((results) => {
+      console.log('📧 Email results:', results);
+    }).catch((err) => {
+      console.error('📧 Error sending emails:', err);
     });
 
     return NextResponse.json({

@@ -449,3 +449,252 @@ export async function sendWelcomeEmail({
     return { success: false, error };
   }
 }
+
+/**
+ * Send custom shop request notification to admin
+ */
+export async function sendCustomShopRequestToAdmin({
+  customerEmail,
+  customerName,
+  bodyShape,
+  colorPalette,
+  occasion,
+  budget,
+  retailers,
+  preferences,
+  requestId,
+}: {
+  customerEmail: string;
+  customerName?: string;
+  bodyShape: string;
+  colorPalette: string;
+  occasion: string;
+  budget: string;
+  retailers: string[];
+  preferences?: string;
+  requestId: string;
+}) {
+  try {
+    console.log('📧 Attempting to send custom shop request to admin...');
+    console.log('   - Customer:', customerEmail);
+    console.log('   - Request ID:', requestId);
+
+    const emailResult = await resend.emails.send({
+      from: FROM_EMAIL,
+      to: ADMIN_EMAIL,
+      subject: `🛍️ New Custom Shop Request (£120) - ${customerEmail}`,
+      html: `
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          </head>
+          <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9fafb;">
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 16px 16px 0 0; text-align: center;">
+              <h1 style="color: white; margin: 0; font-size: 24px;">🛍️ New Custom Shop Request</h1>
+              <p style="color: rgba(255, 255, 255, 0.9); margin: 10px 0 0 0; font-size: 16px;">£120 Payment Confirmed</p>
+            </div>
+            
+            <div style="background: white; padding: 30px; border-radius: 0 0 16px 16px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+              <h2 style="color: #667eea; margin-top: 0;">Customer Details</h2>
+              <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                <tr>
+                  <td style="padding: 10px; border-bottom: 1px solid #e5e7eb;"><strong>Name:</strong></td>
+                  <td style="padding: 10px; border-bottom: 1px solid #e5e7eb;">${customerName || 'N/A'}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 10px; border-bottom: 1px solid #e5e7eb;"><strong>Email:</strong></td>
+                  <td style="padding: 10px; border-bottom: 1px solid #e5e7eb;">${customerEmail}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 10px; border-bottom: 1px solid #e5e7eb;"><strong>Request ID:</strong></td>
+                  <td style="padding: 10px; border-bottom: 1px solid #e5e7eb; font-family: monospace; font-size: 12px;">${requestId}</td>
+                </tr>
+              </table>
+
+              <h2 style="color: #667eea;">Styling Requirements</h2>
+              <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                <tr>
+                  <td style="padding: 10px; border-bottom: 1px solid #e5e7eb;"><strong>Body Shape:</strong></td>
+                  <td style="padding: 10px; border-bottom: 1px solid #e5e7eb;">${bodyShape}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 10px; border-bottom: 1px solid #e5e7eb;"><strong>Color Palette:</strong></td>
+                  <td style="padding: 10px; border-bottom: 1px solid #e5e7eb;">${colorPalette}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 10px; border-bottom: 1px solid #e5e7eb;"><strong>Occasion:</strong></td>
+                  <td style="padding: 10px; border-bottom: 1px solid #e5e7eb;">${occasion}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 10px; border-bottom: 1px solid #e5e7eb;"><strong>Budget:</strong></td>
+                  <td style="padding: 10px; border-bottom: 1px solid #e5e7eb;">${budget}</td>
+                </tr>
+              </table>
+
+              <h2 style="color: #667eea;">Preferred Retailers</h2>
+              <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px;">
+                ${retailers.map(r => `
+                  <span style="background: #ede9fe; color: #6d28d9; padding: 6px 12px; border-radius: 6px; font-size: 14px; font-weight: 500;">
+                    ${r}
+                  </span>
+                `).join('')}
+              </div>
+
+              ${preferences ? `
+                <h2 style="color: #667eea;">Additional Preferences</h2>
+                <div style="background: #f9fafb; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #667eea;">
+                  <p style="margin: 0; color: #374151; white-space: pre-wrap;">${preferences}</p>
+                </div>
+              ` : ''}
+
+              <div style="background-color: #f3f4f6; padding: 20px; border-radius: 12px; margin-top: 30px;">
+                <h3 style="margin-top: 0; color: #374151;">📋 Next Steps</h3>
+                <ol style="color: #6b7280; padding-left: 20px; line-height: 1.8;">
+                  <li>Review the customer's style profile and requirements</li>
+                  <li>Curate personalized items matching their body shape and color palette</li>
+                  <li>Create a custom online shop with clickable purchase links</li>
+                  <li>Send the custom shop to the customer within <strong>2-3 business days</strong></li>
+                  <li>Update the request status to "Completed" in the admin dashboard</li>
+                </ol>
+                <a href="https://www.mystyledwardrobe.com/admin" style="display: inline-block; margin-top: 15px; padding: 12px 24px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);">Go to Admin Dashboard →</a>
+              </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 20px; color: #9ca3af; font-size: 14px;">
+              <p>MyStyled Wardrobe Admin Notification</p>
+            </div>
+          </body>
+        </html>
+      `,
+    });
+
+    console.log('✅ Custom shop request email sent to admin. Email ID:', emailResult.data?.id);
+    return { success: true, emailId: emailResult.data?.id };
+  } catch (error) {
+    console.error('❌ Failed to send custom shop request email to admin:');
+    console.error('   Error details:', error);
+    if (error instanceof Error) {
+      console.error('   Error message:', error.message);
+      console.error('   Error stack:', error.stack);
+    }
+    return { success: false, error };
+  }
+}
+
+/**
+ * Send custom shop confirmation to customer
+ */
+export async function sendCustomShopConfirmationToCustomer({
+  customerEmail,
+  customerName,
+  occasion,
+  budget,
+  requestId,
+}: {
+  customerEmail: string;
+  customerName?: string;
+  occasion: string;
+  budget: string;
+  requestId: string;
+}) {
+  try {
+    console.log('📧 Attempting to send custom shop confirmation to customer...');
+    console.log('   - Customer:', customerEmail);
+
+    const emailResult = await resend.emails.send({
+      from: FROM_EMAIL,
+      to: customerEmail,
+      subject: '✨ Your Custom Shop Request is Confirmed!',
+      html: `
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          </head>
+          <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9fafb;">
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 16px 16px 0 0; text-align: center;">
+              <h1 style="color: white; margin: 0; font-size: 28px;">🎉 Custom Shop Confirmed!</h1>
+            </div>
+            
+            <div style="background: white; padding: 30px; border-radius: 0 0 16px 16px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+              <p style="font-size: 16px; color: #374151; margin-top: 0;">
+                Hi ${customerName || 'there'},
+              </p>
+              
+              <p style="font-size: 16px; color: #374151;">
+                Thank you for your payment! Your <strong>Personalized Custom Shop Service</strong> request has been confirmed and our styling team is already getting started.
+              </p>
+
+              <div style="background: #eff6ff; padding: 20px; border-radius: 12px; margin: 25px 0; border-left: 4px solid #3b82f6;">
+                <h3 style="color: #1e40af; margin-top: 0;">Your Request Details</h3>
+                <table style="width: 100%;">
+                  <tr>
+                    <td style="padding: 8px 0; color: #6b7280;"><strong>Occasion:</strong></td>
+                    <td style="padding: 8px 0; color: #374151;">${occasion}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 8px 0; color: #6b7280;"><strong>Budget:</strong></td>
+                    <td style="padding: 8px 0; color: #374151;">${budget}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 8px 0; color: #6b7280;"><strong>Amount Paid:</strong></td>
+                    <td style="padding: 8px 0; color: #374151; font-weight: 600;">£120.00</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 8px 0; color: #6b7280;"><strong>Request ID:</strong></td>
+                    <td style="padding: 8px 0; color: #374151; font-family: monospace; font-size: 13px;">${requestId}</td>
+                  </tr>
+                </table>
+              </div>
+
+              <div style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); padding: 25px; border-radius: 12px; margin: 25px 0; border-left: 4px solid #f59e0b;">
+                <h3 style="color: #78350f; margin-top: 0;">🎨 What Happens Next?</h3>
+                <ol style="color: #92400e; padding-left: 20px; margin: 0; line-height: 2;">
+                  <li><strong>Stylist Review:</strong> Our professional styling team reviews your profile and preferences</li>
+                  <li><strong>Personalized Curation:</strong> We hand-pick items that perfectly match your style</li>
+                  <li><strong>Custom Shop Creation:</strong> You'll receive a personalized online shop with clickable purchase links</li>
+                  <li><strong>Email Delivery:</strong> Expect your custom shop within <strong>2-3 business days</strong></li>
+                </ol>
+              </div>
+
+              <div style="background: #f0fdf4; padding: 20px; border-radius: 12px; margin: 25px 0; border-left: 4px solid #10b981;">
+                <h3 style="color: #065f46; margin-top: 0;">⏰ Estimated Delivery</h3>
+                <p style="color: #047857; margin: 0; font-size: 16px;">
+                  You'll receive your personalized custom shop via email within <strong>2-3 business days</strong>.
+                </p>
+              </div>
+
+              <p style="font-size: 16px; color: #374151;">
+                If you have any questions in the meantime, feel free to reply to this email or contact us at <a href="mailto:admin@mystyledwardrobe.com" style="color: #667eea; text-decoration: none;">admin@mystyledwardrobe.com</a>.
+              </p>
+
+              <div style="text-align: center; margin-top: 30px;">
+                <a href="https://www.mystyledwardrobe.com/style-interface" style="display: inline-block; padding: 14px 32px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);">Continue Exploring →</a>
+              </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 20px; color: #9ca3af; font-size: 14px;">
+              <p>MyStyled Wardrobe - Your Personal Style Journey</p>
+              <p style="margin-top: 10px;">
+                <a href="https://www.mystyledwardrobe.com" style="color: #667eea; text-decoration: none;">Visit Website</a> | 
+                <a href="mailto:admin@mystyledwardrobe.com" style="color: #667eea; text-decoration: none;">Contact Support</a>
+              </p>
+            </div>
+          </body>
+        </html>
+      `,
+    });
+
+    console.log('✅ Custom shop confirmation email sent to customer. Email ID:', emailResult.data?.id);
+    return { success: true, emailId: emailResult.data?.id };
+  } catch (error) {
+    console.error('❌ Failed to send custom shop confirmation email to customer:', error);
+    if (error instanceof Error) {
+      console.error('   Error message:', error.message);
+    }
+    return { success: false, error };
+  }
+}
