@@ -34,6 +34,7 @@ model User {
   blogPosts     BlogPost[]
   blogComments  BlogComment[]
   analysisVerifications AnalysisVerification[]
+  customShopRequests CustomShopRequest[]
   
   // User preferences
   bodyShape     String?
@@ -260,5 +261,44 @@ model AnalysisVerification {
   @@index([status])
   @@index([paymentStatus])
   @@map("analysis_verifications")
+}
+
+// Custom Shop Request (Personalized Styling Service)
+model CustomShopRequest {
+  id                    String    @id @default(cuid())
+  userId                String
+  userEmail             String
+  userName              String
+  
+  // Styling preferences
+  bodyShape             String
+  colorPalette          String
+  occasion              String
+  budget                String
+  preferences           String?   @db.Text
+  retailers             String[]  @default([])
+  
+  // Payment details
+  stripeSessionId       String?   // Stripe checkout session ID
+  stripePaymentIntentId String?   // Stripe payment intent ID
+  amount                Float     @default(120.0) // £120
+  currency              String    @default("gbp")
+  paymentStatus         String    @default("pending") // pending, paid, failed, refunded
+  
+  // Service delivery
+  status                String    @default("pending") // pending, in_progress, completed, cancelled
+  deliveryEmail         String?   // Email with the custom shop links
+  completedAt           DateTime?
+  estimatedDelivery     String?   // e.g., "2-3 business days"
+  
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  user                  User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
+  @@index([paymentStatus])
+  @@map("custom_shop_requests")
 }
 

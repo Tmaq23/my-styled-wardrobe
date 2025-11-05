@@ -76,14 +76,27 @@ export default function CustomShopRequestModal({
         }),
       });
 
+      const data = await response.json();
+
       if (!response.ok) {
-        throw new Error('Failed to submit request');
+        // Handle authentication error specifically
+        if (response.status === 401) {
+          setError('Please log in to request a custom shop. Click the "Sign In" button in the navigation menu.');
+          setIsSubmitting(false);
+          return;
+        }
+        throw new Error(data.error || 'Failed to create checkout session');
       }
 
-      setSubmitted(true);
+      // Redirect to Stripe Checkout
+      if (data.checkoutUrl) {
+        window.location.href = data.checkoutUrl;
+      } else {
+        throw new Error('No checkout URL received');
+      }
     } catch (err) {
-      setError('Failed to submit request. Please try again.');
-    } finally {
+      console.error('Custom shop request error:', err);
+      setError(err instanceof Error ? err.message : 'Failed to submit request. Please try again.');
       setIsSubmitting(false);
     }
   };

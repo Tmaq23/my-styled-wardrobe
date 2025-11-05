@@ -1,13 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { getSessionContext } from '@/lib/apiAuth';
 
 export async function POST(request: NextRequest) {
   try {
+    const context = await getSessionContext(request);
+
+    if (!context) {
+      return NextResponse.json(
+        { error: 'Authentication required. Please log in to request a custom shop.' },
+        { status: 401 }
+      );
+    }
+
     const body = await request.json();
     
     const {
-      userEmail,
-      userName,
       bodyShape,
       colourPalette,
       occasion,
@@ -17,52 +25,46 @@ export async function POST(request: NextRequest) {
     } = body;
     
     // Validate required fields
-    if (!userEmail || !userName) {
+    if (!bodyShape || !colourPalette || !occasion || !budget) {
       return NextResponse.json({ 
-        error: 'Email and name are required' 
+        error: 'Body shape, color palette, occasion, and budget are required' 
       }, { status: 400 });
     }
     
-    console.log('📬 Custom shop request received:', { userEmail, userName, bodyShape, occasion });
+    console.log('📬 Custom shop request received:', { 
+      userEmail: context.user.email, 
+      userName: context.user.name, 
+      bodyShape, 
+      occasion 
+    });
     
-    // Store the request in the database (optional - you can implement this later)
-    // For now, we'll just log it and send a confirmation
-    
-    // In a real implementation, you would:
-    // 1. Store the request in your database
-    // 2. Send an email notification to your team
-    // 3. Add the request to a queue for processing
-    
-    // For now, we'll simulate success
-    const requestId = `CSR-${Date.now()}-${Math.random().toString(36).substring(7).toUpperCase()}`;
-    
-    // Log the request for manual processing
-    console.log('✅ Custom shop request created:', {
-      requestId,
-      userEmail,
-      userName,
-      stylingProfile: {
+    // Redirect to Stripe checkout endpoint
+    const checkoutResponse = await fetch(`${request.nextUrl.origin}/api/custom-shop/create-checkout`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
         bodyShape,
-        colourPalette,
+        colorPalette: colourPalette,
         occasion,
         budget,
         preferences,
-        retailers
-      },
-      timestamp: new Date().toISOString()
+        retailers,
+      }),
     });
-    
+
+    const checkoutData = await checkoutResponse.json();
+
+    if (!checkoutResponse.ok) {
+      return NextResponse.json(
+        { error: checkoutData.error || 'Failed to create checkout session' },
+        { status: checkoutResponse.status }
+      );
+    }
+
     return NextResponse.json({
       success: true,
-      requestId,
-      message: 'Your custom shop request has been received successfully',
-      estimatedCompletionTime: '2-3 business days',
-      nextSteps: [
-        'Our styling team will review your profile',
-        'We will curate a personalised selection of outfits',
-        'You will receive your custom online shop via email',
-        'The email will include clickable links to purchase items'
-      ]
+      checkoutUrl: checkoutData.url,
+      sessionId: checkoutData.sessionId,
     });
     
   } catch (error) {
