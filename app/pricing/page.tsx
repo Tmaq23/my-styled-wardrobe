@@ -77,6 +77,38 @@ export default function PricingPage() {
     }
   };
 
+  const handleSubscribeClick = async (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    
+    if (!isSignedIn) {
+      router.push('/auth/signin?redirect=/pricing');
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      const response = await fetch('/api/subscription/create-checkout', {
+        method: 'POST',
+        credentials: 'include',
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to create checkout session');
+      }
+
+      // Redirect to Stripe Checkout
+      if (data.checkoutUrl) {
+        window.location.href = data.checkoutUrl;
+      }
+    } catch (error) {
+      console.error('Subscription error:', error);
+      alert(error instanceof Error ? error.message : 'Failed to start subscription. Please try again.');
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="pricing-page">
       {/* Hero Section */}
@@ -142,8 +174,8 @@ export default function PricingPage() {
                 <li><span className="icon-inline small"><img src="/icons/check.svg" alt="Included" width={14} height={14} /></span>Unlimited AI outfit Combination Generator</li>
                 <li><span className="icon-inline small"><img src="/icons/check.svg" alt="Included" width={14} height={14} /></span>Access to Style Blog</li>
               </ul>
-              <Link href="/" className="plan-button">
-                Subscribe
+              <Link href="#" onClick={handleSubscribeClick} className="plan-button">
+                {isLoading ? 'Processing...' : 'Subscribe'}
               </Link>
             </div>
           </div>
