@@ -3,11 +3,13 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import CustomShopRequestModal from '@/components/CustomShopRequestModal';
 
 export default function PricingPage() {
   const router = useRouter();
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isCustomShopModalOpen, setIsCustomShopModalOpen] = useState(false);
 
   useEffect(() => {
     // Check if user is signed in
@@ -66,6 +68,15 @@ export default function PricingPage() {
     }
   };
 
+  const handleCustomShopClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    if (isSignedIn) {
+      setIsCustomShopModalOpen(true);
+    } else {
+      router.push('/auth/signin?redirect=/pricing');
+    }
+  };
+
   return (
     <div className="pricing-page">
       {/* Hero Section */}
@@ -113,8 +124,8 @@ export default function PricingPage() {
                 <li><span className="icon-inline small"><img src="/icons/check.svg" alt="Included" width={14} height={14} /></span>Premium Shopping Recommendations</li>
                 <li><span className="icon-inline small"><img src="/icons/check.svg" alt="Included" width={14} height={14} /></span>Priority AI Analysis</li>
               </ul>
-              <Link href="/" className="plan-button featured">
-                Get Started
+              <Link href="#" onClick={handleCustomShopClick} className="plan-button featured">
+                {isLoading ? 'Loading...' : 'Get Started'}
               </Link>
             </div>
 
@@ -173,6 +184,19 @@ export default function PricingPage() {
           </Link>
         </div>
       </div>
+
+      {/* Custom Shop Request Modal */}
+      <CustomShopRequestModal
+        isOpen={isCustomShopModalOpen}
+        onClose={() => setIsCustomShopModalOpen(false)}
+        userProfile={{
+          bodyShape: '',
+          colourPalette: '',
+          occasion: '',
+          budget: '',
+          retailers: [],
+        }}
+      />
     </div>
   );
 }

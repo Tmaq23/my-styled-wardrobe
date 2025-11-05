@@ -27,13 +27,24 @@ export default function CustomShopRequestModal({
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
   const [selectedRetailers, setSelectedRetailers] = useState<string[]>(userProfile.retailers || ['ASOS']);
+  
+  // Allow manual selection of body shape, color palette, occasion, and budget
+  const [bodyShape, setBodyShape] = useState(userProfile.bodyShape || 'Rectangle');
+  const [colorPalette, setColorPalette] = useState(userProfile.colourPalette || 'Winter');
+  const [occasion, setOccasion] = useState(userProfile.occasion || 'Casual');
+  const [budget, setBudget] = useState(userProfile.budget || '££');
 
-  // Fetch user session data when modal opens
+  // Fetch user session data when modal opens and update form fields with userProfile
   useEffect(() => {
     if (isOpen) {
       fetchUserData();
+      // Update fields when modal opens with new userProfile data
+      setBodyShape(userProfile.bodyShape || 'Rectangle');
+      setColorPalette(userProfile.colourPalette || 'Winter');
+      setOccasion(userProfile.occasion || 'Casual');
+      setBudget(userProfile.budget || '££');
     }
-  }, [isOpen]);
+  }, [isOpen, userProfile]);
 
   const fetchUserData = async () => {
     try {
@@ -68,10 +79,10 @@ export default function CustomShopRequestModal({
         body: JSON.stringify({
           userName: name,
           userEmail: email,
-          bodyShape: userProfile.bodyShape,
-          colourPalette: userProfile.colourPalette,
-          occasion: userProfile.occasion,
-          budget: userProfile.budget,
+          bodyShape: bodyShape,
+          colourPalette: colorPalette,
+          occasion: occasion,
+          budget: budget,
           retailers: selectedRetailers,
           preferences: additionalInfo,
         }),
@@ -153,30 +164,134 @@ export default function CustomShopRequestModal({
             </div>
 
             <p style={{ color: '#64748b', marginBottom: '1.5rem', lineHeight: '1.6' }}>
-              Our styling team will create a personalised online shopping experience tailored to your:
+              Our styling team will create a personalised online shopping experience tailored to your preferences. Select or update your details below:
             </p>
 
-            <div style={{
-              background: '#f8fafc',
-              padding: '1rem',
-              borderRadius: '8px',
-              marginBottom: '1.5rem',
-            }}>
-              <p style={{ margin: '0.5rem 0', color: '#475569' }}>
-                <strong>Body Shape:</strong> {userProfile.bodyShape}
-              </p>
-              <p style={{ margin: '0.5rem 0', color: '#475569' }}>
-                <strong>Colour Season:</strong> {userProfile.colourPalette}
-              </p>
-              <p style={{ margin: '0.5rem 0', color: '#475569' }}>
-                <strong>Occasion:</strong> {userProfile.occasion}
-              </p>
-              <p style={{ margin: '0.5rem 0', color: '#475569' }}>
-                <strong>Budget:</strong> {userProfile.budget}
-              </p>
-            </div>
-
             <form onSubmit={handleSubmit}>
+              {/* Body Shape Selection */}
+              <div style={{ marginBottom: '1.5rem' }}>
+                <label style={{ display: 'block', marginBottom: '0.75rem', fontWeight: '600', color: '#1e293b' }}>
+                  Body Shape *
+                </label>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                  {['Hourglass', 'Pear', 'Apple', 'Rectangle', 'Inverted Triangle'].map((shape) => (
+                    <button
+                      key={shape}
+                      type="button"
+                      onClick={() => setBodyShape(shape)}
+                      style={{
+                        padding: '0.5rem 1rem',
+                        background: bodyShape === shape
+                          ? 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)'
+                          : '#f1f5f9',
+                        color: bodyShape === shape ? 'white' : '#475569',
+                        border: bodyShape === shape ? 'none' : '1px solid #e2e8f0',
+                        borderRadius: '8px',
+                        fontSize: '0.875rem',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s',
+                      }}
+                    >
+                      {shape}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Color Palette Selection */}
+              <div style={{ marginBottom: '1.5rem' }}>
+                <label style={{ display: 'block', marginBottom: '0.75rem', fontWeight: '600', color: '#1e293b' }}>
+                  Colour Season *
+                </label>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                  {['Spring', 'Summer', 'Autumn', 'Winter'].map((season) => (
+                    <button
+                      key={season}
+                      type="button"
+                      onClick={() => setColorPalette(season)}
+                      style={{
+                        padding: '0.5rem 1rem',
+                        background: colorPalette === season
+                          ? 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)'
+                          : '#f1f5f9',
+                        color: colorPalette === season ? 'white' : '#475569',
+                        border: colorPalette === season ? 'none' : '1px solid #e2e8f0',
+                        borderRadius: '8px',
+                        fontSize: '0.875rem',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s',
+                      }}
+                    >
+                      {season}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Occasion Selection */}
+              <div style={{ marginBottom: '1.5rem' }}>
+                <label style={{ display: 'block', marginBottom: '0.75rem', fontWeight: '600', color: '#1e293b' }}>
+                  Occasion *
+                </label>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                  {['Casual', 'Business', 'Formal', 'Sporty', 'Evening'].map((occ) => (
+                    <button
+                      key={occ}
+                      type="button"
+                      onClick={() => setOccasion(occ)}
+                      style={{
+                        padding: '0.5rem 1rem',
+                        background: occasion === occ
+                          ? 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)'
+                          : '#f1f5f9',
+                        color: occasion === occ ? 'white' : '#475569',
+                        border: occasion === occ ? 'none' : '1px solid #e2e8f0',
+                        borderRadius: '8px',
+                        fontSize: '0.875rem',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s',
+                      }}
+                    >
+                      {occ}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Budget Selection */}
+              <div style={{ marginBottom: '1.5rem' }}>
+                <label style={{ display: 'block', marginBottom: '0.75rem', fontWeight: '600', color: '#1e293b' }}>
+                  Budget *
+                </label>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                  {['£', '££', '£££'].map((bud) => (
+                    <button
+                      key={bud}
+                      type="button"
+                      onClick={() => setBudget(bud)}
+                      style={{
+                        padding: '0.5rem 1rem',
+                        background: budget === bud
+                          ? 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)'
+                          : '#f1f5f9',
+                        color: budget === bud ? 'white' : '#475569',
+                        border: budget === bud ? 'none' : '1px solid #e2e8f0',
+                        borderRadius: '8px',
+                        fontSize: '0.875rem',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s',
+                      }}
+                    >
+                      {bud}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               <div style={{ marginBottom: '1.5rem' }}>
                 <label style={{ display: 'block', marginBottom: '0.75rem', fontWeight: '600', color: '#1e293b' }}>
                   Preferred Retailers *
