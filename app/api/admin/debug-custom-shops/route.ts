@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
   try {
     // Verify admin access
     const adminCheck = await verifyAdminAccess(request);
-    if (!adminCheck.authorized) {
+    if (adminCheck.status !== 'ok') {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
@@ -79,7 +79,7 @@ export async function DELETE(request: NextRequest) {
   try {
     // Verify admin access
     const adminCheck = await verifyAdminAccess(request);
-    if (!adminCheck.authorized) {
+    if (adminCheck.status !== 'ok') {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }

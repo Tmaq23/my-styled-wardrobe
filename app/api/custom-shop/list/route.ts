@@ -9,10 +9,10 @@ export async function GET(request: NextRequest) {
     
     // Verify admin access
     const adminCheck = await verifyAdminAccess(request);
-    if (!adminCheck.authorized) {
-      console.error('❌ Unauthorized access to custom shop list');
+    if (adminCheck.status !== 'ok') {
+      console.error('❌ Unauthorized access to custom shop list:', adminCheck.status);
       return NextResponse.json(
-        { error: adminCheck.error || 'Unauthorized' },
+        { error: 'Unauthorized' },
         { status: 401 }
       );
     }

@@ -7,9 +7,9 @@ export async function DELETE(request: NextRequest) {
   try {
     // Verify admin access
     const adminCheck = await verifyAdminAccess(request);
-    if (!adminCheck.authorized) {
+    if (adminCheck.status !== 'ok') {
       return NextResponse.json(
-        { error: adminCheck.error || 'Unauthorized' },
+        { error: 'Unauthorized' },
         { status: 401 }
       );
     }
