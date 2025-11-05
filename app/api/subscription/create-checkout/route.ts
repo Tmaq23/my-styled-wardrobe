@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { prisma } from '@/lib/prisma';
+import { requireAuthenticatedUser } from '@/lib/apiAuth';
 
 const stripe = new Stripe(process.env['STRIPE_SECRET_KEY'] || '', {
   apiVersion: '2024-11-20.acacia',
@@ -10,54 +11,19 @@ export async function POST(request: NextRequest) {
   try {
     console.log('🔵 Starting subscription checkout creation...');
     
-    // Get session cookie
-    const cookieStore = await request.cookies;
-    const sessionCookie = cookieStore.get('session');
-
-    console.log('🔍 Session cookie exists:', !!sessionCookie);
-
-    if (!sessionCookie) {
-      console.log('❌ No session cookie found');
+    // Use centralized authentication
+    const authResult = await requireAuthenticatedUser(request);
+    
+    if (authResult.status !== 'ok') {
+      console.log('❌ Authentication failed:', authResult.message);
       return NextResponse.json(
-        { error: 'Authentication required. Please log in.' },
-        { status: 401 }
+        { error: authResult.message },
+        { status: authResult.statusCode }
       );
     }
 
-    // Parse session
-    let userId: string;
-    let userEmail: string;
-    try {
-      const sessionData = JSON.parse(
-        Buffer.from(sessionCookie.value.split('.')[0], 'base64').toString()
-      );
-      userId = sessionData.userId;
-      userEmail = sessionData.email;
-      console.log('✅ Session parsed successfully:', { userId, userEmail });
-    } catch (parseError) {
-      console.error('❌ Session parse error:', parseError);
-      return NextResponse.json(
-        { error: 'Invalid session. Please log in again.' },
-        { status: 401 }
-      );
-    }
-
-    // Get user from database
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      select: {
-        id: true,
-        email: true,
-        name: true,
-      },
-    });
-
-    if (!user) {
-      return NextResponse.json(
-        { error: 'User not found. Please log in again.' },
-        { status: 401 }
-      );
-    }
+    const user = authResult.user;
+    console.log('✅ User authenticated:', { userId: user.id, userEmail: user.email });
 
     // Create or retrieve Stripe customer
     let customerId: string;
@@ -73,7 +39,7 @@ export async function POST(request: NextRequest) {
     } else {
       // Create new Stripe customer
       const customer = await stripe.customers.create({
-        email: user.email || userEmail,
+        email: user.email || undefined,
         name: user.name || undefined,
         metadata: {
           userId: user.id,
