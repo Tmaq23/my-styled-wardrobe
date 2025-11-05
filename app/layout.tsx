@@ -81,6 +81,7 @@ export default function RootLayout({
         {/* Preload critical resources */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="icon" href="/ks-favicon.svg" type="image/svg+xml" />
         
         {/* DNS prefetch for external domains */}
         <link rel="dns-prefetch" href="//api.openai.com" />
