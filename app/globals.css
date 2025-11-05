@@ -1215,6 +1215,10 @@ label {
   box-shadow: var(--shadow-lg);
 }
 
+.pricing-card.featured:hover {
+  transform: scale(1.05) translateY(-8px);
+}
+
 .pricing-card.featured::before {
   transform: scaleX(1);
 }
