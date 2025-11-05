@@ -83,7 +83,7 @@ export default function Header() {
     <nav className="navigation-header">
       <div className="nav-container">
         <Link href="/" className="nav-brand" style={{ textDecoration: 'none', cursor: 'pointer' }}>
-          <div className="brand-logo">Li</div>
+          <div className="brand-logo">K.S.</div>
           <div className="brand-name">My Styled Wardrobe</div>
         </Link>
 
