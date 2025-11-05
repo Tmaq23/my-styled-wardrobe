@@ -131,22 +131,19 @@ export default function PricingPage() {
 
             <div className="pricing-card">
               <div className="plan-header">
-                <h3>Pro</h3>
+                <h3>Subscribe</h3>
                 <div className="price">
                   <span className="currency">£</span>
-                  <span className="amount">39.99</span>
+                  <span className="amount">5.99</span>
                   <span className="period">/month</span>
                 </div>
               </div>
               <ul className="features">
-                <li><span className="icon-inline small"><img src="/icons/check.svg" alt="Included" width={14} height={14} /></span>Everything in Premium</li>
-                <li><span className="icon-inline small"><img src="/icons/check.svg" alt="Included" width={14} height={14} /></span>Personal Style Consultation</li>
-                <li><span className="icon-inline small"><img src="/icons/check.svg" alt="Included" width={14} height={14} /></span>Wardrobe Planning</li>
-                <li><span className="icon-inline small"><img src="/icons/check.svg" alt="Included" width={14} height={14} /></span>Exclusive Retailer Access</li>
-                <li><span className="icon-inline small"><img src="/icons/check.svg" alt="Included" width={14} height={14} /></span>24/7 Style Support</li>
+                <li><span className="icon-inline small"><img src="/icons/check.svg" alt="Included" width={14} height={14} /></span>Unlimited AI outfit Combination Generator</li>
+                <li><span className="icon-inline small"><img src="/icons/check.svg" alt="Included" width={14} height={14} /></span>Access to Style Blog</li>
               </ul>
               <Link href="/" className="plan-button">
-                Go Pro
+                Subscribe
               </Link>
             </div>
           </div>
