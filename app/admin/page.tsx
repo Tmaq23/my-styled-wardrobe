@@ -129,21 +129,24 @@ export default function AdminPage() {
   const loadCustomShopRequests = async () => {
     try {
       setCustomShopsLoading(true);
-      console.log('Loading custom shop requests...');
+      console.log('🛍️ Loading custom shop requests...');
       const res = await fetch('/api/custom-shop/list', {
         credentials: 'include',
       });
-      console.log('Custom shop requests API response status:', res.status);
+      console.log('🛍️ Custom shop requests API response status:', res.status);
       if (res.ok) {
         const data = await res.json();
-        console.log('Custom shop requests loaded:', data.customShopRequests?.length || 0);
+        console.log('🛍️ Custom shop requests loaded:', data.customShopRequests?.length || 0);
+        console.log('🛍️ Custom shop requests data:', data);
         setCustomShopRequests(data.customShopRequests || []);
       } else {
         const errorText = await res.text();
-        console.error('Failed to load custom shop requests:', res.status, errorText);
+        console.error('❌ Failed to load custom shop requests:', res.status, errorText);
+        setCustomShopRequests([]); // Set to empty array on error
       }
     } catch (error) {
-      console.error('Failed to load custom shop requests:', error);
+      console.error('❌ Failed to load custom shop requests exception:', error);
+      setCustomShopRequests([]); // Set to empty array on error
     } finally {
       setCustomShopsLoading(false);
     }
