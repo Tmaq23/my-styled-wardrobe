@@ -50,7 +50,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if user already has a custom shop request with paid status
+    // FIRST: Clean up ANY stuck pending requests (payment never completed)
+    // This MUST happen BEFORE checking for duplicates
+    console.log(`🧹 Cleaning up stuck pending requests for user ${context.user.id}...`);
+    
+    const stuckRequests = await prisma.customShopRequest.deleteMany({
+      where: {
+        userId: context.user.id,
+        paymentStatus: 'pending', // Payment never completed
+      },
+    });
+
+    console.log(`✅ Deleted ${stuckRequests.count} stuck pending request(s) for user ${context.user.id}`);
+
+    // NOW check if user has a PAID request in progress
     const existingPaidRequest = await prisma.customShopRequest.findFirst({
       where: {
         userId: context.user.id,
@@ -67,23 +80,6 @@ export async function POST(request: NextRequest) {
         },
         { status: 409 }
       );
-    }
-
-    // ALWAYS clean up any stuck pending requests (payment never completed)
-    // This ensures users can always retry if payment failed
-    console.log(`🧹 Checking for stuck pending requests for user ${context.user.id}...`);
-    
-    const stuckRequests = await prisma.customShopRequest.deleteMany({
-      where: {
-        userId: context.user.id,
-        paymentStatus: 'pending', // Payment never completed
-      },
-    });
-
-    if (stuckRequests.count > 0) {
-      console.log(`✅ Cleaned up ${stuckRequests.count} stuck pending request(s) for user ${context.user.id}`);
-    } else {
-      console.log(`✅ No stuck requests to clean up for user ${context.user.id}`);
     }
 
     // Create custom shop request record

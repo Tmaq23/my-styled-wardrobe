@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
         { status: checkoutResponse.status }
       );
     }
-
+    
     return NextResponse.json({
       success: true,
       checkoutUrl: checkoutData.url,
