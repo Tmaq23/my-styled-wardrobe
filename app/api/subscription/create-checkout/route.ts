@@ -8,11 +8,16 @@ const stripe = new Stripe(process.env['STRIPE_SECRET_KEY'] || '', {
 
 export async function POST(request: NextRequest) {
   try {
+    console.log('🔵 Starting subscription checkout creation...');
+    
     // Get session cookie
     const cookieStore = await request.cookies;
     const sessionCookie = cookieStore.get('session');
 
+    console.log('🔍 Session cookie exists:', !!sessionCookie);
+
     if (!sessionCookie) {
+      console.log('❌ No session cookie found');
       return NextResponse.json(
         { error: 'Authentication required. Please log in.' },
         { status: 401 }
@@ -28,7 +33,9 @@ export async function POST(request: NextRequest) {
       );
       userId = sessionData.userId;
       userEmail = sessionData.email;
+      console.log('✅ Session parsed successfully:', { userId, userEmail });
     } catch (parseError) {
+      console.error('❌ Session parse error:', parseError);
       return NextResponse.json(
         { error: 'Invalid session. Please log in again.' },
         { status: 401 }

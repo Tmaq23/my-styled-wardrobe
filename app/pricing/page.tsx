@@ -80,30 +80,44 @@ export default function PricingPage() {
   const handleSubscribeClick = async (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
     
+    console.log('🔵 Subscribe button clicked');
+    console.log('🔍 User signed in:', isSignedIn);
+    
     if (!isSignedIn) {
+      console.log('⚠️ User not signed in, redirecting to signin');
       router.push('/auth/signin?redirect=/pricing');
       return;
     }
 
     try {
       setIsLoading(true);
+      console.log('📡 Calling /api/subscription/create-checkout...');
+      
       const response = await fetch('/api/subscription/create-checkout', {
         method: 'POST',
         credentials: 'include',
       });
 
+      console.log('📥 Response status:', response.status);
+
       const data = await response.json();
+      console.log('📦 Response data:', data);
 
       if (!response.ok) {
+        console.error('❌ Response not OK:', data);
         throw new Error(data.error || 'Failed to create checkout session');
       }
 
       // Redirect to Stripe Checkout
       if (data.checkoutUrl) {
+        console.log('✅ Redirecting to Stripe:', data.checkoutUrl);
         window.location.href = data.checkoutUrl;
+      } else {
+        console.error('❌ No checkout URL in response');
+        throw new Error('No checkout URL received');
       }
     } catch (error) {
-      console.error('Subscription error:', error);
+      console.error('❌ Subscription error:', error);
       alert(error instanceof Error ? error.message : 'Failed to start subscription. Please try again.');
       setIsLoading(false);
     }
