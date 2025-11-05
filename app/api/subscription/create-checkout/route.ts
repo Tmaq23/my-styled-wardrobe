@@ -64,6 +64,10 @@ export async function POST(request: NextRequest) {
     // Create Stripe Checkout Session for subscription
     const baseUrl = 'https://www.mystyledwardrobe.com';
     
+    console.log('🔵 Creating Stripe checkout session...');
+    console.log('🔑 Stripe key exists:', !!process.env['STRIPE_SECRET_KEY']);
+    console.log('🔑 Stripe key starts with:', process.env['STRIPE_SECRET_KEY']?.substring(0, 10));
+    
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       payment_method_types: ['card'],
@@ -95,7 +99,20 @@ export async function POST(request: NextRequest) {
       sessionId: session.id,
       userId: user.id,
       customerId: customerId,
+      url: session.url,
+      hasUrl: !!session.url,
     });
+
+    if (!session.url) {
+      console.error('❌ Stripe session created but no URL returned:', session);
+      return NextResponse.json(
+        { 
+          error: 'Stripe checkout session created but no URL was returned. Please check your Stripe API keys.',
+          sessionId: session.id
+        },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json({
       success: true,
