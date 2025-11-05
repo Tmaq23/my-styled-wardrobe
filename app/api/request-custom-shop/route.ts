@@ -41,7 +41,10 @@ export async function POST(request: NextRequest) {
     // Redirect to Stripe checkout endpoint
     const checkoutResponse = await fetch(`${request.nextUrl.origin}/api/custom-shop/create-checkout`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        'Cookie': request.headers.get('cookie') || '', // Forward session cookies
+      },
       body: JSON.stringify({
         bodyShape,
         colorPalette: colourPalette,

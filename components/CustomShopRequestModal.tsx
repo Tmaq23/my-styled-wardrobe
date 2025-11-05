@@ -64,6 +64,7 @@ export default function CustomShopRequestModal({
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include', // Send session cookies
         body: JSON.stringify({
           userName: name,
           userEmail: email,
@@ -320,7 +321,7 @@ export default function CustomShopRequestModal({
                   boxShadow: '0 4px 15px rgba(99, 102, 241, 0.4)',
                 }}
               >
-                {isSubmitting ? 'Submitting...' : 'Submit Request'}
+                {isSubmitting ? 'Processing...' : 'Proceed to Payment (£120)'}
               </button>
             </form>
           </>
