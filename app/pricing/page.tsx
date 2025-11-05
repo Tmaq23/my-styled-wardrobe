@@ -101,22 +101,20 @@ export default function PricingPage() {
 
             <div className="pricing-card featured">
               <div className="plan-header">
-                <h3>Premium</h3>
+                <h3>Customised online Shop</h3>
                 <div className="price">
                   <span className="currency">£</span>
-                  <span className="amount">19.99</span>
-                  <span className="period">/month</span>
+                  <span className="amount">120</span>
+                  <span className="period">one off payment</span>
                 </div>
               </div>
               <ul className="features">
-                <li><span className="icon-inline small"><img src="/icons/check.svg" alt="Included" width={14} height={14} /></span>Everything in Basic</li>
-                <li><span className="icon-inline small"><img src="/icons/check.svg" alt="Included" width={14} height={14} /></span>Unlimited Outfit Combinations</li>
+                <li><span className="icon-inline small"><img src="/icons/check.svg" alt="Included" width={14} height={14} /></span>Outfit Combinations</li>
                 <li><span className="icon-inline small"><img src="/icons/check.svg" alt="Included" width={14} height={14} /></span>Premium Shopping Recommendations</li>
-                <li><span className="icon-inline small"><img src="/icons/check.svg" alt="Included" width={14} height={14} /></span>Seasonal Style Updates</li>
                 <li><span className="icon-inline small"><img src="/icons/check.svg" alt="Included" width={14} height={14} /></span>Priority AI Analysis</li>
               </ul>
               <Link href="/" className="plan-button featured">
-                Start Premium
+                Get Started
               </Link>
             </div>
 
