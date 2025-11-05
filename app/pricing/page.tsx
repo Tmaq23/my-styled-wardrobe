@@ -1,8 +1,71 @@
 'use client';
 
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function PricingPage() {
+  const router = useRouter();
+  const [isSignedIn, setIsSignedIn] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // Check if user is signed in
+    const checkAuth = async () => {
+      setIsLoading(true);
+      try {
+        const response = await fetch('/api/simple-auth/session', {
+          cache: 'no-store',
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache'
+          }
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setIsSignedIn(!!data.user);
+        } else {
+          setIsSignedIn(false);
+        }
+      } catch (error) {
+        console.error('Error checking auth:', error);
+        setIsSignedIn(false);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    checkAuth();
+
+    // Re-check auth when page becomes visible
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        checkAuth();
+      }
+    };
+
+    const handleFocus = () => {
+      checkAuth();
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleFocus);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, []);
+
+  const handleGetStarted = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    if (isSignedIn) {
+      router.push('/style-interface');
+    } else {
+      router.push('/auth/signin');
+    }
+  };
+
   return (
     <div className="pricing-page">
       {/* Hero Section */}
@@ -19,21 +82,20 @@ export default function PricingPage() {
           <div className="pricing-grid">
             <div className="pricing-card">
               <div className="plan-header">
-                <h3>Basic</h3>
+                <h3>Professional Review</h3>
                 <div className="price">
                   <span className="currency">£</span>
-                  <span className="amount">0</span>
-                  <span className="period">/month</span>
+                  <span className="amount">30</span>
+                  <span className="period">one off payment</span>
                 </div>
               </div>
               <ul className="features">
                 <li><span className="icon-inline small"><img src="/icons/check.svg" alt="Included" width={14} height={14} /></span>Body Shape Analysis</li>
                 <li><span className="icon-inline small"><img src="/icons/check.svg" alt="Included" width={14} height={14} /></span>Color Palette Discovery</li>
                 <li><span className="icon-inline small"><img src="/icons/check.svg" alt="Included" width={14} height={14} /></span>Basic Outfit Suggestions</li>
-                <li><span className="icon-inline small"><img src="/icons/check.svg" alt="Included" width={14} height={14} /></span>Limited Shopping Links</li>
               </ul>
-              <Link href="/" className="plan-button">
-                Get Started Free
+              <Link href="#" onClick={handleGetStarted} className="plan-button">
+                {isLoading ? 'Loading...' : 'Get Started'}
               </Link>
             </div>
 

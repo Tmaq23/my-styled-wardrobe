@@ -24,7 +24,25 @@ export default function StyleInterfacePage() {
   const [gender, setGender] = useState('Women');
   const [retailers, setRetailers] = useState(['ASOS']);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [paymentSuccessMessage, setPaymentSuccessMessage] = useState('');
   // mood selection removed
+
+  // Check for payment success/cancel on mount
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('custom_shop_success') === 'true') {
+      const requestId = urlParams.get('request_id');
+      setPaymentSuccessMessage(`✅ Payment successful! Your custom shop request (${requestId}) has been submitted. You'll receive your personalised online shop within 2-3 business days.`);
+      // Clean up URL
+      window.history.replaceState({}, '', window.location.pathname);
+      // Auto-hide after 10 seconds
+      setTimeout(() => setPaymentSuccessMessage(''), 10000);
+    } else if (urlParams.get('custom_shop_cancelled') === 'true') {
+      setPaymentSuccessMessage('Payment was cancelled. You can try again anytime.');
+      window.history.replaceState({}, '', window.location.pathname);
+      setTimeout(() => setPaymentSuccessMessage(''), 5000);
+    }
+  }, []);
 
   const handleFilesChange = (newFiles: File[]) => {
     setFiles(newFiles);
@@ -92,6 +110,44 @@ export default function StyleInterfacePage() {
 
   return (
     <div className="style-interface-page">
+      {/* Payment Success Message */}
+      {paymentSuccessMessage && (
+        <div style={{
+          position: 'fixed',
+          top: '80px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          background: paymentSuccessMessage.includes('✅') ? '#10b981' : '#f59e0b',
+          color: 'white',
+          padding: '1rem 2rem',
+          borderRadius: '8px',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+          zIndex: 9999,
+          maxWidth: '90%',
+          textAlign: 'center',
+          fontSize: '1rem',
+          fontWeight: '600',
+          animation: 'slideDown 0.3s ease-out',
+        }}>
+          {paymentSuccessMessage}
+          <button
+            onClick={() => setPaymentSuccessMessage('')}
+            style={{
+              marginLeft: '1rem',
+              background: 'rgba(255,255,255,0.2)',
+              border: 'none',
+              color: 'white',
+              padding: '0.25rem 0.75rem',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              fontSize: '0.875rem',
+            }}
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
+      
       {/* Header */}
       <header className="interface-header">
         <div className="header-content">
