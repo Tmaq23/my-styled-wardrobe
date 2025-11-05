@@ -50,23 +50,37 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if user already has a pending custom shop request
-    const existingRequest = await prisma.customShopRequest.findFirst({
+    // Check if user already has a custom shop request with paid status
+    const existingPaidRequest = await prisma.customShopRequest.findFirst({
       where: {
         userId: context.user.id,
+        paymentStatus: 'paid', // Only check paid requests
         status: { in: ['pending', 'in_progress'] },
-        paymentStatus: { in: ['pending', 'paid'] },
       },
     });
 
-    if (existingRequest) {
+    if (existingPaidRequest) {
       return NextResponse.json(
         { 
           error: 'You already have a custom shop request in progress',
-          requestId: existingRequest.id,
+          requestId: existingPaidRequest.id,
         },
         { status: 409 }
       );
+    }
+
+    // Clean up any stuck pending requests (payment never completed)
+    // This includes ALL pending requests with pending payment status
+    const stuckRequests = await prisma.customShopRequest.deleteMany({
+      where: {
+        userId: context.user.id,
+        paymentStatus: 'pending', // Payment never completed
+        status: 'pending',
+      },
+    });
+
+    if (stuckRequests.count > 0) {
+      console.log(`🧹 Cleaned up ${stuckRequests.count} stuck pending request(s) for user ${context.user.id}`);
     }
 
     // Create custom shop request record
