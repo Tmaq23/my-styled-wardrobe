@@ -69,18 +69,21 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Clean up any stuck pending requests (payment never completed)
-    // This includes ALL pending requests with pending payment status
+    // ALWAYS clean up any stuck pending requests (payment never completed)
+    // This ensures users can always retry if payment failed
+    console.log(`🧹 Checking for stuck pending requests for user ${context.user.id}...`);
+    
     const stuckRequests = await prisma.customShopRequest.deleteMany({
       where: {
         userId: context.user.id,
         paymentStatus: 'pending', // Payment never completed
-        status: 'pending',
       },
     });
 
     if (stuckRequests.count > 0) {
-      console.log(`🧹 Cleaned up ${stuckRequests.count} stuck pending request(s) for user ${context.user.id}`);
+      console.log(`✅ Cleaned up ${stuckRequests.count} stuck pending request(s) for user ${context.user.id}`);
+    } else {
+      console.log(`✅ No stuck requests to clean up for user ${context.user.id}`);
     }
 
     // Create custom shop request record
