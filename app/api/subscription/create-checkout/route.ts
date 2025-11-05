@@ -3,13 +3,25 @@ import Stripe from 'stripe';
 import { prisma } from '@/lib/prisma';
 import { requireAuthenticatedUser } from '@/lib/apiAuth';
 
-const stripe = new Stripe(process.env['STRIPE_SECRET_KEY'] || '', {
-  apiVersion: '2024-11-20.acacia',
-});
-
 export async function POST(request: NextRequest) {
   try {
     console.log('🔵 Starting subscription checkout creation...');
+    console.log('🔑 Checking Stripe configuration...');
+    
+    const stripeKey = process.env['STRIPE_SECRET_KEY'];
+    if (!stripeKey) {
+      console.error('❌ STRIPE_SECRET_KEY is not set!');
+      return NextResponse.json(
+        { error: 'Stripe is not configured. Please contact support.' },
+        { status: 500 }
+      );
+    }
+    console.log('✅ Stripe key found, length:', stripeKey.length);
+    console.log('✅ Stripe key prefix:', stripeKey.substring(0, 10));
+    
+    const stripe = new Stripe(stripeKey, {
+      apiVersion: '2024-11-20.acacia',
+    });
     
     // Use centralized authentication
     const authResult = await requireAuthenticatedUser(request);
@@ -121,13 +133,18 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error('❌ Failed to create subscription checkout session:', error);
+    console.error('❌ Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+    console.error('❌ Error details:', JSON.stringify(error, null, 2));
+    
     return NextResponse.json(
       { 
         error: 'Failed to create checkout session',
-        details: error instanceof Error ? error.message : 'Unknown error'
+        details: error instanceof Error ? error.message : 'Unknown error',
+        errorType: error instanceof Error ? error.constructor.name : typeof error
       },
       { status: 500 }
     );
   }
 }
+
 
