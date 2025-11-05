@@ -41,10 +41,16 @@ interface CustomShopRequest {
   colorPalette: string;
   occasion: string;
   budget: string;
+  preferences?: string;
+  retailers: string[];
   amount: number;
   currency: string;
   paymentStatus: string;
   status: string;
+  stripeSessionId?: string;
+  stripePaymentIntentId?: string;
+  deliveryEmail?: string;
+  estimatedDelivery?: string;
   createdAt: string;
   completedAt?: string;
   user: {
@@ -75,6 +81,8 @@ export default function AdminPage() {
   const [newUserEmail, setNewUserEmail] = useState('');
   const [newUserPassword, setNewUserPassword] = useState('');
   const [newUserIsAdmin, setNewUserIsAdmin] = useState(false);
+  const [selectedCustomShopRequest, setSelectedCustomShopRequest] = useState<CustomShopRequest | null>(null);
+  const [showCustomShopModal, setShowCustomShopModal] = useState(false);
   const router = useRouter();
 
   const loadUsers = async () => {
@@ -1011,22 +1019,41 @@ export default function AdminPage() {
                             {new Date(request.createdAt).toLocaleDateString()}
                           </td>
                           <td style={{ padding: '1rem', textAlign: 'center' }}>
-                            <button
-                              onClick={() => deleteCustomShopRequest(request.id, request.user.email)}
-                              disabled={actionLoading}
-                              style={{
-                                padding: '0.5rem 1rem',
-                                background: 'rgba(239, 68, 68, 0.2)',
-                                border: '1px solid rgba(239, 68, 68, 0.5)',
-                                borderRadius: '6px',
-                                color: '#ef4444',
-                                cursor: actionLoading ? 'not-allowed' : 'pointer',
-                                fontSize: '0.875rem',
-                                opacity: actionLoading ? 0.5 : 1,
-                              }}
-                            >
-                              Delete
-                            </button>
+                            <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center' }}>
+                              <button
+                                onClick={() => {
+                                  setSelectedCustomShopRequest(request);
+                                  setShowCustomShopModal(true);
+                                }}
+                                style={{
+                                  padding: '0.5rem 1rem',
+                                  background: 'rgba(59, 130, 246, 0.2)',
+                                  border: '1px solid rgba(59, 130, 246, 0.5)',
+                                  borderRadius: '6px',
+                                  color: '#60a5fa',
+                                  cursor: 'pointer',
+                                  fontSize: '0.875rem',
+                                }}
+                              >
+                                View
+                              </button>
+                              <button
+                                onClick={() => deleteCustomShopRequest(request.id, request.user.email)}
+                                disabled={actionLoading}
+                                style={{
+                                  padding: '0.5rem 1rem',
+                                  background: 'rgba(239, 68, 68, 0.2)',
+                                  border: '1px solid rgba(239, 68, 68, 0.5)',
+                                  borderRadius: '6px',
+                                  color: '#ef4444',
+                                  cursor: actionLoading ? 'not-allowed' : 'pointer',
+                                  fontSize: '0.875rem',
+                                  opacity: actionLoading ? 0.5 : 1,
+                                }}
+                              >
+                                Delete
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       );
@@ -1478,6 +1505,324 @@ export default function AdminPage() {
                   }}
                 >
                   Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Custom Shop Request Details Modal */}
+        {showCustomShopModal && selectedCustomShopRequest && (
+          <div 
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: 'rgba(0, 0, 0, 0.8)',
+              backdropFilter: 'blur(5px)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 1000,
+              padding: '2rem',
+            }}
+            onClick={() => setShowCustomShopModal(false)}
+          >
+            <div 
+              style={{
+                background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.95) 100%)',
+                backdropFilter: 'blur(20px)',
+                borderRadius: '16px',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                padding: '2rem',
+                maxWidth: '800px',
+                width: '100%',
+                maxHeight: '90vh',
+                overflowY: 'auto',
+                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Header */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                <h2 style={{ color: 'white', margin: 0, fontSize: '1.75rem', fontWeight: '700' }}>
+                  🛍️ Custom Shop Request Details
+                </h2>
+                <button
+                  onClick={() => setShowCustomShopModal(false)}
+                  style={{
+                    background: 'rgba(239, 68, 68, 0.2)',
+                    border: '1px solid rgba(239, 68, 68, 0.5)',
+                    borderRadius: '8px',
+                    color: '#ef4444',
+                    cursor: 'pointer',
+                    padding: '0.5rem 1rem',
+                    fontWeight: '600',
+                  }}
+                >
+                  Close
+                </button>
+              </div>
+
+              {/* Customer Info */}
+              <div style={{
+                background: 'rgba(59, 130, 246, 0.1)',
+                border: '1px solid rgba(59, 130, 246, 0.3)',
+                borderRadius: '12px',
+                padding: '1.5rem',
+                marginBottom: '1.5rem',
+              }}>
+                <h3 style={{ color: '#60a5fa', margin: '0 0 1rem 0', fontSize: '1.25rem', fontWeight: '600' }}>
+                  Customer Information
+                </h3>
+                <div style={{ display: 'grid', gap: '0.75rem' }}>
+                  <div>
+                    <span style={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: '0.875rem' }}>Name:</span>
+                    <div style={{ color: 'white', fontWeight: '500' }}>{selectedCustomShopRequest.userName}</div>
+                  </div>
+                  <div>
+                    <span style={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: '0.875rem' }}>Email:</span>
+                    <div style={{ color: 'white', fontWeight: '500' }}>{selectedCustomShopRequest.userEmail}</div>
+                  </div>
+                  <div>
+                    <span style={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: '0.875rem' }}>Request Date:</span>
+                    <div style={{ color: 'white', fontWeight: '500' }}>
+                      {new Date(selectedCustomShopRequest.createdAt).toLocaleString()}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Styling Details */}
+              <div style={{
+                background: 'rgba(139, 92, 246, 0.1)',
+                border: '1px solid rgba(139, 92, 246, 0.3)',
+                borderRadius: '12px',
+                padding: '1.5rem',
+                marginBottom: '1.5rem',
+              }}>
+                <h3 style={{ color: '#a78bfa', margin: '0 0 1rem 0', fontSize: '1.25rem', fontWeight: '600' }}>
+                  Styling Details
+                </h3>
+                <div style={{ display: 'grid', gap: '1rem' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                    <div>
+                      <span style={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: '0.875rem' }}>Body Shape:</span>
+                      <div style={{ color: 'white', fontWeight: '500', textTransform: 'capitalize' }}>
+                        {selectedCustomShopRequest.bodyShape}
+                      </div>
+                    </div>
+                    <div>
+                      <span style={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: '0.875rem' }}>Color Palette:</span>
+                      <div style={{ color: 'white', fontWeight: '500', textTransform: 'capitalize' }}>
+                        {selectedCustomShopRequest.colorPalette}
+                      </div>
+                    </div>
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                    <div>
+                      <span style={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: '0.875rem' }}>Occasion:</span>
+                      <div style={{ color: 'white', fontWeight: '500', textTransform: 'capitalize' }}>
+                        {selectedCustomShopRequest.occasion}
+                      </div>
+                    </div>
+                    <div>
+                      <span style={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: '0.875rem' }}>Budget:</span>
+                      <div style={{ color: 'white', fontWeight: '500' }}>
+                        {selectedCustomShopRequest.budget}
+                      </div>
+                    </div>
+                  </div>
+                  {selectedCustomShopRequest.preferences && (
+                    <div>
+                      <span style={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: '0.875rem' }}>Style Preferences:</span>
+                      <div style={{ 
+                        color: 'white', 
+                        marginTop: '0.5rem', 
+                        padding: '1rem',
+                        background: 'rgba(0, 0, 0, 0.2)',
+                        borderRadius: '8px',
+                        whiteSpace: 'pre-wrap',
+                      }}>
+                        {selectedCustomShopRequest.preferences}
+                      </div>
+                    </div>
+                  )}
+                  {selectedCustomShopRequest.retailers && selectedCustomShopRequest.retailers.length > 0 && (
+                    <div>
+                      <span style={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: '0.875rem' }}>Preferred Retailers:</span>
+                      <div style={{ 
+                        display: 'flex', 
+                        flexWrap: 'wrap', 
+                        gap: '0.5rem', 
+                        marginTop: '0.5rem' 
+                      }}>
+                        {selectedCustomShopRequest.retailers.map((retailer, idx) => (
+                          <span 
+                            key={idx}
+                            style={{
+                              padding: '0.375rem 0.75rem',
+                              background: 'rgba(139, 92, 246, 0.2)',
+                              border: '1px solid rgba(139, 92, 246, 0.4)',
+                              borderRadius: '6px',
+                              color: '#a78bfa',
+                              fontSize: '0.875rem',
+                              fontWeight: '500',
+                            }}
+                          >
+                            {retailer}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Payment & Status */}
+              <div style={{
+                background: 'rgba(34, 197, 94, 0.1)',
+                border: '1px solid rgba(34, 197, 94, 0.3)',
+                borderRadius: '12px',
+                padding: '1.5rem',
+                marginBottom: '1.5rem',
+              }}>
+                <h3 style={{ color: '#22c55e', margin: '0 0 1rem 0', fontSize: '1.25rem', fontWeight: '600' }}>
+                  Payment & Status
+                </h3>
+                <div style={{ display: 'grid', gap: '0.75rem' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                    <div>
+                      <span style={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: '0.875rem' }}>Amount:</span>
+                      <div style={{ color: 'white', fontWeight: '600', fontSize: '1.25rem' }}>
+                        £{selectedCustomShopRequest.amount.toFixed(2)}
+                      </div>
+                    </div>
+                    <div>
+                      <span style={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: '0.875rem' }}>Payment Status:</span>
+                      <div>
+                        <span style={{
+                          padding: '0.375rem 0.875rem',
+                          borderRadius: '12px',
+                          fontSize: '0.875rem',
+                          fontWeight: '600',
+                          background: selectedCustomShopRequest.paymentStatus === 'paid' 
+                            ? 'rgba(34, 197, 94, 0.2)' 
+                            : 'rgba(251, 191, 36, 0.2)',
+                          border: selectedCustomShopRequest.paymentStatus === 'paid'
+                            ? '1px solid rgba(34, 197, 94, 0.5)'
+                            : '1px solid rgba(251, 191, 36, 0.5)',
+                          color: selectedCustomShopRequest.paymentStatus === 'paid' 
+                            ? '#22c55e' 
+                            : '#fbbf24',
+                          textTransform: 'capitalize',
+                        }}>
+                          {selectedCustomShopRequest.paymentStatus}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                    <div>
+                      <span style={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: '0.875rem' }}>Service Status:</span>
+                      <div>
+                        <span style={{
+                          padding: '0.375rem 0.875rem',
+                          borderRadius: '12px',
+                          fontSize: '0.875rem',
+                          fontWeight: '600',
+                          background: selectedCustomShopRequest.status === 'completed'
+                            ? 'rgba(16, 185, 129, 0.2)'
+                            : selectedCustomShopRequest.status === 'in_progress'
+                            ? 'rgba(139, 92, 246, 0.2)'
+                            : 'rgba(251, 191, 36, 0.2)',
+                          border: selectedCustomShopRequest.status === 'completed'
+                            ? '1px solid rgba(16, 185, 129, 0.5)'
+                            : selectedCustomShopRequest.status === 'in_progress'
+                            ? '1px solid rgba(139, 92, 246, 0.5)'
+                            : '1px solid rgba(251, 191, 36, 0.5)',
+                          color: selectedCustomShopRequest.status === 'completed'
+                            ? '#10b981'
+                            : selectedCustomShopRequest.status === 'in_progress'
+                            ? '#a78bfa'
+                            : '#fbbf24',
+                          textTransform: 'capitalize',
+                        }}>
+                          {selectedCustomShopRequest.status.replace('_', ' ')}
+                        </span>
+                      </div>
+                    </div>
+                    {selectedCustomShopRequest.estimatedDelivery && (
+                      <div>
+                        <span style={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: '0.875rem' }}>Estimated Delivery:</span>
+                        <div style={{ color: 'white', fontWeight: '500' }}>
+                          {selectedCustomShopRequest.estimatedDelivery}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  {selectedCustomShopRequest.stripePaymentIntentId && (
+                    <div>
+                      <span style={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: '0.875rem' }}>Stripe Payment ID:</span>
+                      <div style={{ 
+                        color: 'rgba(255, 255, 255, 0.8)', 
+                        fontSize: '0.875rem',
+                        fontFamily: 'monospace',
+                        marginTop: '0.25rem',
+                      }}>
+                        {selectedCustomShopRequest.stripePaymentIntentId}
+                      </div>
+                    </div>
+                  )}
+                  {selectedCustomShopRequest.completedAt && (
+                    <div>
+                      <span style={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: '0.875rem' }}>Completed On:</span>
+                      <div style={{ color: 'white', fontWeight: '500' }}>
+                        {new Date(selectedCustomShopRequest.completedAt).toLocaleString()}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
+                <button
+                  onClick={() => {
+                    setShowCustomShopModal(false);
+                    deleteCustomShopRequest(selectedCustomShopRequest.id, selectedCustomShopRequest.user.email);
+                  }}
+                  disabled={actionLoading}
+                  style={{
+                    padding: '0.75rem 1.5rem',
+                    background: 'rgba(239, 68, 68, 0.2)',
+                    border: '1px solid rgba(239, 68, 68, 0.5)',
+                    borderRadius: '8px',
+                    color: '#ef4444',
+                    cursor: actionLoading ? 'not-allowed' : 'pointer',
+                    fontSize: '0.875rem',
+                    fontWeight: '600',
+                    opacity: actionLoading ? 0.5 : 1,
+                  }}
+                >
+                  Delete Request
+                </button>
+                <button
+                  onClick={() => setShowCustomShopModal(false)}
+                  style={{
+                    padding: '0.75rem 1.5rem',
+                    background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+                    border: 'none',
+                    borderRadius: '8px',
+                    color: 'white',
+                    cursor: 'pointer',
+                    fontSize: '0.875rem',
+                    fontWeight: '600',
+                  }}
+                >
+                  Close
                 </button>
               </div>
             </div>
