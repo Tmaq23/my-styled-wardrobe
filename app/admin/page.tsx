@@ -32,11 +32,35 @@ interface Verification {
   };
 }
 
+interface CustomShopRequest {
+  id: string;
+  userId: string;
+  userEmail: string;
+  userName: string;
+  bodyShape: string;
+  colorPalette: string;
+  occasion: string;
+  budget: string;
+  amount: number;
+  currency: string;
+  paymentStatus: string;
+  status: string;
+  createdAt: string;
+  completedAt?: string;
+  user: {
+    id: string;
+    email: string | null;
+    name: string | null;
+  };
+}
+
 export default function AdminPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [verifications, setVerifications] = useState<Verification[]>([]);
+  const [customShopRequests, setCustomShopRequests] = useState<CustomShopRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [verificationsLoading, setVerificationsLoading] = useState(false);
+  const [customShopsLoading, setCustomShopsLoading] = useState(false);
   const [adminUsername, setAdminUsername] = useState('');
   const [adminPassword, setAdminPassword] = useState('');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -102,6 +126,29 @@ export default function AdminPage() {
     }
   };
 
+  const loadCustomShopRequests = async () => {
+    try {
+      setCustomShopsLoading(true);
+      console.log('Loading custom shop requests...');
+      const res = await fetch('/api/custom-shop/list', {
+        credentials: 'include',
+      });
+      console.log('Custom shop requests API response status:', res.status);
+      if (res.ok) {
+        const data = await res.json();
+        console.log('Custom shop requests loaded:', data.customShopRequests?.length || 0);
+        setCustomShopRequests(data.customShopRequests || []);
+      } else {
+        const errorText = await res.text();
+        console.error('Failed to load custom shop requests:', res.status, errorText);
+      }
+    } catch (error) {
+      console.error('Failed to load custom shop requests:', error);
+    } finally {
+      setCustomShopsLoading(false);
+    }
+  };
+
   const deleteVerification = async (verificationId: string, userEmail: string | null) => {
     if (!confirm(`Are you sure you want to delete this verification for ${userEmail}?\n\nThis action cannot be undone.`)) {
       return;
@@ -131,6 +178,35 @@ export default function AdminPage() {
     }
   };
 
+  const deleteCustomShopRequest = async (requestId: string, userEmail: string | null) => {
+    if (!confirm(`Are you sure you want to delete this custom shop request for ${userEmail}?\n\nThis action cannot be undone.`)) {
+      return;
+    }
+
+    try {
+      setActionLoading(true);
+      const res = await fetch(`/api/custom-shop/delete?id=${requestId}`, {
+        method: 'DELETE',
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setSuccessMessage('Custom shop request deleted successfully');
+        loadCustomShopRequests(); // Reload the list
+        setTimeout(() => setSuccessMessage(''), 3000);
+      } else {
+        setError(data.error || 'Failed to delete custom shop request');
+        setTimeout(() => setError(''), 3000);
+      }
+    } catch (error) {
+      setError('Failed to delete custom shop request');
+      setTimeout(() => setError(''), 3000);
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   // Check for existing admin session on mount
   useEffect(() => {
     const checkExistingSession = async () => {
@@ -148,6 +224,7 @@ export default function AdminPage() {
             setIsAuthenticated(true);
             loadUsers();
             loadVerifications();
+            loadCustomShopRequests();
           } else {
             console.log('No admin session found');
           }
@@ -202,6 +279,7 @@ export default function AdminPage() {
         setActionLoading(false);
         loadUsers();
         loadVerifications(); // Load verification purchases
+        loadCustomShopRequests(); // Load custom shop requests
         
         // Trigger session update in Header component
         window.dispatchEvent(new Event('sessionUpdated'));
@@ -764,6 +842,188 @@ export default function AdminPage() {
                                 Delete
                               </button>
                             </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          )}
+        </div>
+
+        {/* Custom Shop Requests Section */}
+        <div style={{
+          background: 'rgba(255, 255, 255, 0.1)',
+          backdropFilter: 'blur(10px)',
+          borderRadius: '12px',
+          border: '1px solid rgba(255, 255, 255, 0.2)',
+          padding: '1.5rem',
+          marginBottom: '2rem',
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+            <h2 style={{ color: 'white', margin: 0, fontSize: '1.5rem', fontWeight: '600' }}>
+              🛍️ Custom Shop Requests
+            </h2>
+            <button
+              onClick={loadCustomShopRequests}
+              disabled={customShopsLoading}
+              style={{
+                padding: '0.5rem 1rem',
+                background: 'rgba(59, 130, 246, 0.2)',
+                border: '1px solid rgba(59, 130, 246, 0.5)',
+                borderRadius: '6px',
+                color: '#60a5fa',
+                cursor: customShopsLoading ? 'wait' : 'pointer',
+                opacity: customShopsLoading ? 0.6 : 1,
+              }}
+            >
+              {customShopsLoading ? '🔄 Refreshing...' : '🔄 Refresh'}
+            </button>
+          </div>
+
+          {customShopsLoading && customShopRequests.length === 0 ? (
+            <div style={{ color: 'rgba(255, 255, 255, 0.7)', textAlign: 'center', padding: '2rem' }}>
+              Loading custom shop requests...
+            </div>
+          ) : customShopRequests.length === 0 ? (
+            <div style={{ color: 'rgba(255, 255, 255, 0.5)', textAlign: 'center', padding: '2rem' }}>
+              No custom shop requests yet
+            </div>
+          ) : (
+            <>
+              {/* Summary Stats */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
+                <div style={{ background: 'rgba(59, 130, 246, 0.2)', padding: '1rem', borderRadius: '8px', border: '1px solid rgba(59, 130, 246, 0.3)' }}>
+                  <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#60a5fa' }}>
+                    {customShopRequests.length}
+                  </div>
+                  <div style={{ fontSize: '0.875rem', color: 'rgba(255, 255, 255, 0.7)' }}>Total Requests</div>
+                </div>
+                <div style={{ background: 'rgba(245, 158, 11, 0.2)', padding: '1rem', borderRadius: '8px', border: '1px solid rgba(245, 158, 11, 0.3)' }}>
+                  <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#fbbf24' }}>
+                    {customShopRequests.filter(r => r.status === 'pending').length}
+                  </div>
+                  <div style={{ fontSize: '0.875rem', color: 'rgba(255, 255, 255, 0.7)' }}>Pending</div>
+                </div>
+                <div style={{ background: 'rgba(139, 92, 246, 0.2)', padding: '1rem', borderRadius: '8px', border: '1px solid rgba(139, 92, 246, 0.3)' }}>
+                  <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#a78bfa' }}>
+                    {customShopRequests.filter(r => r.status === 'in_progress').length}
+                  </div>
+                  <div style={{ fontSize: '0.875rem', color: 'rgba(255, 255, 255, 0.7)' }}>In Progress</div>
+                </div>
+                <div style={{ background: 'rgba(16, 185, 129, 0.2)', padding: '1rem', borderRadius: '8px', border: '1px solid rgba(16, 185, 129, 0.3)' }}>
+                  <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#34d399' }}>
+                    {customShopRequests.filter(r => r.status === 'completed').length}
+                  </div>
+                  <div style={{ fontSize: '0.875rem', color: 'rgba(255, 255, 255, 0.7)' }}>Completed</div>
+                </div>
+              </div>
+
+              {/* Custom Shop Requests Table */}
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                  <thead>
+                    <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.2)' }}>
+                      <th style={{ padding: '0.75rem', textAlign: 'left', color: 'rgba(255, 255, 255, 0.8)', fontWeight: '600' }}>User</th>
+                      <th style={{ padding: '0.75rem', textAlign: 'left', color: 'rgba(255, 255, 255, 0.8)', fontWeight: '600' }}>Details</th>
+                      <th style={{ padding: '0.75rem', textAlign: 'left', color: 'rgba(255, 255, 255, 0.8)', fontWeight: '600' }}>Amount</th>
+                      <th style={{ padding: '0.75rem', textAlign: 'center', color: 'rgba(255, 255, 255, 0.8)', fontWeight: '600' }}>Payment</th>
+                      <th style={{ padding: '0.75rem', textAlign: 'center', color: 'rgba(255, 255, 255, 0.8)', fontWeight: '600' }}>Status</th>
+                      <th style={{ padding: '0.75rem', textAlign: 'left', color: 'rgba(255, 255, 255, 0.8)', fontWeight: '600' }}>Date</th>
+                      <th style={{ padding: '0.75rem', textAlign: 'center', color: 'rgba(255, 255, 255, 0.8)', fontWeight: '600' }}>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {customShopRequests.map((request) => {
+                      const paymentStatusColors = {
+                        pending: { bg: 'rgba(251, 191, 36, 0.2)', border: 'rgba(251, 191, 36, 0.5)', text: '#fbbf24' },
+                        paid: { bg: 'rgba(34, 197, 94, 0.2)', border: 'rgba(34, 197, 94, 0.5)', text: '#22c55e' },
+                        failed: { bg: 'rgba(239, 68, 68, 0.2)', border: 'rgba(239, 68, 68, 0.5)', text: '#ef4444' },
+                      };
+                      const statusColors = {
+                        pending: { bg: 'rgba(251, 191, 36, 0.2)', border: 'rgba(251, 191, 36, 0.5)', text: '#fbbf24' },
+                        in_progress: { bg: 'rgba(139, 92, 246, 0.2)', border: 'rgba(139, 92, 246, 0.5)', text: '#a78bfa' },
+                        completed: { bg: 'rgba(16, 185, 129, 0.2)', border: 'rgba(16, 185, 129, 0.5)', text: '#10b981' },
+                        cancelled: { bg: 'rgba(239, 68, 68, 0.2)', border: 'rgba(239, 68, 68, 0.5)', text: '#ef4444' },
+                      };
+                      
+                      const paymentColor = paymentStatusColors[request.paymentStatus as keyof typeof paymentStatusColors] || paymentStatusColors.pending;
+                      const statusColor = statusColors[request.status as keyof typeof statusColors] || statusColors.pending;
+                      
+                      return (
+                        <tr key={request.id} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                          <td style={{ padding: '1rem' }}>
+                            <div style={{ color: 'white', fontWeight: '500' }}>
+                              {request.user.name || 'Unnamed User'}
+                            </div>
+                            <div style={{ fontSize: '0.875rem', color: 'rgba(255, 255, 255, 0.6)' }}>
+                              {request.user.email}
+                            </div>
+                          </td>
+                          <td style={{ padding: '1rem' }}>
+                            <div style={{ fontSize: '0.875rem', color: 'rgba(255, 255, 255, 0.9)' }}>
+                              <strong>Occasion:</strong> {request.occasion}
+                            </div>
+                            <div style={{ fontSize: '0.875rem', color: 'rgba(255, 255, 255, 0.9)' }}>
+                              <strong>Budget:</strong> {request.budget}
+                            </div>
+                            <div style={{ fontSize: '0.875rem', color: 'rgba(255, 255, 255, 0.7)' }}>
+                              {request.bodyShape} • {request.colorPalette}
+                            </div>
+                          </td>
+                          <td style={{ padding: '1rem', color: 'rgba(255, 255, 255, 0.9)', fontWeight: '600' }}>
+                            £{request.amount.toFixed(2)}
+                          </td>
+                          <td style={{ padding: '1rem', textAlign: 'center' }}>
+                            <span style={{
+                              padding: '0.25rem 0.75rem',
+                              borderRadius: '12px',
+                              fontSize: '0.75rem',
+                              fontWeight: '600',
+                              background: paymentColor.bg,
+                              border: `1px solid ${paymentColor.border}`,
+                              color: paymentColor.text,
+                              textTransform: 'capitalize',
+                            }}>
+                              {request.paymentStatus}
+                            </span>
+                          </td>
+                          <td style={{ padding: '1rem', textAlign: 'center' }}>
+                            <span style={{
+                              padding: '0.25rem 0.75rem',
+                              borderRadius: '12px',
+                              fontSize: '0.75rem',
+                              fontWeight: '600',
+                              background: statusColor.bg,
+                              border: `1px solid ${statusColor.border}`,
+                              color: statusColor.text,
+                              textTransform: 'capitalize',
+                            }}>
+                              {request.status.replace('_', ' ')}
+                            </span>
+                          </td>
+                          <td style={{ padding: '1rem', color: 'rgba(255, 255, 255, 0.7)', fontSize: '0.875rem' }}>
+                            {new Date(request.createdAt).toLocaleDateString()}
+                          </td>
+                          <td style={{ padding: '1rem', textAlign: 'center' }}>
+                            <button
+                              onClick={() => deleteCustomShopRequest(request.id, request.user.email)}
+                              disabled={actionLoading}
+                              style={{
+                                padding: '0.5rem 1rem',
+                                background: 'rgba(239, 68, 68, 0.2)',
+                                border: '1px solid rgba(239, 68, 68, 0.5)',
+                                borderRadius: '6px',
+                                color: '#ef4444',
+                                cursor: actionLoading ? 'not-allowed' : 'pointer',
+                                fontSize: '0.875rem',
+                                opacity: actionLoading ? 0.5 : 1,
+                              }}
+                            >
+                              Delete
+                            </button>
                           </td>
                         </tr>
                       );
