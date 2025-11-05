@@ -218,6 +218,49 @@ export default function AdminPage() {
     }
   };
 
+  const updateCustomShopStatus = async (requestId: string, newStatus: string, estimatedDelivery?: string) => {
+    try {
+      setActionLoading(true);
+      const res = await fetch('/api/custom-shop/update-status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          requestId, 
+          status: newStatus,
+          estimatedDelivery 
+        }),
+        credentials: 'include',
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setSuccessMessage(`Status updated to ${newStatus.replace('_', ' ')}`);
+        loadCustomShopRequests(); // Reload the list
+        
+        // Update the selected request in the modal
+        if (selectedCustomShopRequest && selectedCustomShopRequest.id === requestId) {
+          setSelectedCustomShopRequest({
+            ...selectedCustomShopRequest,
+            status: newStatus,
+            completedAt: newStatus === 'completed' ? new Date().toISOString() : selectedCustomShopRequest.completedAt,
+            estimatedDelivery: estimatedDelivery || selectedCustomShopRequest.estimatedDelivery,
+          });
+        }
+        
+        setTimeout(() => setSuccessMessage(''), 3000);
+      } else {
+        setError(data.error || 'Failed to update status');
+        setTimeout(() => setError(''), 3000);
+      }
+    } catch (error) {
+      setError('Failed to update status');
+      setTimeout(() => setError(''), 3000);
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   // Check for existing admin session on mount
   useEffect(() => {
     const checkExistingSession = async () => {
@@ -1782,6 +1825,108 @@ export default function AdminPage() {
                       <div style={{ color: 'white', fontWeight: '500' }}>
                         {new Date(selectedCustomShopRequest.completedAt).toLocaleString()}
                       </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Status Change Buttons */}
+              <div style={{
+                background: 'rgba(255, 255, 255, 0.05)',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                borderRadius: '12px',
+                padding: '1.5rem',
+                marginBottom: '1.5rem',
+              }}>
+                <h3 style={{ color: 'white', margin: '0 0 1rem 0', fontSize: '1.25rem', fontWeight: '600' }}>
+                  Update Status
+                </h3>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
+                  {selectedCustomShopRequest.status === 'pending' && (
+                    <button
+                      onClick={() => updateCustomShopStatus(selectedCustomShopRequest.id, 'in_progress', '2-3 business days')}
+                      disabled={actionLoading}
+                      style={{
+                        padding: '0.75rem 1.5rem',
+                        background: 'rgba(139, 92, 246, 0.2)',
+                        border: '1px solid rgba(139, 92, 246, 0.5)',
+                        borderRadius: '8px',
+                        color: '#a78bfa',
+                        cursor: actionLoading ? 'not-allowed' : 'pointer',
+                        fontSize: '0.875rem',
+                        fontWeight: '600',
+                        opacity: actionLoading ? 0.5 : 1,
+                      }}
+                    >
+                      ▶️ Start Working on Request
+                    </button>
+                  )}
+                  {selectedCustomShopRequest.status === 'in_progress' && (
+                    <button
+                      onClick={() => updateCustomShopStatus(selectedCustomShopRequest.id, 'completed')}
+                      disabled={actionLoading}
+                      style={{
+                        padding: '0.75rem 1.5rem',
+                        background: 'rgba(16, 185, 129, 0.2)',
+                        border: '1px solid rgba(16, 185, 129, 0.5)',
+                        borderRadius: '8px',
+                        color: '#10b981',
+                        cursor: actionLoading ? 'not-allowed' : 'pointer',
+                        fontSize: '0.875rem',
+                        fontWeight: '600',
+                        opacity: actionLoading ? 0.5 : 1,
+                      }}
+                    >
+                      ✅ Mark as Completed
+                    </button>
+                  )}
+                  {selectedCustomShopRequest.status !== 'completed' && selectedCustomShopRequest.status !== 'cancelled' && (
+                    <button
+                      onClick={() => {
+                        if (confirm('Are you sure you want to cancel this request?')) {
+                          updateCustomShopStatus(selectedCustomShopRequest.id, 'cancelled');
+                        }
+                      }}
+                      disabled={actionLoading}
+                      style={{
+                        padding: '0.75rem 1.5rem',
+                        background: 'rgba(245, 158, 11, 0.2)',
+                        border: '1px solid rgba(245, 158, 11, 0.5)',
+                        borderRadius: '8px',
+                        color: '#f59e0b',
+                        cursor: actionLoading ? 'not-allowed' : 'pointer',
+                        fontSize: '0.875rem',
+                        fontWeight: '600',
+                        opacity: actionLoading ? 0.5 : 1,
+                      }}
+                    >
+                      ❌ Cancel Request
+                    </button>
+                  )}
+                  {selectedCustomShopRequest.status === 'completed' && (
+                    <div style={{ 
+                      padding: '0.75rem 1.5rem',
+                      background: 'rgba(16, 185, 129, 0.2)',
+                      border: '1px solid rgba(16, 185, 129, 0.5)',
+                      borderRadius: '8px',
+                      color: '#10b981',
+                      fontSize: '0.875rem',
+                      fontWeight: '600',
+                    }}>
+                      ✅ This request has been completed
+                    </div>
+                  )}
+                  {selectedCustomShopRequest.status === 'cancelled' && (
+                    <div style={{ 
+                      padding: '0.75rem 1.5rem',
+                      background: 'rgba(239, 68, 68, 0.2)',
+                      border: '1px solid rgba(239, 68, 68, 0.5)',
+                      borderRadius: '8px',
+                      color: '#ef4444',
+                      fontSize: '0.875rem',
+                      fontWeight: '600',
+                    }}>
+                      ❌ This request has been cancelled
                     </div>
                   )}
                 </div>
