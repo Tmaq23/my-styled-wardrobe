@@ -101,7 +101,7 @@ export default function PricingPage() {
 
             <div className="pricing-card featured">
               <div className="plan-header">
-                <h3>Customised online Shop</h3>
+                <h3>Customised Online Shop</h3>
                 <div className="price">
                   <span className="currency">£</span>
                   <span className="amount">120</span>
