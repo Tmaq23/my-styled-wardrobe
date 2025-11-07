@@ -1,14 +1,53 @@
 'use client';
 
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import WardrobeUploader from '../../components/WardrobeUploader';
 
 export default function WardrobeIdeasPage() {
+  const router = useRouter();
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+
+  // Check authentication on mount
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const res = await fetch('/api/simple-auth/session');
+        const data = await res.json();
+        if (!data.user) {
+          router.push('/auth/signin?redirect=/wardrobe-ideas');
+        } else {
+          setIsAuthenticated(true);
+        }
+      } catch (error) {
+        router.push('/auth/signin?redirect=/wardrobe-ideas');
+      }
+    };
+    checkAuth();
+  }, [router]);
+
   const handleWardrobeFilesChange = (files: File[]) => {
     // Handle the uploaded files here if needed
     // The WardrobeUploader component manages its own state and outfit generation
     console.log('Wardrobe files updated:', files.length);
   };
+
+  // Show loading state while checking authentication
+  if (isAuthenticated === null) {
+    return (
+      <div className="style-interface-page" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ textAlign: 'center' }}>
+          <p>Checking authentication...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Don't render the page until authenticated
+  if (!isAuthenticated) {
+    return null;
+  }
 
   return (
     <div className="style-interface-page">

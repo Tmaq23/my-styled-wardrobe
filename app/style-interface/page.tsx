@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import ProfileCapture from '../../components/ProfileCapture';
@@ -11,6 +12,8 @@ import dynamic from 'next/dynamic';
 // WardrobeStats and WardrobeUploader imports removed
 
 export default function StyleInterfacePage() {
+  const router = useRouter();
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [bodyShape, setBodyShape] = useState('');
   const [colorPalette, setColorPalette] = useState('');
   const [files, setFiles] = useState<File[]>([]);
@@ -26,6 +29,24 @@ export default function StyleInterfacePage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [paymentSuccessMessage, setPaymentSuccessMessage] = useState('');
   // mood selection removed
+
+  // Check authentication on mount
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const res = await fetch('/api/simple-auth/session');
+        const data = await res.json();
+        if (!data.user) {
+          router.push('/auth/signin?redirect=/style-interface');
+        } else {
+          setIsAuthenticated(true);
+        }
+      } catch (error) {
+        router.push('/auth/signin?redirect=/style-interface');
+      }
+    };
+    checkAuth();
+  }, [router]);
 
   // Check for payment success/cancel on mount
   useEffect(() => {
@@ -43,6 +64,22 @@ export default function StyleInterfacePage() {
       setTimeout(() => setPaymentSuccessMessage(''), 5000);
     }
   }, []);
+
+  // Show loading state while checking authentication
+  if (isAuthenticated === null) {
+    return (
+      <div className="style-interface-page" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ textAlign: 'center' }}>
+          <p>Checking authentication...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Don't render the page until authenticated
+  if (!isAuthenticated) {
+    return null;
+  }
 
   const handleFilesChange = (newFiles: File[]) => {
     setFiles(newFiles);
