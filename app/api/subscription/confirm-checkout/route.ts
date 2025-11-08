@@ -1,10 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import Stripe from 'stripe';
 import { prisma } from '@/lib/prisma';
 
-const stripe = new Stripe(process.env['STRIPE_SECRET_KEY'] || '', {
-  apiVersion: '2024-11-20.acacia',
-});
+const STRIPE_SECRET_KEY = process.env['STRIPE_SECRET_KEY'];
 
 export async function GET(request: NextRequest) {
   try {
@@ -18,8 +15,31 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Retrieve the checkout session from Stripe
-    const session = await stripe.checkout.sessions.retrieve(sessionId);
+    if (!STRIPE_SECRET_KEY) {
+      return NextResponse.json(
+        { error: 'Stripe is not configured' },
+        { status: 500 }
+      );
+    }
+
+    // Retrieve the checkout session from Stripe using REST API
+    const sessionResponse = await fetch(
+      `https://api.stripe.com/v1/checkout/sessions/${sessionId}`,
+      {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${STRIPE_SECRET_KEY}`,
+        },
+      }
+    );
+
+    if (!sessionResponse.ok) {
+      const errorData = await sessionResponse.json();
+      console.error('❌ Stripe API error:', errorData);
+      throw new Error(errorData.error?.message || 'Failed to retrieve session from Stripe');
+    }
+
+    const session = await sessionResponse.json();
 
     if (session.payment_status !== 'paid') {
       return NextResponse.json(
