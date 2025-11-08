@@ -24,17 +24,17 @@ export async function POST(request: NextRequest) {
     });
     
     // Use centralized authentication
-    const authResult = await requireAuthenticatedUser(request);
+    const authContext = await requireAuthenticatedUser(request);
     
-    if (authResult.status !== 'ok') {
-      console.log('❌ Authentication failed:', authResult.message);
+    if (!authContext) {
+      console.log('❌ Authentication failed: No user context');
       return NextResponse.json(
-        { error: authResult.message },
-        { status: authResult.statusCode }
+        { error: 'You must be logged in to subscribe' },
+        { status: 401 }
       );
     }
 
-    const user = authResult.user;
+    const user = authContext.user;
     console.log('✅ User authenticated:', { userId: user.id, userEmail: user.email });
 
     // Create or retrieve Stripe customer
