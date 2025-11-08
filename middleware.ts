@@ -16,8 +16,8 @@ export function middleware(request: NextRequest) {
   const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route))
   
   if (isProtectedRoute) {
-    // Check for session cookie (from simple-auth)
-    const sessionCookie = request.cookies.get('simple_auth_session')
+    // Check for session cookie (correct cookie name: auth-session)
+    const sessionCookie = request.cookies.get('auth-session')
     
     if (!sessionCookie) {
       // Redirect to sign-in page if no session
