@@ -2,10 +2,10 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
 // Protected routes that require authentication
+// Note: /admin has its own authentication system built into the page
 const protectedRoutes = [
   '/style-interface',
   '/wardrobe-ideas',
-  '/admin',
   '/subscription',
 ]
 
