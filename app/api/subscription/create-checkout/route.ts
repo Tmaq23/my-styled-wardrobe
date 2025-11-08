@@ -16,12 +16,43 @@ export async function POST(request: NextRequest) {
         { status: 500 }
       );
     }
+    
+    // Validate Stripe key format
+    if (!stripeKey.startsWith('sk_test_') && !stripeKey.startsWith('sk_live_')) {
+      console.error('❌ STRIPE_SECRET_KEY has invalid format!');
+      return NextResponse.json(
+        { error: 'Stripe API key format is invalid. Please check configuration.' },
+        { status: 500 }
+      );
+    }
+    
     console.log('✅ Stripe key found, length:', stripeKey.length);
     console.log('✅ Stripe key prefix:', stripeKey.substring(0, 10));
+    console.log('✅ Stripe key type:', stripeKey.startsWith('sk_test_') ? 'test' : 'live');
     
     const stripe = new Stripe(stripeKey, {
       apiVersion: '2024-11-20.acacia',
+      timeout: 20000, // 20 second timeout
+      maxNetworkRetries: 2,
     });
+    
+    // Test Stripe connection by retrieving account info
+    try {
+      console.log('🔵 Testing Stripe API connection...');
+      const account = await stripe.balance.retrieve();
+      console.log('✅ Stripe connection successful!');
+    } catch (stripeTestError) {
+      console.error('❌ Stripe connection test failed:', stripeTestError);
+      const errorMsg = stripeTestError instanceof Error ? stripeTestError.message : 'Unknown error';
+      return NextResponse.json(
+        { 
+          error: 'Unable to connect to Stripe',
+          details: errorMsg,
+          suggestion: 'Please verify that STRIPE_SECRET_KEY is correctly set in Vercel environment variables'
+        },
+        { status: 500 }
+      );
+    }
     
     // Use centralized authentication
     const authContext = await requireAuthenticatedUser(request);

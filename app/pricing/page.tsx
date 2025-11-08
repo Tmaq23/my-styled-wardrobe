@@ -116,6 +116,9 @@ export default function PricingPage() {
         if (data.details && data.details !== data.error) {
           errorMsg += ` - ${data.details}`;
         }
+        if (data.suggestion) {
+          errorMsg += ` | ${data.suggestion}`;
+        }
         if (data.hasStripeKey === false) {
           errorMsg += ' (Stripe API key is not configured on the server)';
         }
