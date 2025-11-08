@@ -136,11 +136,36 @@ export async function POST(request: NextRequest) {
     console.error('❌ Error stack:', error instanceof Error ? error.stack : 'No stack trace');
     console.error('❌ Error details:', JSON.stringify(error, null, 2));
     
+    // Extract more detailed error information
+    let errorMessage = 'Failed to create checkout session';
+    let errorDetails = 'Unknown error';
+    
+    if (error instanceof Error) {
+      errorMessage = error.message;
+      errorDetails = error.message;
+      
+      // Check for Stripe-specific errors
+      if ('type' in error && 'code' in error) {
+        const stripeError = error as any;
+        errorMessage = stripeError.message || errorMessage;
+        errorDetails = `${stripeError.type || 'Unknown'}: ${stripeError.message || 'No details'}`;
+        
+        // Add more context for common Stripe errors
+        if (stripeError.code === 'api_key_invalid') {
+          errorDetails = 'Stripe API key is invalid. Please check your STRIPE_SECRET_KEY configuration.';
+        } else if (stripeError.code === 'resource_missing') {
+          errorDetails = 'Stripe resource not found. This might be a configuration issue.';
+        }
+      }
+    }
+    
     return NextResponse.json(
       { 
-        error: 'Failed to create checkout session',
-        details: error instanceof Error ? error.message : 'Unknown error',
-        errorType: error instanceof Error ? error.constructor.name : typeof error
+        error: errorMessage,
+        details: errorDetails,
+        errorType: error instanceof Error ? error.constructor.name : typeof error,
+        hasStripeKey: !!process.env['STRIPE_SECRET_KEY'],
+        stripeKeyPrefix: process.env['STRIPE_SECRET_KEY']?.substring(0, 8)
       },
       { status: 500 }
     );

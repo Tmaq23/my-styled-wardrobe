@@ -111,7 +111,15 @@ export default function PricingPage() {
 
       if (!response.ok) {
         console.error('❌ Response not OK:', data);
-        const errorMsg = data.error || data.details || 'Failed to create checkout session';
+        // Show more detailed error information
+        let errorMsg = data.error || 'Failed to create checkout session';
+        if (data.details && data.details !== data.error) {
+          errorMsg += ` - ${data.details}`;
+        }
+        if (data.hasStripeKey === false) {
+          errorMsg += ' (Stripe API key is not configured on the server)';
+        }
+        console.error('Full error data:', data);
         setErrorMessage(errorMsg);
         throw new Error(errorMsg);
       }
