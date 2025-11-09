@@ -2,10 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getSessionContext } from '@/lib/apiAuth';
 
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function DELETE(request: NextRequest) {
   try {
     // Check authentication
     const context = await getSessionContext(request);
@@ -28,11 +25,20 @@ export async function DELETE(
       );
     }
 
-    const { id } = await params;
+    // Get post ID from query params
+    const { searchParams } = new URL(request.url);
+    const postId = searchParams.get('id');
+
+    if (!postId) {
+      return NextResponse.json(
+        { error: 'Post ID is required' },
+        { status: 400 }
+      );
+    }
 
     // Check if post exists
     const post = await prisma.blogPost.findUnique({
-      where: { id },
+      where: { id: postId },
     });
 
     if (!post) {
@@ -44,7 +50,7 @@ export async function DELETE(
 
     // Delete the post (comments will be cascade deleted due to schema)
     await prisma.blogPost.delete({
-      where: { id },
+      where: { id: postId },
     });
 
     console.log(`✅ Admin ${context.user.email} deleted blog post: ${post.title}`);

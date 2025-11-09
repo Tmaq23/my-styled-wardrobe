@@ -137,7 +137,7 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
     }
 
     try {
-      const response = await fetch(`/api/blog/posts/${post.id}/delete`, {
+      const response = await fetch(`/api/blog/posts/delete?id=${post.id}`, {
         method: 'DELETE',
       });
 
@@ -160,7 +160,7 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
     }
 
     try {
-      const response = await fetch(`/api/blog/comments/${commentId}`, {
+      const response = await fetch(`/api/blog/comments/delete?id=${commentId}`, {
         method: 'DELETE',
       });
 
