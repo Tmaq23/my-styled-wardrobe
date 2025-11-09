@@ -425,28 +425,32 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
                 <textarea
                   value={commentText}
                   onChange={(e) => setCommentText(e.target.value)}
-                  placeholder="What are your thoughts on this post? Share your opinion, ask a question, or start a discussion..."
+                  placeholder="Type your comment here..."
                   rows={5}
+                  required
                   style={{
                     width: '100%',
                     padding: '1rem',
-                    border: '2px solid #cbd5e1',
+                    border: '3px solid #667eea',
                     background: '#ffffff',
-                    color: '#1e293b',
+                    color: '#000000',
                     borderRadius: '12px',
-                    fontSize: '1rem',
+                    fontSize: '1.125rem',
                     resize: 'vertical',
                     marginBottom: '1rem',
                     fontFamily: 'inherit',
-                    boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
+                    boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+                    minHeight: '120px',
+                    display: 'block',
+                    boxSizing: 'border-box'
                   }}
                   onFocus={(e) => {
-                    e.currentTarget.style.borderColor = '#667eea';
-                    e.currentTarget.style.boxShadow = '0 0 0 3px rgba(102,126,234,0.1)';
+                    e.currentTarget.style.borderColor = '#764ba2';
+                    e.currentTarget.style.boxShadow = '0 0 0 4px rgba(102,126,234,0.2)';
                   }}
                   onBlur={(e) => {
-                    e.currentTarget.style.borderColor = '#cbd5e1';
-                    e.currentTarget.style.boxShadow = '0 1px 2px rgba(0,0,0,0.05)';
+                    e.currentTarget.style.borderColor = '#667eea';
+                    e.currentTarget.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
                   }}
                 />
                 <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem' }}>
