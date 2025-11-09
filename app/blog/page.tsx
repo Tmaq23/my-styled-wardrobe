@@ -28,6 +28,7 @@ export default function BlogPage() {
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<any>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [checkingAuth, setCheckingAuth] = useState(true);
 
   useEffect(() => {
@@ -41,6 +42,8 @@ export default function BlogPage() {
       
       if (data.user) {
         setUser(data.user);
+        // Check if user is admin
+        checkAdminStatus(data.user.id);
         fetchPosts();
       } else {
         // Not logged in - redirect to sign in
@@ -51,6 +54,17 @@ export default function BlogPage() {
       router.push('/auth/signin?redirect=/blog');
     } finally {
       setCheckingAuth(false);
+    }
+  };
+
+  const checkAdminStatus = async (userId: string) => {
+    try {
+      const response = await fetch(`/api/admin/check?userId=${userId}`);
+      const data = await response.json();
+      setIsAdmin(data.isAdmin || false);
+    } catch (error) {
+      console.error('Error checking admin status:', error);
+      setIsAdmin(false);
     }
   };
 
@@ -258,30 +272,61 @@ export default function BlogPage() {
           margin: '0 auto',
           textAlign: 'center'
         }}>
-          <p style={{
-            fontSize: '1.1rem',
-            color: 'rgba(226,232,255,0.75)',
-            marginBottom: '1.5rem'
-          }}>
-            Want to contribute to our blog?
-          </p>
-          <Link
-            href="/admin"
-            style={{
-              display: 'inline-block',
-              padding: '0.875rem 2rem',
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-              color: 'white',
-              borderRadius: '8px',
-              textDecoration: 'none',
-              fontWeight: '600',
-              transition: 'transform 0.2s'
-            }}
-            onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
-            onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-          >
-            Admin Login
-          </Link>
+          {isAdmin ? (
+            <>
+              <p style={{
+                fontSize: '1.1rem',
+                color: 'rgba(226,232,255,0.75)',
+                marginBottom: '1.5rem'
+              }}>
+                Ready to share your fashion insights?
+              </p>
+              <Link
+                href="/admin/blog/create"
+                style={{
+                  display: 'inline-block',
+                  padding: '0.875rem 2rem',
+                  background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                  color: 'white',
+                  borderRadius: '8px',
+                  textDecoration: 'none',
+                  fontWeight: '600',
+                  transition: 'transform 0.2s'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+                onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+              >
+                ✍️ Create New Post
+              </Link>
+            </>
+          ) : (
+            <>
+              <p style={{
+                fontSize: '1.1rem',
+                color: 'rgba(226,232,255,0.75)',
+                marginBottom: '1.5rem'
+              }}>
+                Want to contribute to our blog?
+              </p>
+              <Link
+                href="/admin"
+                style={{
+                  display: 'inline-block',
+                  padding: '0.875rem 2rem',
+                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  color: 'white',
+                  borderRadius: '8px',
+                  textDecoration: 'none',
+                  fontWeight: '600',
+                  transition: 'transform 0.2s'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+                onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+              >
+                Admin Login
+              </Link>
+            </>
+          )}
         </div>
       </div>
     </div>
