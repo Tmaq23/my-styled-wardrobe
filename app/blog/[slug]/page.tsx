@@ -41,6 +41,7 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
   const [commentText, setCommentText] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [user, setUser] = useState<any>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [checkingAuth, setCheckingAuth] = useState(true);
 
   useEffect(() => {
@@ -54,6 +55,7 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
       
       if (data.user) {
         setUser(data.user);
+        checkAdminStatus(data.user.id);
         fetchPost();
       } else {
         // Not logged in - redirect to sign in
@@ -64,6 +66,17 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
       router.push(`/auth/signin?redirect=/blog/${slug}`);
     } finally {
       setCheckingAuth(false);
+    }
+  };
+
+  const checkAdminStatus = async (userId: string) => {
+    try {
+      const response = await fetch(`/api/admin/check?userId=${userId}`);
+      const data = await response.json();
+      setIsAdmin(data.isAdmin || false);
+    } catch (error) {
+      console.error('Error checking admin status:', error);
+      setIsAdmin(false);
     }
   };
 
@@ -115,6 +128,52 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
       alert('An error occurred. Please try again.');
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleDeletePost = async () => {
+    if (!post || !confirm('Are you sure you want to delete this blog post? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/blog/posts/${post.id}/delete`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        alert('Post deleted successfully');
+        router.push('/blog');
+      } else {
+        const data = await response.json();
+        alert(data.error || 'Failed to delete post');
+      }
+    } catch (error) {
+      console.error('Error deleting post:', error);
+      alert('An error occurred while deleting the post');
+    }
+  };
+
+  const handleDeleteComment = async (commentId: string) => {
+    if (!confirm('Are you sure you want to delete this comment? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/blog/comments/${commentId}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        alert('Comment deleted successfully');
+        fetchPost(); // Refresh to update comments
+      } else {
+        const data = await response.json();
+        alert(data.error || 'Failed to delete comment');
+      }
+    } catch (error) {
+      console.error('Error deleting comment:', error);
+      alert('An error occurred while deleting the comment');
     }
   };
 
@@ -207,9 +266,32 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
             ← Back to Blog
           </Link>
 
-          <h1 className="blog-title">
-            {post.title}
-          </h1>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem', marginBottom: '1rem' }}>
+            <h1 className="blog-title" style={{ margin: 0, flex: 1 }}>
+              {post.title}
+            </h1>
+            {isAdmin && (
+              <button
+                onClick={handleDeletePost}
+                style={{
+                  padding: '0.5rem 1rem',
+                  background: '#ef4444',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  fontSize: '0.875rem',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  transition: 'background 0.2s',
+                  flexShrink: 0
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.background = '#dc2626'}
+                onMouseLeave={(e) => e.currentTarget.style.background = '#ef4444'}
+              >
+                🗑️ Delete Post
+              </button>
+            )}
+          </div>
 
           <div className="blog-meta">
             <span style={{ fontWeight: '600' }}>
@@ -395,7 +477,8 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
                   padding: '1.5rem',
                   background: 'white',
                   borderRadius: '12px',
-                  boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+                  position: 'relative'
                 }}
               >
                 <div style={{
@@ -404,12 +487,34 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
                   alignItems: 'center',
                   marginBottom: '0.75rem'
                 }}>
-                  <span style={{ fontWeight: '600', color: '#1e293b' }}>
-                    {comment.user.name || comment.user.email}
-                  </span>
-                  <span style={{ fontSize: '0.85rem', color: '#94a3b8' }}>
-                    {formatDate(comment.createdAt)}
-                  </span>
+                  <div style={{ flex: 1 }}>
+                    <span style={{ fontWeight: '600', color: '#1e293b' }}>
+                      {comment.user.name || comment.user.email}
+                    </span>
+                    <span style={{ fontSize: '0.85rem', color: '#94a3b8', marginLeft: '0.75rem' }}>
+                      {formatDate(comment.createdAt)}
+                    </span>
+                  </div>
+                  {isAdmin && (
+                    <button
+                      onClick={() => handleDeleteComment(comment.id)}
+                      style={{
+                        padding: '0.375rem 0.75rem',
+                        background: '#ef4444',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '4px',
+                        fontSize: '0.75rem',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        transition: 'background 0.2s'
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.background = '#dc2626'}
+                      onMouseLeave={(e) => e.currentTarget.style.background = '#ef4444'}
+                    >
+                      🗑️ Delete
+                    </button>
+                  )}
                 </div>
                 <p style={{
                   color: '#475569',
