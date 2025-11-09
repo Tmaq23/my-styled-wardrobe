@@ -46,6 +46,7 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
 
   useEffect(() => {
     checkAuth();
+    fetchPost();
   }, [slug]);
 
   const checkAuth = async () => {
@@ -56,14 +57,11 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
       if (data.user) {
         setUser(data.user);
         checkAdminStatus(data.user.id);
-        fetchPost();
-      } else {
-        // Not logged in - redirect to sign in
-        router.push(`/auth/signin?redirect=/blog/${slug}`);
       }
+      // If not logged in, user can still view the post but can't comment
     } catch (error) {
       console.error('Error checking auth:', error);
-      router.push(`/auth/signin?redirect=/blog/${slug}`);
+      // Continue anyway - user can still view the post
     } finally {
       setCheckingAuth(false);
     }
