@@ -396,82 +396,191 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
             marginBottom: '2rem',
             color: '#1e293b'
           }}>
-            Comments ({post.comments.length})
+            💬 Comments ({post.comments.length})
           </h2>
 
           {/* Comment Form */}
           {user ? (
-            <form onSubmit={handleCommentSubmit} style={{ marginBottom: '3rem' }}>
-              <textarea
-                value={commentText}
-                onChange={(e) => setCommentText(e.target.value)}
-                placeholder="Share your thoughts..."
-                rows={4}
-                style={{
-                  width: '100%',
-                  padding: '1rem',
-                  border: '2px solid #e2e8f0',
-                  background: '#ffffff',
-                  color: '#1e293b',
-                  borderRadius: '12px',
-                  fontSize: '1rem',
-                  resize: 'vertical',
-                  marginBottom: '1rem',
-                  fontFamily: 'inherit'
-                }}
-                onFocus={(e) => e.currentTarget.style.borderColor = '#667eea'}
-                onBlur={(e) => e.currentTarget.style.borderColor = '#e2e8f0'}
-              />
-              <button
-                type="submit"
-                disabled={submitting || !commentText.trim()}
-                style={{
-                  padding: '0.75rem 2rem',
-                  background: submitting ? '#94a3b8' : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '8px',
-                  fontSize: '1rem',
-                  fontWeight: '600',
-                  cursor: submitting ? 'not-allowed' : 'pointer',
-                  transition: 'transform 0.2s'
-                }}
-                onMouseEnter={(e) => !submitting && (e.currentTarget.style.transform = 'scale(1.05)')}
-                onMouseLeave={(e) => !submitting && (e.currentTarget.style.transform = 'scale(1)')}
-              >
-                {submitting ? 'Posting...' : 'Post Comment'}
-              </button>
-            </form>
+            <div style={{
+              background: '#f8fafc',
+              border: '2px solid #e2e8f0',
+              borderRadius: '16px',
+              padding: '2rem',
+              marginBottom: '3rem'
+            }}>
+              <h3 style={{
+                fontSize: '1.25rem',
+                fontWeight: '600',
+                color: '#1e293b',
+                marginBottom: '1rem'
+              }}>
+                💭 Leave a Comment
+              </h3>
+              <p style={{
+                fontSize: '0.875rem',
+                color: '#64748b',
+                marginBottom: '1rem'
+              }}>
+                Signed in as <strong>{user.name || user.email}</strong>
+              </p>
+              <form onSubmit={handleCommentSubmit}>
+                <textarea
+                  value={commentText}
+                  onChange={(e) => setCommentText(e.target.value)}
+                  placeholder="What are your thoughts on this post? Share your opinion, ask a question, or start a discussion..."
+                  rows={5}
+                  style={{
+                    width: '100%',
+                    padding: '1rem',
+                    border: '2px solid #cbd5e1',
+                    background: '#ffffff',
+                    color: '#1e293b',
+                    borderRadius: '12px',
+                    fontSize: '1rem',
+                    resize: 'vertical',
+                    marginBottom: '1rem',
+                    fontFamily: 'inherit',
+                    boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
+                  }}
+                  onFocus={(e) => {
+                    e.currentTarget.style.borderColor = '#667eea';
+                    e.currentTarget.style.boxShadow = '0 0 0 3px rgba(102,126,234,0.1)';
+                  }}
+                  onBlur={(e) => {
+                    e.currentTarget.style.borderColor = '#cbd5e1';
+                    e.currentTarget.style.boxShadow = '0 1px 2px rgba(0,0,0,0.05)';
+                  }}
+                />
+                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem' }}>
+                  <button
+                    type="button"
+                    onClick={() => setCommentText('')}
+                    style={{
+                      padding: '0.75rem 1.5rem',
+                      background: 'transparent',
+                      color: '#64748b',
+                      border: '2px solid #e2e8f0',
+                      borderRadius: '8px',
+                      fontSize: '1rem',
+                      fontWeight: '600',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = '#f1f5f9';
+                      e.currentTarget.style.borderColor = '#cbd5e1';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = 'transparent';
+                      e.currentTarget.style.borderColor = '#e2e8f0';
+                    }}
+                  >
+                    Clear
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={submitting || !commentText.trim()}
+                    style={{
+                      padding: '0.75rem 2rem',
+                      background: submitting || !commentText.trim() ? '#94a3b8' : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '8px',
+                      fontSize: '1rem',
+                      fontWeight: '600',
+                      cursor: submitting || !commentText.trim() ? 'not-allowed' : 'pointer',
+                      transition: 'transform 0.2s',
+                      boxShadow: submitting || !commentText.trim() ? 'none' : '0 4px 12px rgba(102,126,234,0.3)'
+                    }}
+                    onMouseEnter={(e) => !submitting && commentText.trim() && (e.currentTarget.style.transform = 'translateY(-2px)')}
+                    onMouseLeave={(e) => !submitting && (e.currentTarget.style.transform = 'translateY(0)')}
+                  >
+                    {submitting ? '📤 Posting...' : '📤 Post Comment'}
+                  </button>
+                </div>
+              </form>
+            </div>
           ) : (
             <div style={{
-              padding: '2rem',
-              background: '#f1f5f9',
-              borderRadius: '12px',
+              background: 'linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%)',
+              border: '2px solid #c7d2fe',
+              borderRadius: '16px',
+              padding: '3rem 2rem',
               textAlign: 'center',
               marginBottom: '3rem'
             }}>
-              <p style={{ color: '#64748b', marginBottom: '1rem' }}>
-                Sign in to join the conversation
+              <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>💬</div>
+              <h3 style={{
+                color: '#1e293b',
+                marginBottom: '0.75rem',
+                fontSize: '1.5rem',
+                fontWeight: '700'
+              }}>
+                Join the Conversation
+              </h3>
+              <p style={{
+                color: '#64748b',
+                marginBottom: '1.5rem',
+                fontSize: '1rem'
+              }}>
+                Sign in to share your thoughts and engage with other readers
               </p>
               <Link
                 href="/auth/signin"
                 style={{
                   display: 'inline-block',
-                  padding: '0.75rem 2rem',
+                  padding: '0.875rem 2rem',
                   background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                   color: 'white',
-                  borderRadius: '8px',
+                  borderRadius: '10px',
                   textDecoration: 'none',
-                  fontWeight: '600'
+                  fontWeight: '600',
+                  fontSize: '1rem',
+                  boxShadow: '0 4px 12px rgba(102,126,234,0.3)',
+                  transition: 'transform 0.2s'
                 }}
               >
-                Sign In
+                🔐 Sign In to Comment
               </Link>
             </div>
           )}
 
           {/* Comments List */}
+          {post.comments.length > 0 && (
+            <>
+              <div style={{
+                borderTop: '1px solid #e2e8f0',
+                paddingTop: '2rem',
+                marginBottom: '1.5rem'
+              }}>
+                <h3 style={{
+                  fontSize: '1.25rem',
+                  fontWeight: '700',
+                  color: '#1e293b',
+                  marginBottom: '1.5rem'
+                }}>
+                  💭 All Comments ({post.comments.length})
+                </h3>
+              </div>
+            </>
+          )}
+          
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+            {post.comments.length === 0 && (
+              <div style={{
+                padding: '3rem 2rem',
+                textAlign: 'center',
+                color: '#94a3b8',
+                fontSize: '1rem',
+                background: '#f8fafc',
+                borderRadius: '12px',
+                border: '2px dashed #e2e8f0'
+              }}>
+                <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>📭</div>
+                <p style={{ fontWeight: '600', marginBottom: '0.5rem' }}>No comments yet</p>
+                <p>Be the first to share your thoughts!</p>
+              </div>
+            )}
             {post.comments.map((comment) => (
               <div
                 key={comment.id}
