@@ -386,7 +386,7 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
 
         {/* Comments Section */}
         <div style={{
-          borderTop: '2px solid #e2e8f0',
+          borderTop: '2px solid rgba(148,163,255,0.3)',
           paddingTop: '3rem',
           marginBottom: '4rem'
         }}>
@@ -394,7 +394,7 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
             fontSize: '1.75rem',
             fontWeight: '700',
             marginBottom: '2rem',
-            color: '#1e293b'
+            color: 'white'
           }}>
             Comments ({post.comments.length})
           </h2>
@@ -410,7 +410,9 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
                 style={{
                   width: '100%',
                   padding: '1rem',
-                  border: '2px solid #e2e8f0',
+                  border: '2px solid rgba(148,163,255,0.3)',
+                  background: 'rgba(13,18,44,0.85)',
+                  color: 'white',
                   borderRadius: '12px',
                   fontSize: '1rem',
                   resize: 'vertical',
@@ -418,7 +420,7 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
                   fontFamily: 'inherit'
                 }}
                 onFocus={(e) => e.currentTarget.style.borderColor = '#667eea'}
-                onBlur={(e) => e.currentTarget.style.borderColor = '#e2e8f0'}
+                onBlur={(e) => e.currentTarget.style.borderColor = 'rgba(148,163,255,0.3)'}
               />
               <button
                 type="submit"
@@ -443,12 +445,13 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
           ) : (
             <div style={{
               padding: '2rem',
-              background: '#f1f5f9',
+              background: 'rgba(13,18,44,0.85)',
+              border: '1px solid rgba(148,163,255,0.2)',
               borderRadius: '12px',
               textAlign: 'center',
               marginBottom: '3rem'
             }}>
-              <p style={{ color: '#64748b', marginBottom: '1rem' }}>
+              <p style={{ color: 'rgba(226,232,255,0.85)', marginBottom: '1rem' }}>
                 Sign in to join the conversation
               </p>
               <Link
@@ -475,9 +478,10 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
                 key={comment.id}
                 style={{
                   padding: '1.5rem',
-                  background: 'white',
+                  background: 'rgba(13,18,44,0.85)',
+                  border: '1px solid rgba(124,58,237,0.18)',
                   borderRadius: '12px',
-                  boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+                  boxShadow: '0 25px 45px rgba(2,6,23,0.55)',
                   position: 'relative'
                 }}
               >
@@ -488,10 +492,10 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
                   marginBottom: '0.75rem'
                 }}>
                   <div style={{ flex: 1 }}>
-                    <span style={{ fontWeight: '600', color: '#1e293b' }}>
+                    <span style={{ fontWeight: '600', color: 'white' }}>
                       {comment.user.name || comment.user.email}
                     </span>
-                    <span style={{ fontSize: '0.85rem', color: '#94a3b8', marginLeft: '0.75rem' }}>
+                    <span style={{ fontSize: '0.85rem', color: 'rgba(148,163,255,0.75)', marginLeft: '0.75rem' }}>
                       {formatDate(comment.createdAt)}
                     </span>
                   </div>
@@ -517,7 +521,7 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
                   )}
                 </div>
                 <p style={{
-                  color: '#475569',
+                  color: 'rgba(226,232,255,0.85)',
                   lineHeight: '1.6',
                   whiteSpace: 'pre-wrap'
                 }}>
