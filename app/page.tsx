@@ -147,7 +147,7 @@ export default function Home() {
           </div>
         </div>
         <div className="footer-bottom">
-          <p>&copy; 2024 My Styled Wardrobe. All rights reserved.</p>
+          <p>&copy; 2025 My Styled Wardrobe. All rights reserved.</p>
         </div>
       </footer>
     </div>
