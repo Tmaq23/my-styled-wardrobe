@@ -46,6 +46,7 @@ export default function SignUp() {
         router.push('/');
         router.refresh();
       } else {
+        // Show the error message from the server
         setError(data.error || 'Registration failed. Please try again.');
       }
     } catch (error) {
@@ -102,7 +103,25 @@ export default function SignUp() {
                   Sign In to Your Existing Account
                 </button>
               </div>
-              {error && <div className="auth-error">{error}</div>}
+              {error && (
+                <div className="auth-error">
+                  {error}
+                  {error.includes('already exists') && (
+                    <div style={{ marginTop: '8px' }}>
+                      <Link 
+                        href="/auth/signin" 
+                        style={{ 
+                          color: 'rgba(255, 255, 255, 0.95)', 
+                          textDecoration: 'underline',
+                          fontWeight: '600'
+                        }}
+                      >
+                        Go to Sign In
+                      </Link>
+                    </div>
+                  )}
+                </div>
+              )}
 
               <form onSubmit={handleSubmit} className="auth-form" noValidate>
                 <div className="auth-field-group">

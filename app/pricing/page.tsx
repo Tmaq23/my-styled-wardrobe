@@ -10,6 +10,7 @@ export default function PricingPage() {
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isCustomShopModalOpen, setIsCustomShopModalOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
     // Check if user is signed in
@@ -95,6 +96,7 @@ export default function PricingPage() {
 
     try {
       setIsLoading(true);
+      setErrorMessage('');
       console.log('📡 Calling /api/subscription/create-checkout...');
       
       const response = await fetch('/api/subscription/create-checkout', {
@@ -109,7 +111,20 @@ export default function PricingPage() {
 
       if (!response.ok) {
         console.error('❌ Response not OK:', data);
-        throw new Error(data.error || 'Failed to create checkout session');
+        // Show more detailed error information
+        let errorMsg = data.error || 'Failed to create checkout session';
+        if (data.details && data.details !== data.error) {
+          errorMsg += ` - ${data.details}`;
+        }
+        if (data.suggestion) {
+          errorMsg += ` | ${data.suggestion}`;
+        }
+        if (data.hasStripeKey === false) {
+          errorMsg += ' (Stripe API key is not configured on the server)';
+        }
+        console.error('Full error data:', data);
+        setErrorMessage(errorMsg);
+        throw new Error(errorMsg);
       }
 
       // Redirect to Stripe Checkout
@@ -118,11 +133,14 @@ export default function PricingPage() {
         window.location.href = data.checkoutUrl;
       } else {
         console.error('❌ No checkout URL in response');
-        throw new Error('No checkout URL received');
+        const errorMsg = 'No checkout URL received from Stripe';
+        setErrorMessage(errorMsg);
+        throw new Error(errorMsg);
       }
     } catch (error) {
       console.error('❌ Subscription error:', error);
-      alert(error instanceof Error ? error.message : 'Failed to start subscription. Please try again.');
+      const errorMsg = error instanceof Error ? error.message : 'Failed to start subscription. Please try again.';
+      setErrorMessage(errorMsg);
       setIsLoading(false);
     }
   };
@@ -136,6 +154,22 @@ export default function PricingPage() {
           <p>Choose the perfect plan for your styling journey</p>
         </div>
       </div>
+
+      {/* Error Message */}
+      {errorMessage && (
+        <div style={{
+          maxWidth: '800px',
+          margin: '20px auto',
+          padding: '15px 20px',
+          background: '#fee',
+          border: '1px solid #fcc',
+          borderRadius: '8px',
+          color: '#c00',
+          textAlign: 'center'
+        }}>
+          <strong>Error:</strong> {errorMessage}
+        </div>
+      )}
 
       {/* Pricing Plans */}
       <div className="pricing-section">

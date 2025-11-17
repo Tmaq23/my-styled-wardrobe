@@ -1,35 +1,45 @@
-import { withAuth } from "next-auth/middleware"
+import { NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
 
-export default withAuth(
-  function middleware(req) {
-    // Add any middleware logic here if needed
-    console.log('Middleware processing request:', req.url);
-  },
-  {
-    callbacks: {
-      authorized: ({ token }) => {
-        // This will allow all requests - we're not protecting any routes by default
-        console.log('Authorization check, allowing all requests');
-        return true
-      },
-    },
-    pages: {
-      signIn: '/auth/signin',
-    },
+// Protected routes that require authentication
+// Note: /admin has its own authentication system built into the page
+const protectedRoutes = [
+  '/style-interface',
+  '/wardrobe-ideas',
+  '/subscription',
+]
+
+export function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl
+  
+  // Check if the current path is a protected route
+  const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route))
+  
+  if (isProtectedRoute) {
+    // Check for session cookie (correct cookie name: auth-session)
+    const sessionCookie = request.cookies.get('auth-session')
+    
+    if (!sessionCookie) {
+      // Redirect to sign-in page if no session
+      const signInUrl = new URL('/auth/signin', request.url)
+      signInUrl.searchParams.set('redirect', pathname)
+      return NextResponse.redirect(signInUrl)
+    }
   }
-)
+  
+  return NextResponse.next()
+}
 
 export const config = {
   matcher: [
     /*
      * Match all request paths except for the ones starting with:
-     * - api/auth (NextAuth.js routes)
+     * - api (API routes)
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
      * - public folder
-     * - root path (/)
      */
-    "/((?!api|_next/static|_next/image|favicon.ico|public|$).*)",
+    "/((?!api|_next/static|_next/image|favicon.ico|public).*)",
   ]
 }
