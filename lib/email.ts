@@ -698,3 +698,218 @@ export async function sendCustomShopConfirmationToCustomer({
     return { success: false, error };
   }
 }
+
+/**
+ * Send subscription notification to admin
+ */
+export async function sendSubscriptionNotificationToAdmin({
+  customerEmail,
+  customerName,
+  subscriptionId,
+  customerId,
+}: {
+  customerEmail: string;
+  customerName?: string;
+  subscriptionId: string;
+  customerId: string;
+}) {
+  try {
+    console.log('📧 Attempting to send subscription notification to admin...');
+    console.log('   - Customer:', customerEmail);
+    console.log('   - Subscription ID:', subscriptionId);
+
+    const emailResult = await resend.emails.send({
+      from: FROM_EMAIL,
+      to: ADMIN_EMAIL,
+      subject: `🎉 New Blog Subscription (£5.99/month) - ${customerEmail}`,
+      html: `
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          </head>
+          <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9fafb;">
+            <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 30px; border-radius: 16px 16px 0 0; text-align: center;">
+              <h1 style="color: white; margin: 0; font-size: 24px;">🎉 New Subscription!</h1>
+              <p style="color: rgba(255, 255, 255, 0.9); margin: 10px 0 0 0; font-size: 16px;">£5.99/month Recurring</p>
+            </div>
+            
+            <div style="background: white; padding: 30px; border-radius: 0 0 16px 16px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+              <h2 style="color: #10b981; margin-top: 0;">Customer Details</h2>
+              <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                <tr>
+                  <td style="padding: 10px; border-bottom: 1px solid #e5e7eb;"><strong>Name:</strong></td>
+                  <td style="padding: 10px; border-bottom: 1px solid #e5e7eb;">${customerName || 'N/A'}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 10px; border-bottom: 1px solid #e5e7eb;"><strong>Email:</strong></td>
+                  <td style="padding: 10px; border-bottom: 1px solid #e5e7eb;">${customerEmail}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 10px; border-bottom: 1px solid #e5e7eb;"><strong>Stripe Customer:</strong></td>
+                  <td style="padding: 10px; border-bottom: 1px solid #e5e7eb; font-family: monospace; font-size: 12px;">${customerId}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 10px; border-bottom: 1px solid #e5e7eb;"><strong>Subscription ID:</strong></td>
+                  <td style="padding: 10px; border-bottom: 1px solid #e5e7eb; font-family: monospace; font-size: 12px;">${subscriptionId}</td>
+                </tr>
+              </table>
+
+              <h2 style="color: #10b981;">Subscription Details</h2>
+              <div style="background: #f0fdf4; padding: 20px; border-radius: 12px; margin: 20px 0; border-left: 4px solid #10b981;">
+                <p style="margin: 5px 0; color: #047857;"><strong>Plan:</strong> Blog Subscription</p>
+                <p style="margin: 5px 0; color: #047857;"><strong>Price:</strong> £5.99/month</p>
+                <p style="margin: 5px 0; color: #047857;"><strong>Status:</strong> Active ✅</p>
+                <p style="margin: 5px 0; color: #047857;"><strong>Includes:</strong></p>
+                <ul style="color: #047857; margin: 10px 0; padding-left: 20px;">
+                  <li>Unlimited AI Outfit Combination Generator</li>
+                  <li>Full Access to Style Blog</li>
+                </ul>
+              </div>
+
+              <div style="background-color: #f3f4f6; padding: 20px; border-radius: 12px; margin-top: 30px;">
+                <p style="color: #374151; margin: 0 0 15px 0;">View this subscriber in your admin dashboard</p>
+                <a href="https://www.mystyledwardrobe.com/admin" style="display: inline-block; padding: 12px 24px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);">Go to Admin Dashboard →</a>
+              </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 20px; color: #9ca3af; font-size: 14px;">
+              <p>MyStyled Wardrobe Admin Notification</p>
+            </div>
+          </body>
+        </html>
+      `,
+    });
+
+    console.log('✅ Subscription notification email sent to admin. Email ID:', emailResult.data?.id);
+    return { success: true, emailId: emailResult.data?.id };
+  } catch (error) {
+    console.error('❌ Failed to send subscription notification email to admin:');
+    console.error('   Error details:', error);
+    if (error instanceof Error) {
+      console.error('   Error message:', error.message);
+      console.error('   Error stack:', error.stack);
+    }
+    return { success: false, error };
+  }
+}
+
+/**
+ * Send subscription confirmation to customer
+ */
+export async function sendSubscriptionConfirmationToCustomer({
+  customerEmail,
+  customerName,
+}: {
+  customerEmail: string;
+  customerName?: string;
+}) {
+  try {
+    console.log('📧 Attempting to send subscription confirmation to customer...');
+    console.log('   - Customer:', customerEmail);
+
+    const emailResult = await resend.emails.send({
+      from: FROM_EMAIL,
+      to: customerEmail,
+      subject: '🎉 Welcome to Your Blog Subscription!',
+      html: `
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          </head>
+          <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9fafb;">
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 16px 16px 0 0; text-align: center;">
+              <h1 style="color: white; margin: 0; font-size: 28px;">🎉 You're Subscribed!</h1>
+            </div>
+            
+            <div style="background: white; padding: 30px; border-radius: 0 0 16px 16px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+              <p style="font-size: 16px; color: #374151; margin-top: 0;">
+                Hi ${customerName || 'there'},
+              </p>
+              
+              <p style="font-size: 16px; color: #374151;">
+                Welcome to your <strong>Blog Subscription</strong>! You now have unlimited access to exclusive features that will transform your style journey.
+              </p>
+
+              <div style="background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%); padding: 25px; border-radius: 12px; margin: 25px 0; border-left: 4px solid #8b5cf6;">
+                <h3 style="color: #5b21b6; margin-top: 0;">✨ What's Included</h3>
+                <ul style="color: #6d28d9; padding-left: 20px; margin: 10px 0; line-height: 2;">
+                  <li><strong>Unlimited AI Outfit Generator:</strong> Create endless outfit combinations from your wardrobe</li>
+                  <li><strong>Full Blog Access:</strong> Read all our exclusive styling guides, trends, and tips</li>
+                  <li><strong>Premium Features:</strong> Access to all subscription-only content</li>
+                </ul>
+              </div>
+
+              <div style="background: #f0fdf4; padding: 20px; border-radius: 12px; margin: 25px 0; border-left: 4px solid #10b981;">
+                <h3 style="color: #065f46; margin-top: 0;">💳 Subscription Details</h3>
+                <table style="width: 100%;">
+                  <tr>
+                    <td style="padding: 8px 0; color: #6b7280;"><strong>Plan:</strong></td>
+                    <td style="padding: 8px 0; color: #374151;">Blog Subscription</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 8px 0; color: #6b7280;"><strong>Price:</strong></td>
+                    <td style="padding: 8px 0; color: #374151; font-weight: 600;">£5.99/month</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 8px 0; color: #6b7280;"><strong>Billing:</strong></td>
+                    <td style="padding: 8px 0; color: #374151;">Monthly (auto-renews)</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 8px 0; color: #6b7280;"><strong>Status:</strong></td>
+                    <td style="padding: 8px 0; color: #10b981; font-weight: 600;">Active ✅</td>
+                  </tr>
+                </table>
+              </div>
+
+              <div style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); padding: 20px; border-radius: 12px; margin: 25px 0; border-left: 4px solid #f59e0b;">
+                <h3 style="color: #78350f; margin-top: 0;">🚀 Get Started Now!</h3>
+                <ol style="color: #92400e; padding-left: 20px; margin: 0; line-height: 2;">
+                  <li>Visit your <strong>Style Interface</strong> to use the unlimited outfit generator</li>
+                  <li>Browse the <strong>Style Blog</strong> for exclusive content and inspiration</li>
+                  <li>Explore premium features available only to subscribers</li>
+                </ol>
+              </div>
+
+              <div style="text-align: center; margin-top: 30px;">
+                <a href="https://www.mystyledwardrobe.com/style-interface" style="display: inline-block; padding: 14px 32px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4); margin-right: 10px;">Start Creating Outfits →</a>
+                <a href="https://www.mystyledwardrobe.com/blog" style="display: inline-block; padding: 14px 32px; background: #f3f4f6; color: #374151; text-decoration: none; border-radius: 8px; font-weight: 600; margin-top: 10px;">Read the Blog →</a>
+              </div>
+
+              <div style="background: #f9fafb; padding: 20px; border-radius: 12px; margin-top: 30px;">
+                <p style="color: #6b7280; font-size: 14px; margin: 0; line-height: 1.8;">
+                  <strong>💡 Managing Your Subscription:</strong><br>
+                  You can manage your subscription, update payment details, or cancel anytime from your account settings or through your Stripe customer portal. You'll receive an email receipt for each billing cycle.
+                </p>
+              </div>
+
+              <p style="font-size: 16px; color: #374151; margin-top: 25px;">
+                Questions? We're here to help! Reply to this email or contact us at <a href="mailto:admin@mystyledwardrobe.com" style="color: #667eea; text-decoration: none;">admin@mystyledwardrobe.com</a>.
+              </p>
+            </div>
+
+            <div style="text-align: center; margin-top: 20px; color: #9ca3af; font-size: 14px;">
+              <p>Thank you for subscribing! 💜</p>
+              <p style="margin-top: 10px;">
+                <a href="https://www.mystyledwardrobe.com" style="color: #667eea; text-decoration: none;">Visit Website</a> | 
+                <a href="mailto:admin@mystyledwardrobe.com" style="color: #667eea; text-decoration: none;">Contact Support</a>
+              </p>
+            </div>
+          </body>
+        </html>
+      `,
+    });
+
+    console.log('✅ Subscription confirmation email sent to customer. Email ID:', emailResult.data?.id);
+    return { success: true, emailId: emailResult.data?.id };
+  } catch (error) {
+    console.error('❌ Failed to send subscription confirmation email to customer:', error);
+    if (error instanceof Error) {
+      console.error('   Error message:', error.message);
+    }
+    return { success: false, error };
+  }
+}

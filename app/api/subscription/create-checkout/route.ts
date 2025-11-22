@@ -1,17 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { requireAuthenticatedUser } from '@/lib/apiAuth';
+import prisma from '@/lib/prisma';
+import { getSessionContext } from '@/lib/apiAuth';
+
+const STRIPE_SECRET_KEY = process.env['STRIPE_SECRET_KEY'];
 
 export async function POST(request: NextRequest) {
   try {
     console.log('🔵 Starting subscription checkout creation...');
     console.log('🔑 Checking Stripe configuration...');
     
-    const STRIPE_SECRET_KEY = process.env['STRIPE_SECRET_KEY'];
     if (!STRIPE_SECRET_KEY) {
       console.error('❌ STRIPE_SECRET_KEY is not set!');
       return NextResponse.json(
-        { error: 'Stripe is not configured. Please contact support.' },
+        { error: 'Payment system is not configured. Please contact support.' },
         { status: 500 }
       );
     }
@@ -19,17 +20,17 @@ export async function POST(request: NextRequest) {
     console.log('✅ Stripe key found');
     
     // Use centralized authentication
-    const authContext = await requireAuthenticatedUser(request);
+    const context = await getSessionContext(request);
     
-    if (!authContext) {
+    if (!context) {
       console.log('❌ Authentication failed: No user context');
       return NextResponse.json(
-        { error: 'You must be logged in to subscribe' },
+        { error: 'Authentication required' },
         { status: 401 }
       );
     }
 
-    const user = authContext.user;
+    const user = context.user;
     console.log('✅ User authenticated:', { userId: user.id, userEmail: user.email });
 
     // Check if user already has a subscription
@@ -42,7 +43,7 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Create Stripe Checkout Session for subscription using REST API (same as working flows)
+    // Create Stripe Checkout Session for subscription using REST API
     const baseUrl = 'https://www.mystyledwardrobe.com';
     const successUrl = `${baseUrl}/subscription/success?session_id={CHECKOUT_SESSION_ID}`;
     const cancelUrl = `${baseUrl}/subscription/cancel`;
@@ -113,10 +114,10 @@ export async function POST(request: NextRequest) {
       checkoutUrl: sessionData.url,
       sessionId: sessionData.id,
     });
+
   } catch (error) {
     console.error('❌ Failed to create subscription checkout session:', error);
     console.error('❌ Error stack:', error instanceof Error ? error.stack : 'No stack trace');
-    console.error('❌ Error details:', JSON.stringify(error, null, 2));
     
     // Extract more detailed error information
     let errorMessage = 'Failed to create checkout session';
@@ -153,5 +154,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-
-

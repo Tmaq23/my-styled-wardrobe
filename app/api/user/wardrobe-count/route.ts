@@ -24,13 +24,24 @@ export async function GET(req: NextRequest) {
       });
     }
 
-    // Check if user is admin
+    // Check if user is a subscriber (ONLY subscribers get unlimited AI outfit generation)
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      select: { isAdmin: true }
+      select: { 
+        subscription: {
+          select: {
+            tier: true,
+            stripeSubscriptionId: true,
+          }
+        }
+      }
     });
 
-    if (user?.isAdmin) {
+    // ONLY premium subscribers get unlimited outfit generation
+    const isSubscriber = user?.subscription?.tier === 'premium' && 
+                        !!user?.subscription?.stripeSubscriptionId;
+
+    if (isSubscriber) {
       return NextResponse.json({
         wardrobeOutfitsGenerated: 0,
         wardrobeOutfitsLimit: 999

@@ -12,6 +12,11 @@ interface User {
   analysisCount?: number;
   lastActivity?: string;
   isAdmin?: boolean;
+  subscription?: {
+    tier: string;
+    stripeSubscriptionId?: string;
+    activeUntil?: string;
+  } | null;
 }
 
 interface Verification {
@@ -507,6 +512,34 @@ export default function AdminPage() {
       }
     } catch (error) {
       setError('Failed to update admin status');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const toggleSubscriptionStatus = async (userId: string, isCurrentlySubscriber: boolean, email: string) => {
+    if (!confirm(`Are you sure you want to ${isCurrentlySubscriber ? 'cancel subscription for' : 'activate subscription for'} ${email}?`)) {
+      return;
+    }
+
+    try {
+      setActionLoading(true);
+      const res = await fetch('/api/admin/toggle-subscription', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ userId, subscribe: !isCurrentlySubscriber }),
+      });
+
+      if (res.ok) {
+        setSuccessMessage(`Subscription status updated for ${email}`);
+        loadUsers();
+        setTimeout(() => setSuccessMessage(''), 3000);
+      } else {
+        setError('Failed to update subscription status');
+      }
+    } catch (error) {
+      setError('Failed to update subscription status');
     } finally {
       setActionLoading(false);
     }
@@ -1173,6 +1206,7 @@ export default function AdminPage() {
                   <th style={{ padding: '1rem', textAlign: 'left', color: 'white', fontWeight: '600' }}>Name</th>
                   <th style={{ padding: '1rem', textAlign: 'left', color: 'white', fontWeight: '600' }}>Email</th>
                   <th style={{ padding: '1rem', textAlign: 'center', color: 'white', fontWeight: '600' }}>Role</th>
+                  <th style={{ padding: '1rem', textAlign: 'center', color: 'white', fontWeight: '600' }}>Subscription</th>
                   <th style={{ padding: '1rem', textAlign: 'left', color: 'white', fontWeight: '600' }}>Created</th>
                   <th style={{ padding: '1rem', textAlign: 'center', color: 'white', fontWeight: '600' }}>AI Analyses</th>
                   <th style={{ padding: '1rem', textAlign: 'center', color: 'white', fontWeight: '600' }}>Actions</th>
@@ -1209,77 +1243,134 @@ export default function AdminPage() {
                         </span>
                       )}
                     </td>
+                    <td style={{ padding: '1rem', textAlign: 'center' }}>
+                      {user.subscription?.tier === 'premium' && user.subscription?.stripeSubscriptionId ? (
+                        <span style={{ 
+                          padding: '0.25rem 0.75rem', 
+                          background: 'rgba(16, 185, 129, 0.3)', 
+                          border: '1px solid rgba(16, 185, 129, 0.5)',
+                          borderRadius: '12px',
+                          color: '#10b981',
+                          fontSize: '0.85rem',
+                          fontWeight: '600'
+                        }}>
+                          ✅ Subscriber
+                        </span>
+                      ) : (
+                        <span style={{ 
+                          padding: '0.25rem 0.75rem', 
+                          background: 'rgba(148, 163, 184, 0.2)', 
+                          border: '1px solid rgba(148, 163, 184, 0.3)',
+                          borderRadius: '12px',
+                          color: 'rgba(255, 255, 255, 0.6)',
+                          fontSize: '0.85rem'
+                        }}>
+                          Free
+                        </span>
+                      )}
+                    </td>
                     <td style={{ padding: '1rem', color: 'rgba(255, 255, 255, 0.7)', fontSize: '0.9rem' }}>
                       {new Date(user.createdAt).toLocaleDateString()}
                     </td>
                     <td style={{ padding: '1rem', textAlign: 'center', color: 'rgba(255, 255, 255, 0.9)' }}>
                       {user.analysisCount || 0}
                     </td>
-                    <td style={{ padding: '1rem' }}>
-                      <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+                    <td style={{ padding: '0.75rem' }}>
+                      <div style={{ 
+                        display: 'grid', 
+                        gridTemplateColumns: 'repeat(2, 1fr)',
+                        gap: '0.4rem',
+                        maxWidth: '280px',
+                      }}>
                         <button
                           onClick={() => toggleAdminStatus(user.id, user.isAdmin || false, user.email || '')}
                           disabled={actionLoading}
                           style={{
-                            padding: '0.5rem 1rem',
+                            padding: '0.4rem 0.6rem',
                             background: user.isAdmin ? 'rgba(245, 158, 11, 0.3)' : 'rgba(139, 92, 246, 0.3)',
                             border: user.isAdmin ? '1px solid rgba(245, 158, 11, 0.5)' : '1px solid rgba(139, 92, 246, 0.5)',
                             borderRadius: '6px',
                             color: 'white',
-                            fontSize: '0.85rem',
+                            fontSize: '0.75rem',
                             cursor: actionLoading ? 'not-allowed' : 'pointer',
                             opacity: actionLoading ? 0.6 : 1,
+                            whiteSpace: 'nowrap',
                           }}
                         >
-                          {user.isAdmin ? 'Remove Admin' : 'Make Admin'}
+                          {user.isAdmin ? '🔓 Admin' : '🔒 Admin'}
+                        </button>
+                        <button
+                          onClick={() => toggleSubscriptionStatus(
+                            user.id, 
+                            user.subscription?.tier === 'premium' && !!user.subscription?.stripeSubscriptionId,
+                            user.email || ''
+                          )}
+                          disabled={actionLoading}
+                          style={{
+                            padding: '0.4rem 0.6rem',
+                            background: (user.subscription?.tier === 'premium' && user.subscription?.stripeSubscriptionId) ? 'rgba(239, 68, 68, 0.3)' : 'rgba(16, 185, 129, 0.3)',
+                            border: (user.subscription?.tier === 'premium' && user.subscription?.stripeSubscriptionId) ? '1px solid rgba(239, 68, 68, 0.5)' : '1px solid rgba(16, 185, 129, 0.5)',
+                            borderRadius: '6px',
+                            color: 'white',
+                            fontSize: '0.75rem',
+                            cursor: actionLoading ? 'not-allowed' : 'pointer',
+                            opacity: actionLoading ? 0.6 : 1,
+                            whiteSpace: 'nowrap',
+                          }}
+                        >
+                          {(user.subscription?.tier === 'premium' && user.subscription?.stripeSubscriptionId) ? '❌ Sub' : '✅ Sub'}
                         </button>
                         <button
                           onClick={() => setSelectedUser(user)}
                           disabled={actionLoading}
                           style={{
-                            padding: '0.5rem 1rem',
+                            padding: '0.4rem 0.6rem',
                             background: 'rgba(99, 102, 241, 0.3)',
                             border: '1px solid rgba(99, 102, 241, 0.5)',
                             borderRadius: '6px',
                             color: 'white',
-                            fontSize: '0.85rem',
+                            fontSize: '0.75rem',
                             cursor: actionLoading ? 'not-allowed' : 'pointer',
                             opacity: actionLoading ? 0.6 : 1,
+                            whiteSpace: 'nowrap',
                           }}
                         >
-                          Reset Pass
+                          🔑 Pass
                         </button>
                         <button
                           onClick={() => resetAnalysisTrial(user.id, user.email || '')}
                           disabled={actionLoading}
                           style={{
-                            padding: '0.5rem 1rem',
+                            padding: '0.4rem 0.6rem',
                             background: 'rgba(40, 167, 69, 0.3)',
                             border: '1px solid rgba(40, 167, 69, 0.5)',
                             borderRadius: '6px',
                             color: 'white',
-                            fontSize: '0.85rem',
+                            fontSize: '0.75rem',
                             cursor: actionLoading ? 'not-allowed' : 'pointer',
                             opacity: actionLoading ? 0.6 : 1,
+                            whiteSpace: 'nowrap',
                           }}
                         >
-                          Reset Trial
+                          🔄 Trial
                         </button>
                         <button
                           onClick={() => deleteUser(user.id)}
                           disabled={actionLoading}
                           style={{
-                            padding: '0.5rem 1rem',
+                            padding: '0.4rem 0.6rem',
                             background: 'rgba(220, 53, 69, 0.3)',
                             border: '1px solid rgba(220, 53, 69, 0.5)',
                             borderRadius: '6px',
                             color: 'white',
-                            fontSize: '0.85rem',
+                            fontSize: '0.75rem',
                             cursor: actionLoading ? 'not-allowed' : 'pointer',
                             opacity: actionLoading ? 0.6 : 1,
+                            whiteSpace: 'nowrap',
+                            gridColumn: 'span 2',
                           }}
                         >
-                          Delete
+                          🗑️ Delete
                         </button>
                       </div>
                     </td>

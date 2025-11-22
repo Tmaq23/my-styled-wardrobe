@@ -2878,10 +2878,10 @@ hr {
 .blog-content tr,
 .blog-content td,
 .blog-content th,
-.blog-content div,
+.blog-content div:not(textarea):not(input):not(button):not(form),
 .blog-content span,
-.blog-article *,
-.blog-content-wrapper * {
+.blog-article *:not(textarea):not(input):not(button):not(form),
+.blog-content-wrapper *:not(textarea):not(input):not(button):not(form) {
   border: none !important;
   border-top: none !important;
   border-bottom: none !important;
@@ -2891,6 +2891,38 @@ hr {
   box-shadow: none !important;
   text-decoration: none !important;
   background-image: none !important;
+}
+
+/* Restore form element functionality */
+.blog-article textarea,
+.blog-article input,
+.blog-article button,
+.blog-content-wrapper textarea,
+.blog-content-wrapper input,
+.blog-content-wrapper button,
+.comment-textarea-field {
+  all: revert !important;
+  pointer-events: auto !important;
+  user-select: text !important;
+  -webkit-user-select: text !important;
+  -moz-user-select: text !important;
+  -ms-user-select: text !important;
+}
+
+/* Specific styling for comment textarea */
+.comment-textarea-field {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  border: 2px solid #cbd5e1 !important;
+  background-color: #ffffff !important;
+  color: #1e293b !important;
+}
+
+.comment-textarea-field:focus {
+  border-color: #667eea !important;
+  outline: 2px solid rgba(102, 126, 234, 0.2) !important;
+  outline-offset: 0px !important;
 }
 
 /* Remove decorative horizontal lines on blog posts */

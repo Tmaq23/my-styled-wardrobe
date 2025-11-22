@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Fetch all users with their related data including limits
+    // Fetch all users with their related data including limits and subscription
     const users = await prisma.user.findMany({
       select: {
         id: true,
@@ -37,13 +37,20 @@ export async function GET(request: NextRequest) {
             tierLimitAnalyses: true,
           },
         },
+        subscription: {
+          select: {
+            tier: true,
+            stripeSubscriptionId: true,
+            activeUntil: true,
+          },
+        },
       },
       orderBy: {
         createdAt: 'desc',
       },
     });
 
-    // Map users with their analysis counts
+    // Map users with their analysis counts and subscription status
     const usersWithActivity = users.map(user => ({
       id: user.id,
       name: user.name,
@@ -54,6 +61,11 @@ export async function GET(request: NextRequest) {
       analysisCount: user.limits?.aiAnalysesUsed || 0,
       analysisLimit: user.limits?.tierLimitAnalyses || 1,
       lastActivity: user.updatedAt.toISOString(),
+      subscription: user.subscription ? {
+        tier: user.subscription.tier,
+        stripeSubscriptionId: user.subscription.stripeSubscriptionId || undefined,
+        activeUntil: user.subscription.activeUntil?.toISOString() || undefined,
+      } : null,
     }));
 
     return NextResponse.json({

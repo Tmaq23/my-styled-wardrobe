@@ -18,14 +18,24 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: true });
     }
 
-    // Check if user is admin
+    // Check if user is a subscriber (ONLY subscribers get unlimited AI outfit generation)
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      select: { isAdmin: true }
+      select: { 
+        subscription: {
+          select: {
+            tier: true,
+            stripeSubscriptionId: true,
+          }
+        }
+      }
     });
 
-    // Skip incrementing for admin users
-    if (user?.isAdmin) {
+    // Skip incrementing ONLY for premium subscribers (they have unlimited)
+    const isSubscriber = user?.subscription?.tier === 'premium' && 
+                        !!user?.subscription?.stripeSubscriptionId;
+
+    if (isSubscriber) {
       return NextResponse.json({ success: true });
     }
 

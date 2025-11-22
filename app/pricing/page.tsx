@@ -2,8 +2,37 @@
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import CustomShopRequestModal from '@/components/CustomShopRequestModal';
+import { Suspense } from 'react';
+
+function SubscriptionMessage() {
+  const searchParams = useSearchParams();
+  const message = searchParams.get('message');
+  
+  if (message === 'subscribe') {
+    return (
+      <div style={{
+        maxWidth: '800px',
+        margin: '2rem auto 0',
+        padding: '1.5rem',
+        background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.2) 0%, rgba(124, 58, 237, 0.2) 100%)',
+        border: '1px solid rgba(139, 92, 246, 0.4)',
+        borderRadius: '12px',
+        textAlign: 'center',
+      }}>
+        <p style={{
+          fontSize: '1.1rem',
+          color: 'white',
+          margin: 0,
+        }}>
+          🔒 <strong>Subscription Required:</strong> Subscribe to access our exclusive style blog with unlimited content!
+        </p>
+      </div>
+    );
+  }
+  return null;
+}
 
 export default function PricingPage() {
   const router = useRouter();
@@ -102,12 +131,26 @@ export default function PricingPage() {
       const response = await fetch('/api/subscription/create-checkout', {
         method: 'POST',
         credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
       });
 
       console.log('📥 Response status:', response.status);
-
-      const data = await response.json();
-      console.log('📦 Response data:', data);
+      console.log('📥 Response headers:', Object.fromEntries(response.headers.entries()));
+      console.log('📥 Response OK:', response.ok);
+      
+      const responseText = await response.text();
+      console.log('📥 Raw response text:', responseText);
+      
+      let data;
+      try {
+        data = responseText ? JSON.parse(responseText) : {};
+        console.log('📦 Parsed response data:', data);
+      } catch (e) {
+        console.error('Failed to parse response:', e);
+        throw new Error('Invalid response from server');
+      }
 
       if (!response.ok) {
         console.error('❌ Response not OK:', data);
@@ -154,6 +197,11 @@ export default function PricingPage() {
           <p>Choose the perfect plan for your styling journey</p>
         </div>
       </div>
+
+      {/* Subscription Message */}
+      <Suspense fallback={null}>
+        <SubscriptionMessage />
+      </Suspense>
 
       {/* Error Message */}
       {errorMessage && (
@@ -290,4 +338,3 @@ export default function PricingPage() {
     </div>
   );
 }
-

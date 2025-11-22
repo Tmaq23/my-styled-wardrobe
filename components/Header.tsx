@@ -83,7 +83,16 @@ export default function Header() {
     <nav className="navigation-header">
       <div className="nav-container">
         <Link href="/" className="nav-brand" style={{ textDecoration: 'none', cursor: 'pointer' }}>
-          <div className="brand-logo">KS</div>
+          <img 
+            src="/logo.png" 
+            alt="My Styled Wardrobe Logo" 
+            style={{ 
+              height: '50px',
+              width: 'auto',
+              objectFit: 'contain',
+              borderRadius: '12px'
+            }} 
+          />
           <div className="brand-name">My Styled Wardrobe</div>
         </Link>
 

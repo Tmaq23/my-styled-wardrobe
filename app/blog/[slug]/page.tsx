@@ -12,6 +12,7 @@ interface Comment {
   content: string;
   createdAt: string;
   user: {
+    id: string;
     name: string | null;
     email: string;
   };
@@ -43,25 +44,41 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
   const [user, setUser] = useState<any>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [checkingAuth, setCheckingAuth] = useState(true);
+  const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
+  const [editingCommentText, setEditingCommentText] = useState('');
 
   useEffect(() => {
     checkAuth();
-    fetchPost();
   }, [slug]);
 
   const checkAuth = async () => {
     try {
-      const response = await fetch('/api/simple-auth/session');
+      const response = await fetch('/api/simple-auth/session', {
+        credentials: 'include',
+      });
       const data = await response.json();
       
       if (data.user) {
-        setUser(data.user);
-        checkAdminStatus(data.user.id);
+        // Check if user is a subscriber (ONLY subscribers have blog access per requirements)
+        const isSubscriber = data.user.subscription?.tier === 'premium' && 
+                           data.user.subscription?.stripeSubscriptionId;
+        
+        if (isSubscriber || data.user.isAdmin) {
+          // Allow access for subscribers or admins
+          setUser(data.user);
+          checkAdminStatus(data.user.id);
+          fetchPost();
+        } else {
+          // Not a subscriber - redirect to pricing
+          router.push('/pricing?message=subscribe');
+        }
+      } else {
+        // Not logged in - redirect to sign in
+        router.push(`/auth/signin?redirect=/blog/${slug}`);
       }
-      // If not logged in, user can still view the post but can't comment
     } catch (error) {
       console.error('Error checking auth:', error);
-      // Continue anyway - user can still view the post
+      router.push(`/auth/signin?redirect=/blog/${slug}`);
     } finally {
       setCheckingAuth(false);
     }
@@ -75,16 +92,6 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
     } catch (error) {
       console.error('Error checking admin status:', error);
       setIsAdmin(false);
-    }
-  };
-
-  const fetchUser = async () => {
-    try {
-      const response = await fetch('/api/simple-auth/session');
-      const data = await response.json();
-      setUser(data.user);
-    } catch (error) {
-      console.error('Error fetching user:', error);
     }
   };
 
@@ -102,23 +109,36 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
 
   const handleCommentSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!commentText.trim() || !post) return;
+    console.log('Comment submit triggered', { commentText, postId: post?.id });
+    
+    if (!commentText.trim() || !post) {
+      console.log('Submit blocked - empty text or no post');
+      return;
+    }
 
     setSubmitting(true);
     try {
+      console.log('Sending comment to API...');
       const response = await fetch('/api/blog/comments', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({
           postId: post.id,
           content: commentText
         })
       });
 
+      console.log('API response status:', response.status);
+      
       if (response.ok) {
+        const data = await response.json();
+        console.log('Comment posted successfully:', data);
         setCommentText('');
         fetchPost(); // Refresh to show new comment
       } else {
+        const error = await response.json();
+        console.error('Failed to post comment:', error);
         alert('Failed to post comment. Please try again.');
       }
     } catch (error) {
@@ -152,26 +172,62 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
     }
   };
 
+  const handleEditComment = (comment: Comment) => {
+    setEditingCommentId(comment.id);
+    setEditingCommentText(comment.content);
+  };
+
+  const handleSaveEdit = async (commentId: string) => {
+    if (!editingCommentText.trim()) return;
+
+    try {
+      const response = await fetch('/api/blog/comments', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          commentId,
+          content: editingCommentText
+        })
+      });
+
+      if (response.ok) {
+        setEditingCommentId(null);
+        setEditingCommentText('');
+        fetchPost(); // Refresh to show updated comment
+      } else {
+        alert('Failed to update comment. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error updating comment:', error);
+      alert('An error occurred. Please try again.');
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingCommentId(null);
+    setEditingCommentText('');
+  };
+
   const handleDeleteComment = async (commentId: string) => {
     if (!confirm('Are you sure you want to delete this comment? This action cannot be undone.')) {
       return;
     }
 
     try {
-      const response = await fetch(`/api/blog/comments/delete?id=${commentId}`, {
+      const response = await fetch(`/api/blog/comments?id=${commentId}`, {
         method: 'DELETE',
+        credentials: 'include',
       });
 
       if (response.ok) {
-        alert('Comment deleted successfully');
-        fetchPost(); // Refresh to update comments
+        fetchPost(); // Refresh to remove deleted comment
       } else {
-        const data = await response.json();
-        alert(data.error || 'Failed to delete comment');
+        alert('Failed to delete comment. Please try again.');
       }
     } catch (error) {
       console.error('Error deleting comment:', error);
-      alert('An error occurred while deleting the comment');
+      alert('An error occurred. Please try again.');
     }
   };
 
@@ -381,21 +437,34 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
             font-style: italic;
           }
         `}</style>
+        </article>
+      </div>
+      {/* ^^^ CLOSED blog-content-wrapper HERE ^^^ */}
 
-        {/* Comments Section */}
+      {/* Comments Section - COMPLETELY OUTSIDE blog-content-wrapper AND blog-article */}
+      <div style={{
+        width: '100%',
+        background: '#ffffff',
+        padding: '3rem 0 4rem'
+      }}>
         <div style={{
-          borderTop: '2px solid #e2e8f0',
-          paddingTop: '3rem',
-          marginBottom: '4rem'
+          maxWidth: '800px',
+          margin: '0 auto',
+          padding: '0 2rem'
         }}>
-          <h2 style={{
-            fontSize: '1.75rem',
-            fontWeight: '700',
-            marginBottom: '2rem',
-            color: '#1e293b'
+          <div style={{
+            borderTop: '2px solid #e2e8f0',
+            paddingTop: '3rem',
+            marginBottom: '3rem'
           }}>
-            💬 Comments ({post.comments.length})
-          </h2>
+            <h2 style={{
+              fontSize: '1.75rem',
+              fontWeight: '700',
+              marginBottom: '2rem',
+              color: '#1e293b'
+            }}>
+              💬 Comments ({post.comments.length})
+            </h2>
 
           {/* Comment Form */}
           {user ? (
@@ -583,67 +652,160 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
                 <p>Be the first to share your thoughts!</p>
               </div>
             )}
-            {post.comments.map((comment) => (
-              <div
-                key={comment.id}
-                style={{
-                  padding: '1.5rem',
-                  background: '#ffffff',
-                  border: '1px solid #e2e8f0',
-                  borderRadius: '12px',
-                  boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
-                  position: 'relative'
-                }}
-              >
-                <div style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  marginBottom: '0.75rem'
-                }}>
-                  <div style={{ flex: 1 }}>
-                    <span style={{ fontWeight: '600', color: '#1e293b' }}>
-                      {comment.user.name || comment.user.email}
-                    </span>
-                    <span style={{ fontSize: '0.85rem', color: '#94a3b8', marginLeft: '0.75rem' }}>
-                      {formatDate(comment.createdAt)}
-                    </span>
+            {post.comments.map((comment) => {
+              const isAuthor = user && comment.user.id === user.id;
+              const canEdit = isAuthor;
+              const canDelete = isAdmin; // ONLY admins can delete comments
+              const isEditing = editingCommentId === comment.id;
+
+              return (
+                <div
+                  key={comment.id}
+                  style={{
+                    padding: '1.5rem',
+                    background: '#ffffff',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '12px',
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+                    position: 'relative'
+                  }}
+                >
+                  <div style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    marginBottom: '0.75rem'
+                  }}>
+                    <div style={{ flex: 1 }}>
+                      <span style={{ fontWeight: '600', color: '#1e293b' }}>
+                        {comment.user.name || comment.user.email}
+                      </span>
+                      <span style={{ fontSize: '0.85rem', color: '#94a3b8', marginLeft: '0.75rem' }}>
+                        {formatDate(comment.createdAt)}
+                      </span>
+                    </div>
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                      {!isEditing && canEdit && (
+                        <button
+                          onClick={() => handleEditComment(comment)}
+                          style={{
+                            padding: '0.375rem 0.75rem',
+                            background: 'transparent',
+                            color: '#667eea',
+                            border: '1px solid #667eea',
+                            borderRadius: '4px',
+                            fontSize: '0.75rem',
+                            fontWeight: '600',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s'
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.background = '#667eea';
+                            e.currentTarget.style.color = 'white';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.background = 'transparent';
+                            e.currentTarget.style.color = '#667eea';
+                          }}
+                        >
+                          Edit
+                        </button>
+                      )}
+                      {canDelete && (
+                        <button
+                          onClick={() => handleDeleteComment(comment.id)}
+                          style={{
+                            padding: '0.375rem 0.75rem',
+                            background: '#ef4444',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '4px',
+                            fontSize: '0.75rem',
+                            fontWeight: '600',
+                            cursor: 'pointer',
+                            transition: 'background 0.2s'
+                          }}
+                          onMouseEnter={(e) => e.currentTarget.style.background = '#dc2626'}
+                          onMouseLeave={(e) => e.currentTarget.style.background = '#ef4444'}
+                        >
+                          🗑️ Delete
+                        </button>
+                      )}
+                    </div>
                   </div>
-                  {isAdmin && (
-                    <button
-                      onClick={() => handleDeleteComment(comment.id)}
-                      style={{
-                        padding: '0.375rem 0.75rem',
-                        background: '#ef4444',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '4px',
-                        fontSize: '0.75rem',
-                        fontWeight: '600',
-                        cursor: 'pointer',
-                        transition: 'background 0.2s'
-                      }}
-                      onMouseEnter={(e) => e.currentTarget.style.background = '#dc2626'}
-                      onMouseLeave={(e) => e.currentTarget.style.background = '#ef4444'}
-                    >
-                      🗑️ Delete
-                    </button>
+                  
+                  {isEditing ? (
+                    <div>
+                      <textarea
+                        value={editingCommentText}
+                        onChange={(e) => setEditingCommentText(e.target.value)}
+                        rows={4}
+                        style={{
+                          width: '100%',
+                          padding: '0.75rem',
+                          border: '2px solid #667eea',
+                          borderRadius: '8px',
+                          fontSize: '0.95rem',
+                          resize: 'vertical',
+                          marginBottom: '0.75rem',
+                          fontFamily: 'inherit',
+                          color: '#1e293b',
+                          boxSizing: 'border-box'
+                        }}
+                      />
+                      <div style={{ display: 'flex', gap: '0.5rem' }}>
+                        <button
+                          onClick={() => handleSaveEdit(comment.id)}
+                          style={{
+                            padding: '0.5rem 1rem',
+                            background: '#667eea',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '6px',
+                            fontSize: '0.9rem',
+                            fontWeight: '600',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          Save
+                        </button>
+                        <button
+                          onClick={handleCancelEdit}
+                          style={{
+                            padding: '0.5rem 1rem',
+                            background: '#e2e8f0',
+                            color: '#475569',
+                            border: 'none',
+                            borderRadius: '6px',
+                            fontSize: '0.9rem',
+                            fontWeight: '600',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <p style={{
+                      color: '#475569',
+                      lineHeight: '1.6',
+                      whiteSpace: 'pre-wrap'
+                    }}>
+                      {comment.content}
+                    </p>
                   )}
                 </div>
-                <p style={{
-                  color: '#475569',
-                  lineHeight: '1.6',
-                  whiteSpace: 'pre-wrap'
-                }}>
-                  {comment.content}
-                </p>
-              </div>
-            ))}
+              );
+            })}
           </div>
+          {/* Closed comments list */}
+          </div>
+          {/* Closed border-top container */}
         </div>
-        </article>
+        {/* Closed max-width container */}
       </div>
+      {/* Closed full-width comments container */}
     </div>
   );
 }
-

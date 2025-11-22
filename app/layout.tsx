@@ -32,6 +32,13 @@ export const metadata: Metadata = {
   alternates: {
     canonical: '/',
   },
+  icons: {
+    icon: [
+      { url: '/icon.png', type: 'image/png' },
+      { url: '/logo.png', type: 'image/png' },
+    ],
+    apple: '/apple-icon.png',
+  },
   openGraph: {
     title: 'My Styled Wardrobe - Personal Color & Fit Analysis',
     description: 'Get instant outfit inspiration with AI-powered personal color and body shape analysis.',

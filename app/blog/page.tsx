@@ -37,14 +37,26 @@ export default function BlogPage() {
 
   const checkAuth = async () => {
     try {
-      const response = await fetch('/api/simple-auth/session');
+      const response = await fetch('/api/simple-auth/session', {
+        credentials: 'include',
+      });
       const data = await response.json();
       
       if (data.user) {
-        setUser(data.user);
-        // Check if user is admin
-        checkAdminStatus(data.user.id);
-        fetchPosts();
+        // Check if user is a subscriber (ONLY subscribers have blog access per requirements)
+        const isSubscriber = data.user.subscription?.tier === 'premium' && 
+                           data.user.subscription?.stripeSubscriptionId;
+        
+        if (isSubscriber || data.user.isAdmin) {
+          // Allow access for subscribers or admins
+          setUser(data.user);
+          // Check if user is admin
+          checkAdminStatus(data.user.id);
+          fetchPosts();
+        } else {
+          // Not a subscriber - redirect to pricing
+          router.push('/pricing?message=subscribe');
+        }
       } else {
         // Not logged in - redirect to sign in
         router.push('/auth/signin?redirect=/blog');
@@ -261,75 +273,45 @@ export default function BlogPage() {
       </div>
 
       {/* Footer CTA */}
-      <div style={{
-        background: 'rgba(255,255,255,0.03)',
-        borderTop: '1px solid rgba(148,163,255,0.12)',
-        padding: '3rem 2rem 4rem',
-        marginTop: '4rem'
-      }}>
+      {isAdmin && (
         <div style={{
-          maxWidth: '600px',
-          margin: '0 auto',
-          textAlign: 'center'
+          background: 'rgba(255,255,255,0.03)',
+          borderTop: '1px solid rgba(148,163,255,0.12)',
+          padding: '3rem 2rem 4rem',
+          marginTop: '4rem'
         }}>
-          {isAdmin ? (
-            <>
-              <p style={{
-                fontSize: '1.1rem',
-                color: 'rgba(226,232,255,0.75)',
-                marginBottom: '1.5rem'
-              }}>
-                Ready to share your fashion insights?
-              </p>
-              <Link
-                href="/admin/blog/create"
-                style={{
-                  display: 'inline-block',
-                  padding: '0.875rem 2rem',
-                  background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-                  color: 'white',
-                  borderRadius: '8px',
-                  textDecoration: 'none',
-                  fontWeight: '600',
-                  transition: 'transform 0.2s'
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
-                onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-              >
-                ✍️ Create New Post
-              </Link>
-            </>
-          ) : (
-            <>
-              <p style={{
-                fontSize: '1.1rem',
-                color: 'rgba(226,232,255,0.75)',
-                marginBottom: '1.5rem'
-              }}>
-                Want to contribute to our blog?
-              </p>
-              <Link
-                href="/admin"
-                style={{
-                  display: 'inline-block',
-                  padding: '0.875rem 2rem',
-                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                  color: 'white',
-                  borderRadius: '8px',
-                  textDecoration: 'none',
-                  fontWeight: '600',
-                  transition: 'transform 0.2s'
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
-                onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-              >
-                Admin Login
-              </Link>
-            </>
-          )}
+          <div style={{
+            maxWidth: '600px',
+            margin: '0 auto',
+            textAlign: 'center'
+          }}>
+            <p style={{
+              fontSize: '1.1rem',
+              color: 'rgba(226,232,255,0.75)',
+              marginBottom: '1.5rem'
+            }}>
+              Ready to share your fashion insights?
+            </p>
+            <Link
+              href="/admin/blog/create"
+              style={{
+                display: 'inline-block',
+                padding: '0.875rem 2rem',
+                background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                color: 'white',
+                borderRadius: '8px',
+                textDecoration: 'none',
+                fontWeight: '600',
+                transition: 'transform 0.2s'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+              onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+            >
+              ✍️ Create New Post
+            </Link>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
-
