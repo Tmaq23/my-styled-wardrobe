@@ -56,7 +56,7 @@ export default function ContactPage() {
       <div className="page-hero">
         <div className="hero-content">
           <h1>Get In Touch</h1>
-          <p>Have questions? We'd love to hear from you.</p>
+          <p>Have questions? We&apos;d love to hear from you.</p>
         </div>
       </div>
 
@@ -77,7 +77,7 @@ export default function ContactPage() {
                 textAlign: 'center',
               }}>
                 <h3 style={{ margin: '0 0 0.5rem 0', color: '#22c55e' }}>✓ Thank you!</h3>
-                <p style={{ margin: 0 }}>Your message has been sent successfully. We'll get back to you soon!</p>
+                <p style={{ margin: 0 }}>Your message has been sent successfully. We&apos;ll get back to you soon!</p>
               </div>
             )}
 
