@@ -237,7 +237,11 @@ export default function PricingPage() {
                 <li><span className="icon-inline small"><img src="/icons/check.svg" alt="Included" width={14} height={14} /></span>Color Palette Discovery</li>
                 <li><span className="icon-inline small"><img src="/icons/check.svg" alt="Included" width={14} height={14} /></span>Basic Outfit Suggestions</li>
               </ul>
-              <Link href="#" onClick={handleGetStarted} className="plan-button">
+              <Link 
+                href={isSignedIn ? "/style-interface" : "/auth/signin"} 
+                onClick={handleGetStarted} 
+                className="plan-button"
+              >
                 {isLoading ? 'Loading...' : 'Get Started'}
               </Link>
             </div>
@@ -256,7 +260,11 @@ export default function PricingPage() {
                 <li><span className="icon-inline small"><img src="/icons/check.svg" alt="Included" width={14} height={14} /></span>Premium Shopping Recommendations</li>
                 <li><span className="icon-inline small"><img src="/icons/check.svg" alt="Included" width={14} height={14} /></span>Priority AI Analysis</li>
               </ul>
-              <Link href="#" onClick={handleCustomShopClick} className="plan-button featured">
+              <Link 
+                href={isSignedIn ? "#" : "/auth/signin?redirect=/pricing"} 
+                onClick={handleCustomShopClick} 
+                className="plan-button featured"
+              >
                 {isLoading ? 'Loading...' : 'Get Started'}
               </Link>
             </div>
@@ -317,7 +325,7 @@ export default function PricingPage() {
         <div className="container">
           <h2>Ready to Start Your Style Journey?</h2>
           <p>Join thousands of people who have discovered their perfect style</p>
-          <Link href="/" className="cta-button">
+          <Link href="/auth/signup" className="cta-button">
             Start Free Trial
           </Link>
         </div>

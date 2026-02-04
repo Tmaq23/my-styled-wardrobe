@@ -89,7 +89,11 @@ export default function Home() {
             <p className="hero-subtitle">
               Empower yourself with the confidence that comes from looking and feeling your best every day.
             </p>
-            <Link href="#" onClick={handleGetStarted} className="cta-button">
+            <Link 
+              href={isSignedIn ? "/style-interface" : "/auth/signin"} 
+              onClick={handleGetStarted} 
+              className="cta-button"
+            >
               {isLoading ? 'LOADING...' : 'GET STARTED'}
             </Link>
           </div>
@@ -140,7 +144,7 @@ export default function Home() {
             <h4>Support</h4>
             <ul>
               <li><Link href="/faq">Help Center</Link></li>
-              <li>Contact Us</li>
+              <li><Link href="/contact">Contact Us</Link></li>
               <li>Privacy Policy</li>
               <li>Terms of Service</li>
             </ul>
