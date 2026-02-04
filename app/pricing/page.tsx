@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import CustomShopRequestModal from '@/components/CustomShopRequestModal';
@@ -233,9 +234,9 @@ export default function PricingPage() {
                 </div>
               </div>
               <ul className="features">
-                <li><span className="icon-inline small"><img src="/icons/check.svg" alt="Included" width={14} height={14} /></span>Body Shape Analysis</li>
-                <li><span className="icon-inline small"><img src="/icons/check.svg" alt="Included" width={14} height={14} /></span>Color Palette Discovery</li>
-                <li><span className="icon-inline small"><img src="/icons/check.svg" alt="Included" width={14} height={14} /></span>Basic Outfit Suggestions</li>
+                <li><span className="icon-inline small"><Image src="/icons/check.svg" alt="Included" width={14} height={14} /></span>Body Shape Analysis</li>
+                <li><span className="icon-inline small"><Image src="/icons/check.svg" alt="Included" width={14} height={14} /></span>Color Palette Discovery</li>
+                <li><span className="icon-inline small"><Image src="/icons/check.svg" alt="Included" width={14} height={14} /></span>Basic Outfit Suggestions</li>
               </ul>
               <Link 
                 href={isSignedIn ? "/style-interface" : "/auth/signin"} 
@@ -256,9 +257,9 @@ export default function PricingPage() {
                 </div>
               </div>
               <ul className="features">
-                <li><span className="icon-inline small"><img src="/icons/check.svg" alt="Included" width={14} height={14} /></span>Outfit Combinations</li>
-                <li><span className="icon-inline small"><img src="/icons/check.svg" alt="Included" width={14} height={14} /></span>Premium Shopping Recommendations</li>
-                <li><span className="icon-inline small"><img src="/icons/check.svg" alt="Included" width={14} height={14} /></span>Priority AI Analysis</li>
+                <li><span className="icon-inline small"><Image src="/icons/check.svg" alt="Included" width={14} height={14} /></span>Outfit Combinations</li>
+                <li><span className="icon-inline small"><Image src="/icons/check.svg" alt="Included" width={14} height={14} /></span>Premium Shopping Recommendations</li>
+                <li><span className="icon-inline small"><Image src="/icons/check.svg" alt="Included" width={14} height={14} /></span>Priority AI Analysis</li>
               </ul>
               <Link 
                 href={isSignedIn ? "#" : "/auth/signin?redirect=/pricing"} 
@@ -279,8 +280,8 @@ export default function PricingPage() {
                 </div>
               </div>
               <ul className="features">
-                <li><span className="icon-inline small"><img src="/icons/check.svg" alt="Included" width={14} height={14} /></span>Unlimited AI outfit Combination Generator</li>
-                <li><span className="icon-inline small"><img src="/icons/check.svg" alt="Included" width={14} height={14} /></span>Access to Style Blog</li>
+                <li><span className="icon-inline small"><Image src="/icons/check.svg" alt="Included" width={14} height={14} /></span>Unlimited AI outfit Combination Generator</li>
+                <li><span className="icon-inline small"><Image src="/icons/check.svg" alt="Included" width={14} height={14} /></span>Access to Style Blog</li>
               </ul>
               <button 
                 onClick={handleSubscribeClick} 
