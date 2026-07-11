@@ -108,13 +108,13 @@ export default function BlogPage() {
       <div
         style={{
           minHeight: '100vh',
-          background: 'radial-gradient(circle at top, rgba(90,76,219,0.18) 0%, rgba(10,14,34,0.9) 35%, rgba(4,7,20,1) 90%)',
-          color: 'white'
+          background: '#faf8f5',
+          color: '#1c1a17'
         }}
       >
         <Header />
         <div style={{ maxWidth: '800px', margin: '0 auto', padding: '8rem 2rem', textAlign: 'center' }}>
-          <p style={{ fontSize: '1.1rem', color: 'rgba(226,232,255,0.7)' }}>Checking authentication...</p>
+          <p style={{ fontSize: '1.1rem', color: '#6b655d' }}>Checking authentication...</p>
         </div>
       </div>
     );
@@ -129,15 +129,15 @@ export default function BlogPage() {
     <div
       style={{
         minHeight: '100vh',
-        background: 'radial-gradient(circle at top, rgba(90,76,219,0.18) 0%, rgba(10,14,34,0.9) 35%, rgba(4,7,20,1) 90%)',
-        color: 'white'
+        background: '#faf8f5',
+        color: '#1c1a17'
       }}
     >
       <Header />
       
       {/* Hero Section */}
       <div style={{
-        background: 'linear-gradient(140deg, rgba(102,126,234,0.35) 0%, rgba(124,58,237,0.28) 45%, rgba(9,14,36,0.95) 100%)',
+        background: '#1c1a17',
         padding: '6rem 2rem 4rem',
         textAlign: 'center'
       }}>
@@ -155,7 +155,7 @@ export default function BlogPage() {
             fontSize: '1.25rem',
             opacity: 0.85,
             lineHeight: '1.6',
-            color: 'rgba(241,245,255,0.85)'
+            color: 'rgba(255,255,255,0.85)'
           }}>
             Fashion insights, styling tips, and personal stories from our team
           </p>
@@ -170,21 +170,21 @@ export default function BlogPage() {
       }}>
         {loading ? (
           <div style={{ textAlign: 'center', padding: '4rem 0' }}>
-            <p style={{ fontSize: '1.1rem', color: 'rgba(226,232,255,0.7)' }}>Loading posts...</p>
+            <p style={{ fontSize: '1.1rem', color: '#6b655d' }}>Loading posts...</p>
           </div>
         ) : posts.length === 0 ? (
           <div style={{
             textAlign: 'center',
             padding: '4rem 2rem',
-            background: 'rgba(255,255,255,0.04)',
-            borderRadius: '16px',
-            border: '1px solid rgba(148,163,255,0.12)',
-            boxShadow: '0 25px 45px rgba(2,6,23,0.45)'
+            background: '#ffffff',
+            borderRadius: '4px',
+            border: '1px solid #e5dfd4',
+            boxShadow: '0 2px 8px rgba(28,26,23,0.07)'
           }}>
-            <p style={{ fontSize: '1.2rem', color: 'rgba(226,232,255,0.85)', marginBottom: '1rem' }}>
+            <p style={{ fontSize: '1.2rem', color: '#1c1a17', marginBottom: '1rem' }}>
               📝 No posts yet
             </p>
-            <p style={{ fontSize: '0.95rem', color: 'rgba(148,163,255,0.75)' }}>
+            <p style={{ fontSize: '0.95rem', color: '#9a9389' }}>
               Check back soon for styling tips and fashion insights!
             </p>
           </div>
@@ -194,19 +194,19 @@ export default function BlogPage() {
               <article
                 key={post.id}
                 style={{
-                  background: 'rgba(13,18,44,0.85)',
-                  borderRadius: '12px',
+                  background: '#ffffff',
+                  borderRadius: '4px',
                   overflow: 'hidden',
-                  border: '1px solid rgba(124,58,237,0.18)',
-                  boxShadow: '0 25px 45px rgba(2,6,23,0.55)',
+                  border: '1px solid #e5dfd4',
+                  boxShadow: '0 2px 8px rgba(28,26,23,0.07)',
                   transition: 'transform 0.3s ease, box-shadow 0.3s ease'
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.boxShadow = '0 35px 55px rgba(91,104,255,0.25)';
+                  e.currentTarget.style.boxShadow = '0 4px 14px rgba(28,26,23,0.12)';
                   e.currentTarget.style.transform = 'translateY(-2px)';
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.boxShadow = '0 25px 45px rgba(2,6,23,0.55)';
+                  e.currentTarget.style.boxShadow = '0 2px 8px rgba(28,26,23,0.07)';
                   e.currentTarget.style.transform = 'translateY(0)';
                 }}
               >
@@ -228,9 +228,9 @@ export default function BlogPage() {
                   <div style={{ padding: '2rem' }}>
                     <h2 style={{
                       fontSize: '2rem',
-                      fontWeight: '700',
+                      fontWeight: '500',
                       marginBottom: '1rem',
-                      color: 'white',
+                      color: '#1c1a17',
                       lineHeight: '1.3'
                     }}>
                       {post.title}
@@ -239,7 +239,7 @@ export default function BlogPage() {
                     {post.excerpt && (
                       <p style={{
                         fontSize: '1.1rem',
-                        color: 'rgba(226,232,255,0.8)',
+                        color: '#6b655d',
                         lineHeight: '1.7',
                         marginBottom: '1.5rem'
                       }}>
@@ -252,7 +252,7 @@ export default function BlogPage() {
                       alignItems: 'center',
                       gap: '1.5rem',
                       fontSize: '0.9rem',
-                      color: 'rgba(148,163,255,0.75)'
+                      color: '#9a9389'
                     }}>
                       <span style={{ fontWeight: '500' }}>
                         {post.author.name || post.author.email}
@@ -275,8 +275,8 @@ export default function BlogPage() {
       {/* Footer CTA */}
       {isAdmin && (
         <div style={{
-          background: 'rgba(255,255,255,0.03)',
-          borderTop: '1px solid rgba(148,163,255,0.12)',
+          background: '#f4f0e9',
+          borderTop: '1px solid #e5dfd4',
           padding: '3rem 2rem 4rem',
           marginTop: '4rem'
         }}>
@@ -287,7 +287,7 @@ export default function BlogPage() {
           }}>
             <p style={{
               fontSize: '1.1rem',
-              color: 'rgba(226,232,255,0.75)',
+              color: '#6b655d',
               marginBottom: '1.5rem'
             }}>
               Ready to share your fashion insights?

@@ -979,7 +979,7 @@ export default function WardrobeUploader({ onChange }: { onChange: (files: File[
       {/* Free Trial Banner */}
       {wardrobeOutfitsLimit < 999 && (
         <div style={{
-          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          background: '#1c1a17',
           padding: '1rem 1.5rem',
           borderRadius: '12px',
           marginBottom: '1.5rem',
@@ -987,7 +987,7 @@ export default function WardrobeUploader({ onChange }: { onChange: (files: File[
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          boxShadow: '0 4px 15px rgba(102, 126, 234, 0.3)'
+          boxShadow: '0 4px 15px rgba(28, 26, 23, 0.12)'
         }}>
           <div>
             <div style={{ fontWeight: '600', fontSize: '1rem', marginBottom: '0.25rem' }}>
@@ -1010,7 +1010,7 @@ export default function WardrobeUploader({ onChange }: { onChange: (files: File[
               href="/pricing"
               style={{
                 background: 'white',
-                color: '#667eea',
+                color: '#1c1a17',
                 padding: '0.5rem 1.25rem',
                 borderRadius: '8px',
                 textDecoration: 'none',
@@ -1082,7 +1082,7 @@ export default function WardrobeUploader({ onChange }: { onChange: (files: File[
                 style={{
                   padding: '0.75rem 1.5rem',
                   borderRadius: '8px',
-                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  background: '#1c1a17',
                   color: 'white',
                   fontWeight: '600',
                   textDecoration: 'none',
@@ -1210,12 +1210,12 @@ export default function WardrobeUploader({ onChange }: { onChange: (files: File[
                 fontWeight: '600',
                 background: isCreatingOutfits 
                   ? 'linear-gradient(135deg, #9ca3af 0%, #6b7280 100%)' 
-                  : 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+                  : '#1c1a17',
                 color: 'white',
                 border: 'none',
                 borderRadius: '12px',
                 cursor: isCreatingOutfits ? 'not-allowed' : 'pointer',
-                boxShadow: '0 4px 15px rgba(99, 102, 241, 0.4)',
+                boxShadow: '0 4px 15px rgba(28, 26, 23, 0.15)',
                 transition: 'all 0.3s',
                 display: 'flex',
                 alignItems: 'center',
@@ -1224,13 +1224,13 @@ export default function WardrobeUploader({ onChange }: { onChange: (files: File[
               onMouseEnter={(e) => {
                 if (!isCreatingOutfits) {
                   e.currentTarget.style.transform = 'translateY(-2px)';
-                  e.currentTarget.style.boxShadow = '0 8px 25px rgba(99, 102, 241, 0.5)';
+                  e.currentTarget.style.boxShadow = '0 8px 25px rgba(28, 26, 23, 0.2)';
                 }
               }}
               onMouseLeave={(e) => {
                 if (!isCreatingOutfits) {
                   e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.boxShadow = '0 4px 15px rgba(99, 102, 241, 0.4)';
+                  e.currentTarget.style.boxShadow = '0 4px 15px rgba(28, 26, 23, 0.15)';
                 }
               }}
             >
@@ -1245,11 +1245,11 @@ export default function WardrobeUploader({ onChange }: { onChange: (files: File[
         <div style={{ marginTop: '3rem' }}>
           {isSharedImport && (
             <div style={{
-              background: 'rgba(99, 102, 241, 0.1)',
+              background: 'rgba(28, 26, 23, 0.05)',
               padding: '1rem',
               borderRadius: '8px',
               marginBottom: '1.5rem',
-              color: '#6366f1',
+              color: '#1c1a17',
               fontSize: '0.875rem'
             }}>
               Imported shared outfit ideas. Images are placeholders; upload items to generate fresh AI visuals.
@@ -1404,7 +1404,7 @@ export default function WardrobeUploader({ onChange }: { onChange: (files: File[
                             fontSize: '0.75rem',
                             padding: '0.25rem 0.75rem',
                             borderRadius: '12px',
-                            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                            background: '#1c1a17',
                             color: 'white',
                             fontWeight: '500'
                           }}
@@ -1435,7 +1435,7 @@ export default function WardrobeUploader({ onChange }: { onChange: (files: File[
                         width: '100%',
                         padding: '0.75rem',
                         background: isOpen 
-                          ? 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)'
+                          ? '#1c1a17'
                           : 'linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%)',
                         color: isOpen ? 'white' : '#374151',
                         border: 'none',

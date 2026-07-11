@@ -613,8 +613,8 @@ export default function AdminPage() {
               width: '100%',
               padding: '0.75rem',
               background: actionLoading 
-                ? 'rgba(99, 102, 241, 0.5)' 
-                : 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+                ? 'rgba(28, 26, 23, 0.2)' 
+                : '#1c1a17',
               border: 'none',
               borderRadius: '8px',
               color: 'white',
@@ -1170,7 +1170,7 @@ export default function AdminPage() {
               disabled={loading}
               style={{
                 padding: '0.75rem 1.5rem',
-                background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+                background: '#1c1a17',
                 border: 'none',
                 borderRadius: '8px',
                 color: 'white',
@@ -1325,8 +1325,8 @@ export default function AdminPage() {
                           disabled={actionLoading}
                           style={{
                             padding: '0.4rem 0.6rem',
-                            background: 'rgba(99, 102, 241, 0.3)',
-                            border: '1px solid rgba(99, 102, 241, 0.5)',
+                            background: 'rgba(28, 26, 23, 0.12)',
+                            border: '1px solid rgba(28, 26, 23, 0.2)',
                             borderRadius: '6px',
                             color: 'white',
                             fontSize: '0.75rem',
@@ -1433,7 +1433,7 @@ export default function AdminPage() {
                   style={{
                     flex: 1,
                     padding: '0.75rem',
-                    background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+                    background: '#1c1a17',
                     border: 'none',
                     borderRadius: '8px',
                     color: 'white',
@@ -1564,7 +1564,7 @@ export default function AdminPage() {
                   color: 'rgba(255, 255, 255, 0.9)', 
                   cursor: 'pointer',
                   padding: '0.75rem',
-                  background: 'rgba(139, 92, 246, 0.1)',
+                  background: 'rgba(28, 26, 23, 0.05)',
                   border: '1px solid rgba(139, 92, 246, 0.3)',
                   borderRadius: '8px',
                   transition: 'all 0.3s'
@@ -1731,7 +1731,7 @@ export default function AdminPage() {
 
               {/* Styling Details */}
               <div style={{
-                background: 'rgba(139, 92, 246, 0.1)',
+                background: 'rgba(28, 26, 23, 0.05)',
                 border: '1px solid rgba(139, 92, 246, 0.3)',
                 borderRadius: '12px',
                 padding: '1.5rem',
@@ -2049,7 +2049,7 @@ export default function AdminPage() {
                   onClick={() => setShowCustomShopModal(false)}
                   style={{
                     padding: '0.75rem 1.5rem',
-                    background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+                    background: '#1c1a17',
                     border: 'none',
                     borderRadius: '8px',
                     color: 'white',

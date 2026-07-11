@@ -348,7 +348,7 @@ export default function VerificationsAdminPage() {
                     padding: '0.875rem',
                     background: isSubmitting
                       ? '#9ca3af'
-                      : 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+                      : '#1c1a17',
                     color: 'white',
                     border: 'none',
                     borderRadius: '8px',

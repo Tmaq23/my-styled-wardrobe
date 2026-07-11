@@ -9,7 +9,7 @@ export default function SubscriptionCancelPage() {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+      background: '#1c1a17',
       padding: '2rem',
     }}>
       <div style={{
@@ -65,12 +65,12 @@ export default function SubscriptionCancelPage() {
             href="/pricing"
             style={{
               padding: '0.875rem 2rem',
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              background: '#1c1a17',
               color: 'white',
               textDecoration: 'none',
               borderRadius: '8px',
               fontWeight: '600',
-              boxShadow: '0 4px 15px rgba(102, 126, 234, 0.4)',
+              boxShadow: '0 4px 15px rgba(28, 26, 23, 0.15)',
             }}
           >
             View Pricing Plans
@@ -80,11 +80,11 @@ export default function SubscriptionCancelPage() {
             style={{
               padding: '0.875rem 2rem',
               background: 'white',
-              color: '#667eea',
+              color: '#1c1a17',
               textDecoration: 'none',
               borderRadius: '8px',
               fontWeight: '600',
-              border: '2px solid #667eea',
+              border: '2px solid #1c1a17',
             }}
           >
             Go Home

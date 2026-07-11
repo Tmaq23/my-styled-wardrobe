@@ -246,13 +246,13 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
       <div
         style={{
           minHeight: '100vh',
-          background: 'radial-gradient(circle at top, rgba(90,76,219,0.18) 0%, rgba(10,14,34,0.9) 35%, rgba(4,7,20,1) 90%)',
-          color: 'white'
+          background: '#faf8f5',
+          color: '#1c1a17'
         }}
       >
         <Header />
         <div style={{ maxWidth: '800px', margin: '0 auto', padding: '8rem 2rem', textAlign: 'center' }}>
-          <p style={{ fontSize: '1.1rem', color: 'rgba(226,232,255,0.7)' }}>Checking authentication...</p>
+          <p style={{ fontSize: '1.1rem', color: '#6b655d' }}>Checking authentication...</p>
         </div>
       </div>
     );
@@ -268,13 +268,13 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
       <div
         style={{
           minHeight: '100vh',
-          background: 'radial-gradient(circle at top, rgba(90,76,219,0.18) 0%, rgba(10,14,34,0.9) 35%, rgba(4,7,20,1) 90%)',
-          color: 'white'
+          background: '#faf8f5',
+          color: '#1c1a17'
         }}
       >
         <Header />
         <div style={{ maxWidth: '800px', margin: '0 auto', padding: '8rem 2rem', textAlign: 'center' }}>
-          <p style={{ fontSize: '1.1rem', color: 'rgba(226,232,255,0.7)' }}>Loading post...</p>
+          <p style={{ fontSize: '1.1rem', color: '#6b655d' }}>Loading post...</p>
         </div>
       </div>
     );
@@ -285,14 +285,14 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
       <div
         style={{
           minHeight: '100vh',
-          background: 'radial-gradient(circle at top, rgba(90,76,219,0.18) 0%, rgba(10,14,34,0.9) 35%, rgba(4,7,20,1) 90%)',
-          color: 'white'
+          background: '#faf8f5',
+          color: '#1c1a17'
         }}
       >
         <Header />
         <div style={{ maxWidth: '800px', margin: '0 auto', padding: '8rem 2rem', textAlign: 'center' }}>
-          <h1 style={{ fontSize: '2rem', marginBottom: '1rem', color: 'white' }}>Post not found</h1>
-          <Link href="/blog" style={{ color: 'rgba(129,140,248,0.95)', textDecoration: 'none', fontWeight: '600' }}>
+          <h1 style={{ fontSize: '2rem', marginBottom: '1rem', color: '#1c1a17' }}>Post not found</h1>
+          <Link href="/blog" style={{ color: '#6b655d', textDecoration: 'none', fontWeight: '600' }}>
             ← Back to Blog
           </Link>
         </div>
@@ -304,8 +304,8 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
     <div
       style={{
         minHeight: '100vh',
-        background: 'radial-gradient(circle at top, rgba(90,76,219,0.18) 0%, rgba(10,14,34,0.9) 35%, rgba(4,7,20,1) 90%)',
-        color: 'white'
+        background: '#faf8f5',
+        color: '#1c1a17'
       }}
     >
       <Header />
@@ -377,21 +377,21 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
         <style jsx>{`
           div :global(h1) {
             font-size: 2rem;
-            font-weight: 700;
+            font-weight: 600;
             margin: 1.5rem 0 1rem;
-            color: #e0e7ff;
+            color: #1c1a17;
           }
           div :global(h2) {
             font-size: 1.5rem;
-            font-weight: 700;
+            font-weight: 600;
             margin: 1.25rem 0 0.875rem;
-            color: #c7d2fe;
+            color: #1c1a17;
           }
           div :global(h3) {
             font-size: 1.25rem;
             font-weight: 600;
             margin: 1rem 0 0.75rem;
-            color: #c7d2fe;
+            color: #1c1a17;
           }
           div :global(p) {
             margin: 0.75rem 0;
@@ -399,25 +399,25 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
           div :global(img) {
             max-width: 100%;
             height: auto;
-            border-radius: 12px;
+            border-radius: 4px;
             margin: 1.5rem 0;
-            box-shadow: 0 30px 45px rgba(15,23,42,0.45);
+            box-shadow: 0 4px 14px rgba(28,26,23,0.09);
           }
           div :global(blockquote) {
-            border-left: 4px solid rgba(129,140,248,0.65);
+            border-left: 3px solid #c6bfb3;
             padding-left: 1.5rem;
             margin: 1.5rem 0;
             font-style: italic;
-            color: rgba(201,213,255,0.75);
+            color: #6b655d;
           }
           div :global(pre) {
-            background: rgba(15,23,42,0.7);
+            background: #f4f0e9;
             padding: 1rem;
-            border-radius: 8px;
+            border-radius: 4px;
             overflow-x: auto;
             margin: 1rem 0;
             font-family: 'Courier New', monospace;
-            color: #e0f2fe;
+            color: #1c1a17;
           }
           div :global(ul), div :global(ol) {
             margin: 1rem 0;
@@ -427,7 +427,7 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
             margin: 0.5rem 0;
           }
           div :global(a) {
-            color: #a5b4fc;
+            color: #a67c52;
             text-decoration: underline;
           }
           div :global(strong) {
@@ -500,7 +500,7 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
                   style={{
                     width: '100%',
                     padding: '1rem',
-                    border: '3px solid #667eea',
+                    border: '3px solid #1c1a17',
                     background: '#ffffff',
                     color: '#000000',
                     borderRadius: '12px',
@@ -514,11 +514,11 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
                     boxSizing: 'border-box'
                   }}
                   onFocus={(e) => {
-                    e.currentTarget.style.borderColor = '#764ba2';
-                    e.currentTarget.style.boxShadow = '0 0 0 4px rgba(102,126,234,0.2)';
+                    e.currentTarget.style.borderColor = '#403c36';
+                    e.currentTarget.style.boxShadow = '0 0 0 4px rgba(28,26,23,0.15)';
                   }}
                   onBlur={(e) => {
-                    e.currentTarget.style.borderColor = '#667eea';
+                    e.currentTarget.style.borderColor = '#1c1a17';
                     e.currentTarget.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
                   }}
                 />
@@ -553,7 +553,7 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
                     disabled={submitting || !commentText.trim()}
                     style={{
                       padding: '0.75rem 2rem',
-                      background: submitting || !commentText.trim() ? '#94a3b8' : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                      background: submitting || !commentText.trim() ? '#94a3b8' : '#1c1a17',
                       color: 'white',
                       border: 'none',
                       borderRadius: '8px',
@@ -561,7 +561,7 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
                       fontWeight: '600',
                       cursor: submitting || !commentText.trim() ? 'not-allowed' : 'pointer',
                       transition: 'transform 0.2s',
-                      boxShadow: submitting || !commentText.trim() ? 'none' : '0 4px 12px rgba(102,126,234,0.3)'
+                      boxShadow: submitting || !commentText.trim() ? 'none' : '0 4px 12px rgba(28,26,23,0.12)'
                     }}
                     onMouseEnter={(e) => !submitting && commentText.trim() && (e.currentTarget.style.transform = 'translateY(-2px)')}
                     onMouseLeave={(e) => !submitting && (e.currentTarget.style.transform = 'translateY(0)')}
@@ -601,13 +601,13 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
                 style={{
                   display: 'inline-block',
                   padding: '0.875rem 2rem',
-                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  background: '#1c1a17',
                   color: 'white',
                   borderRadius: '10px',
                   textDecoration: 'none',
                   fontWeight: '600',
                   fontSize: '1rem',
-                  boxShadow: '0 4px 12px rgba(102,126,234,0.3)',
+                  boxShadow: '0 4px 12px rgba(28,26,23,0.12)',
                   transition: 'transform 0.2s'
                 }}
               >
@@ -691,8 +691,8 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
                           style={{
                             padding: '0.375rem 0.75rem',
                             background: 'transparent',
-                            color: '#667eea',
-                            border: '1px solid #667eea',
+                            color: '#1c1a17',
+                            border: '1px solid #1c1a17',
                             borderRadius: '4px',
                             fontSize: '0.75rem',
                             fontWeight: '600',
@@ -700,12 +700,12 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
                             transition: 'all 0.2s'
                           }}
                           onMouseEnter={(e) => {
-                            e.currentTarget.style.background = '#667eea';
+                            e.currentTarget.style.background = '#1c1a17';
                             e.currentTarget.style.color = 'white';
                           }}
                           onMouseLeave={(e) => {
                             e.currentTarget.style.background = 'transparent';
-                            e.currentTarget.style.color = '#667eea';
+                            e.currentTarget.style.color = '#1c1a17';
                           }}
                         >
                           Edit
@@ -743,7 +743,7 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
                         style={{
                           width: '100%',
                           padding: '0.75rem',
-                          border: '2px solid #667eea',
+                          border: '2px solid #1c1a17',
                           borderRadius: '8px',
                           fontSize: '0.95rem',
                           resize: 'vertical',
@@ -758,7 +758,7 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
                           onClick={() => handleSaveEdit(comment.id)}
                           style={{
                             padding: '0.5rem 1rem',
-                            background: '#667eea',
+                            background: '#1c1a17',
                             color: 'white',
                             border: 'none',
                             borderRadius: '6px',

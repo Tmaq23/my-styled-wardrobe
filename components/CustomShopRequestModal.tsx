@@ -182,7 +182,7 @@ export default function CustomShopRequestModal({
                       style={{
                         padding: '0.5rem 1rem',
                         background: bodyShape === shape
-                          ? 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)'
+                          ? '#1c1a17'
                           : '#f1f5f9',
                         color: bodyShape === shape ? 'white' : '#475569',
                         border: bodyShape === shape ? 'none' : '1px solid #e2e8f0',
@@ -213,7 +213,7 @@ export default function CustomShopRequestModal({
                       style={{
                         padding: '0.5rem 1rem',
                         background: colorPalette === season
-                          ? 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)'
+                          ? '#1c1a17'
                           : '#f1f5f9',
                         color: colorPalette === season ? 'white' : '#475569',
                         border: colorPalette === season ? 'none' : '1px solid #e2e8f0',
@@ -244,7 +244,7 @@ export default function CustomShopRequestModal({
                       style={{
                         padding: '0.5rem 1rem',
                         background: occasion === occ
-                          ? 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)'
+                          ? '#1c1a17'
                           : '#f1f5f9',
                         color: occasion === occ ? 'white' : '#475569',
                         border: occasion === occ ? 'none' : '1px solid #e2e8f0',
@@ -275,7 +275,7 @@ export default function CustomShopRequestModal({
                       style={{
                         padding: '0.5rem 1rem',
                         background: budget === bud
-                          ? 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)'
+                          ? '#1c1a17'
                           : '#f1f5f9',
                         color: budget === bud ? 'white' : '#475569',
                         border: budget === bud ? 'none' : '1px solid #e2e8f0',
@@ -315,7 +315,7 @@ export default function CustomShopRequestModal({
                       style={{
                         padding: '0.5rem 1rem',
                         background: selectedRetailers.includes(retailer)
-                          ? 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)'
+                          ? '#1c1a17'
                           : '#f1f5f9',
                         color: selectedRetailers.includes(retailer) ? 'white' : '#475569',
                         border: selectedRetailers.includes(retailer) ? 'none' : '1px solid #e2e8f0',
@@ -426,14 +426,14 @@ export default function CustomShopRequestModal({
                   padding: '1rem',
                   background: isSubmitting
                     ? '#9ca3af'
-                    : 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+                    : '#1c1a17',
                   color: 'white',
                   border: 'none',
                   borderRadius: '8px',
                   fontSize: '1rem',
                   fontWeight: '600',
                   cursor: isSubmitting ? 'not-allowed' : 'pointer',
-                  boxShadow: '0 4px 15px rgba(99, 102, 241, 0.4)',
+                  boxShadow: '0 4px 15px rgba(28, 26, 23, 0.15)',
                 }}
               >
                 {isSubmitting ? 'Processing...' : 'Proceed to Payment (£120)'}
@@ -459,7 +459,7 @@ export default function CustomShopRequestModal({
               onClick={onClose}
               style={{
                 padding: '0.875rem 2rem',
-                background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+                background: '#1c1a17',
                 color: 'white',
                 border: 'none',
                 borderRadius: '8px',

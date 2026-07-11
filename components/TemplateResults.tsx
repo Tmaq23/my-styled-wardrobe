@@ -231,8 +231,8 @@ export default function TemplateResults({
     <div className="template-results">
       {/* Message Banner */}
       <div className="template-message" style={{
-        background: 'rgba(99, 102, 241, 0.1)',
-        border: '2px solid rgba(99, 102, 241, 0.3)',
+        background: 'rgba(28, 26, 23, 0.05)',
+        border: '2px solid rgba(28, 26, 23, 0.12)',
         borderRadius: '12px',
         padding: '1.5rem',
         marginBottom: '2rem',
@@ -244,7 +244,7 @@ export default function TemplateResults({
         <button
           onClick={onRequestCustomShop}
           style={{
-            background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+            background: '#1c1a17',
             color: 'white',
             border: 'none',
             padding: '0.875rem 2rem',
@@ -252,16 +252,16 @@ export default function TemplateResults({
             fontSize: '1rem',
             fontWeight: '600',
             cursor: 'pointer',
-            boxShadow: '0 4px 15px rgba(99, 102, 241, 0.4)',
+            boxShadow: '0 4px 15px rgba(28, 26, 23, 0.15)',
             transition: 'all 0.3s',
           }}
           onMouseEnter={(e) => {
             e.currentTarget.style.transform = 'translateY(-2px)';
-            e.currentTarget.style.boxShadow = '0 6px 20px rgba(99, 102, 241, 0.5)';
+            e.currentTarget.style.boxShadow = '0 6px 20px rgba(28, 26, 23, 0.2)';
           }}
           onMouseLeave={(e) => {
             e.currentTarget.style.transform = 'translateY(0)';
-            e.currentTarget.style.boxShadow = '0 4px 15px rgba(99, 102, 241, 0.4)';
+            e.currentTarget.style.boxShadow = '0 4px 15px rgba(28, 26, 23, 0.15)';
           }}
         >
           Request Customised Online Shop
@@ -281,7 +281,7 @@ export default function TemplateResults({
         {/* Header */}
         <div style={{
           padding: '1.5rem',
-          background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+          background: '#1c1a17',
           color: 'white'
         }}>
           <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1.5rem', fontWeight: '700' }}>
@@ -304,10 +304,10 @@ export default function TemplateResults({
           <div>
             <h4 style={{ 
               marginBottom: '1rem', 
-              color: '#6366f1', 
+              color: '#1c1a17', 
               fontSize: '1.1rem',
               fontWeight: '700',
-              borderBottom: '2px solid #6366f1',
+              borderBottom: '2px solid #1c1a17',
               paddingBottom: '0.5rem'
             }}>
               Body Shape Styling Tips
@@ -325,10 +325,10 @@ export default function TemplateResults({
           <div>
             <h4 style={{ 
               marginBottom: '1rem', 
-              color: '#8b5cf6', 
+              color: '#403c36', 
               fontSize: '1.1rem',
               fontWeight: '700',
-              borderBottom: '2px solid #8b5cf6',
+              borderBottom: '2px solid #403c36',
               paddingBottom: '0.5rem'
             }}>
               Colour Season Tips
@@ -395,7 +395,7 @@ export default function TemplateResults({
                     padding: '0.75rem',
                     background: '#f8fafc',
                     borderRadius: '8px',
-                    borderLeft: '3px solid #6366f1'
+                    borderLeft: '3px solid #1c1a17'
                   }}
                 >
                   <strong style={{ color: '#1e293b' }}>{item.category}:</strong>
@@ -424,7 +424,7 @@ export default function TemplateResults({
         {/* Mood Board Header */}
         <div style={{
           padding: '1.5rem',
-          background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+          background: '#1c1a17',
           color: 'white',
           textAlign: 'center'
         }}>
@@ -458,7 +458,7 @@ export default function TemplateResults({
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.transform = 'scale(1.05)';
-                e.currentTarget.style.boxShadow = '0 4px 12px rgba(99, 102, 241, 0.3)';
+                e.currentTarget.style.boxShadow = '0 4px 12px rgba(28, 26, 23, 0.12)';
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.transform = 'scale(1)';

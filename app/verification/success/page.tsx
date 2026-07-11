@@ -43,7 +43,7 @@ function VerificationSuccessContent() {
         justifyContent: 'center',
         paddingTop: '120px'
       }}>
-        <div style={{ textAlign: 'center', color: 'white' }}>
+        <div style={{ textAlign: 'center', color: '#1c1a17' }}>
           <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>⏳</div>
           <p style={{ fontSize: '1.2rem' }}>Processing your payment...</p>
         </div>
@@ -118,9 +118,9 @@ function VerificationSuccessContent() {
         <div style={{
           marginTop: '1.5rem',
           padding: '1.5rem',
-          background: 'rgba(99, 102, 241, 0.1)',
+          background: 'rgba(28, 26, 23, 0.05)',
           borderRadius: '12px',
-          border: '1px solid rgba(99, 102, 241, 0.3)',
+          border: '1px solid rgba(28, 26, 23, 0.12)',
         }}>
           <p style={{ 
             margin: 0, 
@@ -140,22 +140,22 @@ function VerificationSuccessContent() {
             style={{
               display: 'inline-block',
               padding: '1rem 2.5rem',
-              background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+              background: '#1c1a17',
               color: 'white',
               textDecoration: 'none',
               borderRadius: '10px',
               fontWeight: '600',
               fontSize: '1.05rem',
-              boxShadow: '0 4px 12px rgba(99, 102, 241, 0.3)',
+              boxShadow: '0 4px 12px rgba(28, 26, 23, 0.12)',
               transition: 'transform 0.2s, box-shadow 0.2s',
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.transform = 'translateY(-2px)';
-              e.currentTarget.style.boxShadow = '0 6px 20px rgba(99, 102, 241, 0.4)';
+              e.currentTarget.style.boxShadow = '0 6px 20px rgba(28, 26, 23, 0.15)';
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.boxShadow = '0 4px 12px rgba(99, 102, 241, 0.3)';
+              e.currentTarget.style.boxShadow = '0 4px 12px rgba(28, 26, 23, 0.12)';
             }}
           >
             Back to Style Interface

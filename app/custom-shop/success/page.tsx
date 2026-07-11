@@ -41,7 +41,7 @@ function SuccessContent() {
 
   if (isConfirming) {
     return (
-      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#1c1a17' }}>
         <div style={{ textAlign: 'center', color: 'white' }}>
           <div style={{ fontSize: '48px', marginBottom: '20px' }}>⏳</div>
           <h2 style={{ fontSize: '24px', marginBottom: '10px' }}>Confirming your payment...</h2>
@@ -68,7 +68,7 @@ function SuccessContent() {
               style={{
                 display: 'inline-block',
                 padding: '12px 32px',
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                background: '#1c1a17',
                 color: 'white',
                 borderRadius: '8px',
                 textDecoration: 'none',
@@ -84,7 +84,7 @@ function SuccessContent() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#1c1a17' }}>
       <div style={{ maxWidth: '700px', padding: '50px', background: 'white', borderRadius: '20px', boxShadow: '0 25px 70px rgba(0,0,0,0.3)' }}>
         <div style={{ fontSize: '72px', textAlign: 'center', marginBottom: '25px' }}>✨</div>
         <h1 style={{ fontSize: '32px', fontWeight: '700', marginBottom: '20px', textAlign: 'center', color: '#1a1a1a' }}>
@@ -121,12 +121,12 @@ function SuccessContent() {
             style={{
               display: 'inline-block',
               padding: '14px 28px',
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              background: '#1c1a17',
               color: 'white',
               borderRadius: '8px',
               textDecoration: 'none',
               fontWeight: '600',
-              boxShadow: '0 4px 15px rgba(102, 126, 234, 0.4)',
+              boxShadow: '0 4px 15px rgba(28, 26, 23, 0.15)',
             }}
           >
             Return to Style Interface
@@ -136,7 +136,7 @@ function SuccessContent() {
         <div style={{ marginTop: '30px', paddingTop: '20px', borderTop: '1px solid #e5e7eb', textAlign: 'center' }}>
           <p style={{ color: '#9ca3af', fontSize: '14px' }}>
             Questions? Contact us at{' '}
-            <a href="mailto:admin@mystyledwardrobe.com" style={{ color: '#667eea', textDecoration: 'none' }}>
+            <a href="mailto:admin@mystyledwardrobe.com" style={{ color: '#1c1a17', textDecoration: 'none' }}>
               admin@mystyledwardrobe.com
             </a>
           </p>

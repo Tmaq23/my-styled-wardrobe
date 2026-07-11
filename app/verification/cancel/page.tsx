@@ -74,22 +74,22 @@ export default function VerificationCancelPage() {
             style={{
               display: 'inline-block',
               padding: '1rem 2.5rem',
-              background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+              background: '#1c1a17',
               color: 'white',
               textDecoration: 'none',
               borderRadius: '10px',
               fontWeight: '600',
               fontSize: '1.05rem',
-              boxShadow: '0 4px 12px rgba(99, 102, 241, 0.3)',
+              boxShadow: '0 4px 12px rgba(28, 26, 23, 0.12)',
               transition: 'transform 0.2s, box-shadow 0.2s',
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.transform = 'translateY(-2px)';
-              e.currentTarget.style.boxShadow = '0 6px 20px rgba(99, 102, 241, 0.4)';
+              e.currentTarget.style.boxShadow = '0 6px 20px rgba(28, 26, 23, 0.15)';
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.boxShadow = '0 4px 12px rgba(99, 102, 241, 0.3)';
+              e.currentTarget.style.boxShadow = '0 4px 12px rgba(28, 26, 23, 0.12)';
             }}
           >
             Back to Style Interface

@@ -196,7 +196,7 @@ export default function SignUp() {
                     style={{
                       width: '100%',
                       padding: '1rem 1.5rem',
-                      background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+                      background: '#1c1a17',
                       border: 'none',
                       borderRadius: '12px',
                       color: 'white',
@@ -206,20 +206,20 @@ export default function SignUp() {
                       transition: 'all 0.3s ease',
                       textAlign: 'center',
                       opacity: isLoading ? 0.6 : 1,
-                      boxShadow: '0 4px 15px rgba(99, 102, 241, 0.4)',
+                      boxShadow: '0 4px 15px rgba(28, 26, 23, 0.15)',
                     }}
                     onMouseEnter={(e) => {
                       if (!isLoading) {
                         e.currentTarget.style.transform = 'translateY(-2px)';
-                        e.currentTarget.style.boxShadow = '0 8px 25px rgba(99, 102, 241, 0.5)';
-                        e.currentTarget.style.background = 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)';
+                        e.currentTarget.style.boxShadow = '0 8px 25px rgba(28, 26, 23, 0.2)';
+                        e.currentTarget.style.background = '#000000';
                       }
                     }}
                     onMouseLeave={(e) => {
                       if (!isLoading) {
                         e.currentTarget.style.transform = 'translateY(0)';
-                        e.currentTarget.style.boxShadow = '0 4px 15px rgba(99, 102, 241, 0.4)';
-                        e.currentTarget.style.background = 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)';
+                        e.currentTarget.style.boxShadow = '0 4px 15px rgba(28, 26, 23, 0.15)';
+                        e.currentTarget.style.background = '#1c1a17';
                       }
                     }}
                   >

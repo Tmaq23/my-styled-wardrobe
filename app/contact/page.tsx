@@ -99,10 +99,10 @@ export default function ContactPage() {
 
             {/* Contact Form */}
             <div style={{
-              background: 'rgba(255, 255, 255, 0.1)',
-              backdropFilter: 'blur(10px)',
-              borderRadius: '12px',
-              border: '1px solid rgba(255, 255, 255, 0.2)',
+              background: '#ffffff',
+              borderRadius: '4px',
+              border: '1px solid #e5dfd4',
+              boxShadow: '0 2px 8px rgba(28, 26, 23, 0.07)',
               padding: '2rem',
             }}>
               <form onSubmit={handleSubmit}>
@@ -111,7 +111,7 @@ export default function ContactPage() {
                   <div>
                     <label style={{
                       display: 'block',
-                      color: 'rgba(255, 255, 255, 0.9)',
+                      color: '#1c1a17',
                       fontWeight: '600',
                       marginBottom: '0.5rem',
                     }}>
@@ -126,10 +126,10 @@ export default function ContactPage() {
                       style={{
                         width: '100%',
                         padding: '0.75rem',
-                        background: 'rgba(255, 255, 255, 0.1)',
-                        border: '1px solid rgba(255, 255, 255, 0.3)',
-                        borderRadius: '8px',
-                        color: 'white',
+                        background: '#ffffff',
+                        border: '1px solid #e5dfd4',
+                        borderRadius: '4px',
+                        color: '#1c1a17',
                         fontSize: '1rem',
                       }}
                       placeholder="John Doe"
@@ -140,7 +140,7 @@ export default function ContactPage() {
                   <div>
                     <label style={{
                       display: 'block',
-                      color: 'rgba(255, 255, 255, 0.9)',
+                      color: '#1c1a17',
                       fontWeight: '600',
                       marginBottom: '0.5rem',
                     }}>
@@ -155,10 +155,10 @@ export default function ContactPage() {
                       style={{
                         width: '100%',
                         padding: '0.75rem',
-                        background: 'rgba(255, 255, 255, 0.1)',
-                        border: '1px solid rgba(255, 255, 255, 0.3)',
-                        borderRadius: '8px',
-                        color: 'white',
+                        background: '#ffffff',
+                        border: '1px solid #e5dfd4',
+                        borderRadius: '4px',
+                        color: '#1c1a17',
                         fontSize: '1rem',
                       }}
                       placeholder="john@example.com"
@@ -170,7 +170,7 @@ export default function ContactPage() {
                 <div style={{ marginBottom: '1.5rem' }}>
                   <label style={{
                     display: 'block',
-                    color: 'rgba(255, 255, 255, 0.9)',
+                    color: '#1c1a17',
                     fontWeight: '600',
                     marginBottom: '0.5rem',
                   }}>
@@ -185,10 +185,10 @@ export default function ContactPage() {
                     style={{
                       width: '100%',
                       padding: '0.75rem',
-                      background: 'rgba(255, 255, 255, 0.1)',
-                      border: '1px solid rgba(255, 255, 255, 0.3)',
-                      borderRadius: '8px',
-                      color: 'white',
+                      background: '#ffffff',
+                      border: '1px solid #e5dfd4',
+                      borderRadius: '4px',
+                      color: '#1c1a17',
                       fontSize: '1rem',
                     }}
                     placeholder="How can we help?"
@@ -199,7 +199,7 @@ export default function ContactPage() {
                 <div style={{ marginBottom: '2rem' }}>
                   <label style={{
                     display: 'block',
-                    color: 'rgba(255, 255, 255, 0.9)',
+                    color: '#1c1a17',
                     fontWeight: '600',
                     marginBottom: '0.5rem',
                   }}>
@@ -214,10 +214,10 @@ export default function ContactPage() {
                     style={{
                       width: '100%',
                       padding: '0.75rem',
-                      background: 'rgba(255, 255, 255, 0.1)',
-                      border: '1px solid rgba(255, 255, 255, 0.3)',
-                      borderRadius: '8px',
-                      color: 'white',
+                      background: '#ffffff',
+                      border: '1px solid #e5dfd4',
+                      borderRadius: '4px',
+                      color: '#1c1a17',
                       fontSize: '1rem',
                       resize: 'vertical',
                       minHeight: '120px',
@@ -234,8 +234,8 @@ export default function ContactPage() {
                     width: '100%',
                     padding: '1rem',
                     background: loading 
-                      ? 'rgba(99, 102, 241, 0.5)' 
-                      : 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+                      ? 'rgba(28, 26, 23, 0.2)' 
+                      : '#1c1a17',
                     border: 'none',
                     borderRadius: '8px',
                     color: 'white',
@@ -253,27 +253,28 @@ export default function ContactPage() {
 
             {/* Contact Info */}
             <div style={{
-              background: 'rgba(255, 255, 255, 0.05)',
-              borderRadius: '12px',
+              background: '#f4f0e9',
+              borderRadius: '4px',
+              border: '1px solid #e5dfd4',
               padding: '1.5rem',
               marginTop: '2rem',
               textAlign: 'center',
             }}>
-              <h3 style={{ color: 'white', marginBottom: '1rem' }}>Other Ways to Reach Us</h3>
-              <p style={{ color: 'rgba(255, 255, 255, 0.8)', margin: 0 }}>
+              <h3 style={{ color: '#1c1a17', marginBottom: '1rem' }}>Other Ways to Reach Us</h3>
+              <p style={{ color: '#6b655d', margin: 0 }}>
                 Email us directly at{' '}
                 <a 
                   href="mailto:info@mystyledwardrobe.com" 
                   style={{ 
-                    color: '#6366f1', 
-                    textDecoration: 'none', 
+                    color: '#1c1a17', 
+                    textDecoration: 'underline', 
                     fontWeight: '600' 
                   }}
                 >
                   info@mystyledwardrobe.com
                 </a>
               </p>
-              <p style={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: '0.9rem', marginTop: '0.5rem', marginBottom: 0 }}>
+              <p style={{ color: '#9a9389', fontSize: '0.9rem', marginTop: '0.5rem', marginBottom: 0 }}>
                 We typically respond within 24 hours
               </p>
             </div>
@@ -285,10 +286,10 @@ export default function ContactPage() {
                 style={{
                   display: 'inline-block',
                   padding: '0.75rem 1.5rem',
-                  background: 'rgba(255, 255, 255, 0.1)',
-                  border: '1px solid rgba(255, 255, 255, 0.3)',
-                  borderRadius: '8px',
-                  color: 'white',
+                  background: 'transparent',
+                  border: '1px solid #c6bfb3',
+                  borderRadius: '4px',
+                  color: '#1c1a17',
                   textDecoration: 'none',
                   fontWeight: '500',
                   transition: 'all 0.3s',

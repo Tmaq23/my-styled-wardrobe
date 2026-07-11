@@ -17,9 +17,9 @@ function SubscriptionMessage() {
         maxWidth: '800px',
         margin: '2rem auto 0',
         padding: '1.5rem',
-        background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.2) 0%, rgba(124, 58, 237, 0.2) 100%)',
-        border: '1px solid rgba(139, 92, 246, 0.4)',
-        borderRadius: '12px',
+        background: 'rgba(255, 255, 255, 0.1)',
+        border: '1px solid rgba(255, 255, 255, 0.25)',
+        borderRadius: '4px',
         textAlign: 'center',
       }}>
         <p style={{

@@ -158,7 +158,7 @@ export default function VerificationRequest({
       <div style={{
         marginTop: '1.5rem',
         padding: '1.5rem',
-        background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+        background: '#1c1a17',
         borderRadius: '12px',
         color: 'white',
       }}>
@@ -215,7 +215,7 @@ export default function VerificationRequest({
                 style={{
                   display: 'inline-block',
                   padding: '0.5rem 1rem',
-                  background: '#6366f1',
+                  background: '#1c1a17',
                   color: 'white',
                   borderRadius: '6px',
                   textDecoration: 'none',
@@ -238,7 +238,7 @@ export default function VerificationRequest({
           padding: '0.875rem 1.5rem',
           background: isLoading 
             ? '#9ca3af' 
-            : 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+            : '#1c1a17',
           color: 'white',
           border: 'none',
           borderRadius: '8px',
@@ -246,18 +246,18 @@ export default function VerificationRequest({
           fontWeight: '600',
           cursor: isLoading ? 'not-allowed' : 'pointer',
           transition: 'all 0.2s',
-          boxShadow: isLoading ? 'none' : '0 4px 12px rgba(99, 102, 241, 0.4)',
+          boxShadow: isLoading ? 'none' : '0 4px 12px rgba(28, 26, 23, 0.15)',
         }}
         onMouseEnter={(e) => {
           if (!isLoading) {
             e.currentTarget.style.transform = 'translateY(-2px)';
-            e.currentTarget.style.boxShadow = '0 6px 16px rgba(99, 102, 241, 0.5)';
+            e.currentTarget.style.boxShadow = '0 6px 16px rgba(28, 26, 23, 0.2)';
           }
         }}
         onMouseLeave={(e) => {
           if (!isLoading) {
             e.currentTarget.style.transform = 'translateY(0)';
-            e.currentTarget.style.boxShadow = '0 4px 12px rgba(99, 102, 241, 0.4)';
+            e.currentTarget.style.boxShadow = '0 4px 12px rgba(28, 26, 23, 0.15)';
           }
         }}
       >

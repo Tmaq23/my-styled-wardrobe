@@ -31,12 +31,12 @@ export default function CustomShopCancelPage() {
             style={{
               display: 'inline-block',
               padding: '14px 28px',
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              background: '#1c1a17',
               color: 'white',
               borderRadius: '8px',
               textDecoration: 'none',
               fontWeight: '600',
-              boxShadow: '0 4px 15px rgba(102, 126, 234, 0.4)',
+              boxShadow: '0 4px 15px rgba(28, 26, 23, 0.15)',
             }}
           >
             Return to Style Interface
@@ -47,8 +47,8 @@ export default function CustomShopCancelPage() {
               display: 'inline-block',
               padding: '14px 28px',
               background: 'white',
-              color: '#667eea',
-              border: '2px solid #667eea',
+              color: '#1c1a17',
+              border: '2px solid #1c1a17',
               borderRadius: '8px',
               textDecoration: 'none',
               fontWeight: '600',
@@ -61,7 +61,7 @@ export default function CustomShopCancelPage() {
         <div style={{ marginTop: '30px', paddingTop: '20px', borderTop: '1px solid #e5e7eb', textAlign: 'center' }}>
           <p style={{ color: '#9ca3af', fontSize: '14px' }}>
             Need help? We&apos;re here for you at{' '}
-            <a href="mailto:admin@mystyledwardrobe.com" style={{ color: '#667eea', textDecoration: 'none' }}>
+            <a href="mailto:admin@mystyledwardrobe.com" style={{ color: '#1c1a17', textDecoration: 'none' }}>
               admin@mystyledwardrobe.com
             </a>
           </p>
