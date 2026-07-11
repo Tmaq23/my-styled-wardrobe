@@ -24,11 +24,9 @@ export default function Header() {
     }
   }, []);
 
-  // Check session on mount and periodically
+  // Check session on mount (focus/visibility listeners below handle re-checks)
   useEffect(() => {
     checkSession();
-    const interval = setInterval(checkSession, 5000); // Check every 5 seconds
-    return () => clearInterval(interval);
   }, [checkSession]);
 
   // Listen for session updates (e.g., after admin login)
@@ -84,7 +82,7 @@ export default function Header() {
       <div className="nav-container">
         <Link href="/" className="nav-brand" style={{ textDecoration: 'none', cursor: 'pointer' }}>
           <img 
-            src="/logo.png" 
+            src="/logo.svg" 
             alt="My Styled Wardrobe Logo" 
             style={{ 
               height: '50px',
@@ -99,10 +97,7 @@ export default function Header() {
         {/* Desktop Navigation */}
         <div className="nav-links">
           <Link href="/about" className="nav-link">About Us</Link>
-          <Link href="/styling" className="nav-link">
-            Styling
-            <span className="dropdown-chevron">▼</span>
-          </Link>
+          <Link href="/styling" className="nav-link">Styling</Link>
           <Link href="/blog" className="nav-link">Blog</Link>
           <Link href="/pricing" className="nav-link">Pricing</Link>
           <Link href="/faq" className="nav-link">FAQ</Link>
@@ -111,7 +106,9 @@ export default function Header() {
         {/* Desktop Auth Section */}
         <div className="nav-auth-desktop">
           {loading ? (
-            <button className="login-btn" disabled>Loading...</button>
+            <Link href="/auth/signin" className="login-btn" style={{ textDecoration: 'none' }}>
+              LOG IN
+            </Link>
           ) : user ? (
             <div className="nav-auth-section">
               <span className="nav-user-name">
@@ -185,7 +182,14 @@ export default function Header() {
 
               <div className="mobile-menu-auth">
                 {loading ? (
-                  <button className="login-btn" disabled>Loading...</button>
+                  <Link 
+                    href="/auth/signin" 
+                    className="login-btn" 
+                    style={{ textDecoration: 'none' }}
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    LOG IN
+                  </Link>
                 ) : user ? (
                   <>
                     <div className="mobile-user-info">

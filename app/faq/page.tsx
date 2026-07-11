@@ -43,7 +43,7 @@ export default function FAQPage() {
               </div>
               <div className="faq-item">
                 <h3>Can I re-analyse my profile?</h3>
-                <p>Absolutely! You can use the &quot;Re-analyse with AI&quot; button anytime to get fresh insights or if you want to update your analysis.</p>
+                <p>Absolutely! You can upload a new photo anytime to get fresh insights or update your analysis.</p>
               </div>
               <div className="faq-item">
                 <h3>What body shapes do you support?</h3>
@@ -75,7 +75,7 @@ export default function FAQPage() {
             <div className="faq-items">
               <div className="faq-item">
                 <h3>How do I create an account?</h3>
-                <p>Currently, you can use our service without creating an account. Simply upload your photo and start styling!</p>
+                <p>Click &quot;Log In&quot; in the top navigation and choose &quot;Create a New Account&quot; to sign up in seconds. An account lets you save your analysis and access your personalised recommendations.</p>
               </div>
               <div className="faq-item">
                 <h3>Is my photo data secure?</h3>
@@ -117,7 +117,7 @@ export default function FAQPage() {
         <div className="container">
           <h2>Ready to Discover Your Style?</h2>
           <p>Start your personalised styling journey today</p>
-          <Link href="/" className="cta-button">
+          <Link href="/style-interface" className="cta-button">
             Get Started
           </Link>
         </div>

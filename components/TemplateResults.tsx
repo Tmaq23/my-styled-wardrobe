@@ -22,7 +22,7 @@ function getBodyShapeMoodBoardItems(bodyShape: string): string[] {
       '/moodboards/hourglass-dress2.jpg',
       '/moodboards/hourglass-dress3.jpg',
       '/moodboards/hourglass-top1.jpg',
-      '/moodboards/hourglass-top2.jpg.png',
+      '/moodboards/hourglass-top2.png',
       '/moodboards/hourglass-top3.jpg',
       '/moodboards/hourglass-shoes.jpg',
       '/moodboards/hourglass-necklace.jpg',
@@ -473,6 +473,11 @@ export default function TemplateResults({
                   height: '100%',
                   objectFit: 'contain',
                   padding: '0.25rem'
+                }}
+                onError={(e) => {
+                  // Hide tiles whose image fails to load instead of showing a broken icon
+                  const tile = (e.target as HTMLImageElement).closest('div');
+                  if (tile) (tile as HTMLElement).style.display = 'none';
                 }}
               />
             </div>

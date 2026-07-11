@@ -1,4 +1,5 @@
 // Performance monitoring utility for the styled wardrobe app
+import { useEffect } from 'react';
 
 export interface PerformanceMetrics {
   pageLoadTime: number;
@@ -201,8 +202,9 @@ export function measurePerformance(componentName: string) {
 export function usePerformanceMeasurement(componentName: string) {
   const startTime = performance.now();
   
-  React.useEffect(() => {
+  useEffect(() => {
     performanceMonitor.measureComponentRender(componentName, startTime);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [componentName]);
 }
 

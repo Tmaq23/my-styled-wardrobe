@@ -1,15 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
+import OpenAI from 'openai';
 import prisma from '@/lib/prisma';
 import { getSessionContext } from '@/lib/apiAuth';
 
+function hasValidOpenAiKey(): boolean {
+  const apiKey = process.env['OPENAI_API_KEY'];
+  return !!apiKey &&
+    !apiKey.includes('sk-local') &&
+    !apiKey.includes('your-api-key') &&
+    !apiKey.includes('placeholder') &&
+    apiKey.length >= 20 &&
+    apiKey.startsWith('sk-');
+}
+
 export async function POST(request: NextRequest) {
   try {
-    console.log('API called - trying local Llama first, fallback to smart analysis...');
-    
-    const { bodyImage, faceImage, bodyFilename, faceFilename } = await request.json();
-    console.log('Received request for files:', bodyFilename, faceFilename);
-    console.log('Body image data length:', bodyImage?.length || 0);
-    console.log('Face image data length:', faceImage?.length || 0);
+    const { bodyImage, faceImage } = await request.json();
 
     if (!bodyImage || !faceImage) {
       return NextResponse.json({ error: 'Both body and face images are required' }, { status: 400 });
@@ -45,14 +51,11 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
-    // Try local Ollama first (for development/local testing)
+    // Try OpenAI Vision first (production), then local Ollama (development), then smart fallback
     let result;
     let usingFallback = false;
-    
-    try {
-      console.log('Attempting to connect to local Ollama...');
-      
-      const prompt = `Analyze these two images:
+
+    const prompt = `Analyze these two images:
 1. The BODY image (in gym clothes) - for body shape analysis
 2. The FACE image (no makeup) - for colour palette analysis
 
@@ -79,50 +82,86 @@ Respond with ONLY this JSON:
   "analysis": "Brief explanation: body shape from the gym clothes photo and colour palette from the natural face photo"
 }`;
 
-      // Try to call local Ollama with a short timeout
-      const response = await fetch('http://localhost:11434/api/generate', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: 'llama3.2:3b',
-          prompt: prompt,
-          images: [bodyImage, faceImage],
-          format: 'json',
-          stream: false,
-          options: {
-            temperature: 0.1,
-            top_p: 0.9,
-          }
-        }),
-        signal: AbortSignal.timeout(10000) // 10 second timeout
-      });
+    // 1) OpenAI Vision (works in production/Vercel when OPENAI_API_KEY is set)
+    if (hasValidOpenAiKey()) {
+      try {
+        const openai = new OpenAI({ apiKey: process.env['OPENAI_API_KEY'] });
+        const response = await openai.chat.completions.create({
+          model: 'gpt-4o',
+          messages: [
+            {
+              role: 'system',
+              content: 'You are a professional fashion consultant. Your role is to analyze fashion photographs and provide style recommendations. You will receive TWO images: one showing the body in gym clothes for body shape analysis, and one showing the face without makeup for colour palette analysis. Always respond with valid JSON in the exact format requested.'
+            },
+            {
+              role: 'user',
+              content: [
+                { type: 'text', text: prompt },
+                { type: 'image_url', image_url: { url: `data:image/jpeg;base64,${bodyImage}`, detail: 'high' } },
+                { type: 'image_url', image_url: { url: `data:image/jpeg;base64,${faceImage}`, detail: 'high' } },
+              ]
+            }
+          ],
+          max_tokens: 500,
+          temperature: 0.1,
+          response_format: { type: 'json_object' },
+        });
 
-      if (!response.ok) {
-        throw new Error(`Ollama API failed: ${response.status}`);
+        const content = response.choices[0]?.message?.content;
+        if (content) {
+          result = JSON.parse(content);
+        }
+      } catch (openaiError) {
+        console.error('OpenAI analysis failed, trying local Ollama:', openaiError);
       }
+    }
 
-      const ollamaResult = await response.json();
-      const content = ollamaResult.response;
-      
-      if (!content) {
-        throw new Error('No response from local AI');
+    // 2) Local Ollama (development machines running llama3.2)
+    if (!result) {
+      try {
+        const response = await fetch('http://localhost:11434/api/generate', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            model: 'llama3.2:3b',
+            prompt: prompt,
+            images: [bodyImage, faceImage],
+            format: 'json',
+            stream: false,
+            options: {
+              temperature: 0.1,
+              top_p: 0.9,
+            }
+          }),
+          signal: AbortSignal.timeout(10000) // 10 second timeout
+        });
+
+        if (!response.ok) {
+          throw new Error(`Ollama API failed: ${response.status}`);
+        }
+
+        const ollamaResult = await response.json();
+        const content = ollamaResult.response;
+
+        if (!content) {
+          throw new Error('No response from local AI');
+        }
+
+        const jsonMatch = content.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          result = JSON.parse(jsonMatch[0]);
+        } else {
+          throw new Error('No JSON found in response');
+        }
+      } catch (ollamaError) {
+        console.log('Local Ollama unavailable, using smart fallback analysis');
       }
+    }
 
-      console.log('Local Ollama response received:', content.substring(0, 200) + '...');
-
-      // Try to parse the JSON response
-      const jsonMatch = content.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
-        result = JSON.parse(jsonMatch[0]);
-        console.log('Successfully used local Ollama:', result);
-      } else {
-        throw new Error('No JSON found in response');
-      }
-
-    } catch (ollamaError) {
-      console.log('Local Ollama failed, using smart fallback analysis:', ollamaError.message);
+    // 3) Statistical fallback so the flow never hard-fails
+    if (!result) {
       usingFallback = true;
       result = generateSmartFallbackAnalysis(bodyImage, faceImage);
     }
@@ -151,15 +190,10 @@ Respond with ONLY this JSON:
       result.confidence = 75; // Default fallback
     }
 
-    // Add processing method to analysis
-    const methodNote = usingFallback 
-      ? " (Analysis generated using intelligent pattern matching - for AI-powered analysis, ensure local Ollama is running)"
-      : " (Powered by local Llama 3.2 AI model)";
-    
-    result.analysis += methodNote;
+    if (usingFallback) {
+      result.analysis += ' (Analysis generated using styling principles - AI image analysis was temporarily unavailable)';
+    }
 
-    console.log('Returning result:', result);
-    
     // Increment analysis count in database for logged-in users
     try {
       const context = await getSessionContext();
@@ -217,17 +251,12 @@ Respond with ONLY this JSON:
 
   } catch (error) {
     console.error('Analysis error:', error);
-    console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
-    
-    // Final fallback
-    const fallbackResult = generateSmartFallbackAnalysis("", "");
-    fallbackResult.analysis = `Analysis completed using intelligent pattern matching. For enhanced AI-powered analysis, ensure local AI model is running. ${error instanceof Error ? error.message : 'Unknown error occurred.'}`;
-    
-    return NextResponse.json({
-      ...fallbackResult,
-      bodyImageUrl: `data:image/jpeg;base64,${request.bodyImage || ''}`,
-      faceImageUrl: `data:image/jpeg;base64,${request.faceImage || ''}`,
-    });
+
+    // Final fallback so the user flow never hard-fails
+    const fallbackResult = generateSmartFallbackAnalysis('', '');
+    fallbackResult.analysis = 'Analysis completed using styling principles - AI image analysis was temporarily unavailable.';
+
+    return NextResponse.json(fallbackResult);
   }
 }
 

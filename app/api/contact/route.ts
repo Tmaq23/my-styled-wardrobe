@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 export async function POST(request: NextRequest) {
   try {
     const { name, email, subject, message } = await request.json();
@@ -34,7 +32,8 @@ export async function POST(request: NextRequest) {
     }
 
     try {
-      // Send email using Resend
+      // Send email using Resend (instantiated lazily so a missing key can't crash the module)
+      const resend = new Resend(process.env.RESEND_API_KEY);
       const result = await resend.emails.send({
         from: 'Contact Form <noreply@mystyledwardrobe.com>',
         to: 'info@mystyledwardrobe.com', // Updated to correct email

@@ -5,8 +5,11 @@ import { verifyAdminAccess } from '@/lib/apiAuth';
 export async function POST(request: NextRequest) {
   // Verify admin access
   const adminCheck = await verifyAdminAccess(request);
-  if (adminCheck.status !== 'ok') {
-    return NextResponse.json({ error: adminCheck.message }, { status: adminCheck.statusCode });
+  if (adminCheck.status === 'unauthenticated') {
+    return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
+  }
+  if (adminCheck.status === 'forbidden') {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
   }
 
   try {

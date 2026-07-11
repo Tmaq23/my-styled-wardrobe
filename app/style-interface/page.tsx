@@ -16,7 +16,6 @@ export default function StyleInterfacePage() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [bodyShape, setBodyShape] = useState('');
   const [colorPalette, setColorPalette] = useState('');
-  const [files, setFiles] = useState<File[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [loadingStep, setLoadingStep] = useState('');
   const [shopResults, setShopResults] = useState<any>(null);
@@ -81,10 +80,6 @@ export default function StyleInterfacePage() {
     return null;
   }
 
-  const handleFilesChange = (newFiles: File[]) => {
-    setFiles(newFiles);
-  };
-
   const handleGetRecommendations = async () => {
     setIsLoading(true);
     setErrorMessage('');
@@ -95,17 +90,11 @@ export default function StyleInterfacePage() {
     const palette = colorPalette || 'Winter';
 
     try {
-      // Step 1: Analyzing preferences
       setLoadingStep('Analysing your body shape and colour palette...');
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 800));
 
-          // Step 2: Searching retailers
-          setLoadingStep('Searching online retailers for matching products...');
-          await new Promise(resolve => setTimeout(resolve, 1500));
-
-          // Step 2.5: Validating prices
-          setLoadingStep('Validating prices against retailer websites...');
-          await new Promise(resolve => setTimeout(resolve, 1000));
+      setLoadingStep('Matching styles to your profile...');
+      await new Promise(resolve => setTimeout(resolve, 800));
 
       const fd = new FormData();
       fd.append('occasion', occasion);
@@ -115,8 +104,7 @@ export default function StyleInterfacePage() {
       fd.append('gender', gender);
       fd.append('retailers', JSON.stringify(retailers));
 
-      // Step 3: Getting template-based recommendations
-      setLoadingStep('Loading your personalised style templates...');
+      setLoadingStep('Loading your personalised style guide...');
       const response = await fetch('/api/recommend-template', {
         method: 'POST',
         body: fd
@@ -135,10 +123,9 @@ export default function StyleInterfacePage() {
       await new Promise(resolve => setTimeout(resolve, 800));
       
       setShopResults(data);
-      console.log('[recommendations] Shopping recommendations received', data);
     } catch (error:any) {
       console.error('[recommendations] API error', error);
-      setErrorMessage('Failed to search online retailers');
+      setErrorMessage('We couldn\'t load your recommendations. Please try again.');
     } finally {
       setIsLoading(false);
       setLoadingStep('');
@@ -211,36 +198,6 @@ export default function StyleInterfacePage() {
                 onShape={(s) => setBodyShape(s)}
                 onAiAnalysis={(analysis) => setAiAnalysis(analysis)}
               />
-              
-              <button 
-                className="reanalyze-btn"
-                onClick={async () => {
-                  if (files.length > 0) {
-                    setIsLoading(true);
-                    try {
-                      const formData = new FormData();
-                      files.forEach(file => formData.append('images', file));
-                      const response = await fetch('/api/analyze-body', {
-                        method: 'POST',
-                        body: formData
-                      });
-                      if (response.ok) {
-                        const analysis = await response.json();
-                        setAiAnalysis(analysis);
-                        setBodyShape(analysis.bodyShape);
-                        setColorPalette(analysis.colorPalette);
-                      }
-                    } catch (error) {
-                      console.error('Re-analysis failed:', error);
-                    } finally {
-                      setIsLoading(false);
-                    }
-                  }
-                }}
-                disabled={files.length === 0 || isLoading}
-              >
-                {isLoading ? 'Analysing...' : 'Re-analyse with AI'}
-              </button>
             </div>
           </div>
         </div>
@@ -366,14 +323,9 @@ export default function StyleInterfacePage() {
                 <p><strong>What we&apos;re doing:</strong></p>
                 <ul>
                   <li>Analysing your body shape and colour palette</li>
-                  <li>Searching online retailers for matching products</li>
-                  <li>Validating prices against retailer websites</li>
-                  <li>Getting personalised recommendations</li>
-                  <li>Generating AI illustrations for each product</li>
-                  <li>Generating AI illustrations for outfit combinations</li>
-                  <li>Finalising your personalised recommendations</li>
+                  <li>Matching curated style templates to your profile</li>
+                  <li>Preparing personalised styling guidance</li>
                 </ul>
-                <p className="loading-note">This may take 90-120 seconds as we search multiple retailers and generate custom AI images for each product and outfit combination.</p>
               </div>
             </div>
           </div>
@@ -585,14 +537,14 @@ export default function StyleInterfacePage() {
             <h4>Support</h4>
             <ul>
               <li><Link href="/faq">Help Center</Link></li>
-              <li>Contact Us</li>
-              <li>Privacy Policy</li>
-              <li>Terms of Service</li>
+              <li><Link href="/contact">Contact Us</Link></li>
+              <li><Link href="/privacy">Privacy Policy</Link></li>
+              <li><Link href="/terms">Terms of Service</Link></li>
             </ul>
           </div>
         </div>
         <div className="footer-bottom">
-          <p>&copy; 2025 My Styled Wardrobe. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} My Styled Wardrobe. All rights reserved.</p>
         </div>
       </footer>
 

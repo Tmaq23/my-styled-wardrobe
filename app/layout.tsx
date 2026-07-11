@@ -33,33 +33,21 @@ export const metadata: Metadata = {
     canonical: '/',
   },
   icons: {
-    icon: [
-      { url: '/icon.png', type: 'image/png' },
-      { url: '/logo.png', type: 'image/png' },
-    ],
-    apple: '/apple-icon.png',
+    icon: '/logo.svg',
+    apple: '/logo.svg',
   },
   openGraph: {
     title: 'My Styled Wardrobe - Personal Color & Fit Analysis',
     description: 'Get instant outfit inspiration with AI-powered personal color and body shape analysis.',
     url: 'https://mystyledwardrobe.com',
     siteName: 'My Styled Wardrobe',
-    images: [
-      {
-        url: '/og-image.jpg',
-        width: 1200,
-        height: 630,
-        alt: 'My Styled Wardrobe - Personal Styling App',
-      },
-    ],
-    locale: 'en_US',
+    locale: 'en_GB',
     type: 'website',
   },
   twitter: {
-    card: 'summary_large_image',
+    card: 'summary',
     title: 'My Styled Wardrobe - Personal Color & Fit Analysis',
     description: 'Get instant outfit inspiration with AI-powered personal color and body shape analysis.',
-    images: ['/og-image.jpg'],
   },
   robots: {
     index: true,
@@ -71,9 +59,6 @@ export const metadata: Metadata = {
       'max-image-preview': 'large',
       'max-snippet': -1,
     },
-  },
-  verification: {
-    google: 'your-google-verification-code',
   },
 }
 

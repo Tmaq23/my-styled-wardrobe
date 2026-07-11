@@ -8,12 +8,10 @@ import { useRouter } from 'next/navigation';
 export default function Home() {
   const router = useRouter();
   const [isSignedIn, setIsSignedIn] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     // Check if user is signed in
     const checkAuth = async () => {
-      setIsLoading(true);
       try {
         const response = await fetch('/api/simple-auth/session', {
           cache: 'no-store',
@@ -24,16 +22,13 @@ export default function Home() {
         });
         if (response.ok) {
           const data = await response.json();
-          console.log('Auth check result:', data); // Debug log
-          setIsSignedIn(!!data.user); // Check for data.user, not data.userId
+          setIsSignedIn(!!data.user);
         } else {
           setIsSignedIn(false);
         }
       } catch (error) {
         console.error('Error checking auth:', error);
         setIsSignedIn(false);
-      } finally {
-        setIsLoading(false);
       }
     };
 
@@ -62,14 +57,7 @@ export default function Home() {
 
   const handleGetStarted = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
-    console.log('GET STARTED clicked. isSignedIn:', isSignedIn); // Debug log
-    if (isSignedIn) {
-      console.log('Redirecting to style-interface');
-      router.push('/style-interface');
-    } else {
-      console.log('Redirecting to signin');
-      router.push('/auth/signin');
-    }
+    router.push(isSignedIn ? '/style-interface' : '/auth/signin');
   };
 
   return (
@@ -94,7 +82,7 @@ export default function Home() {
               onClick={handleGetStarted} 
               className="cta-button"
             >
-              {isLoading ? 'LOADING...' : 'GET STARTED'}
+              GET STARTED
             </Link>
           </div>
         </div>
@@ -145,13 +133,13 @@ export default function Home() {
             <ul>
               <li><Link href="/faq">Help Center</Link></li>
               <li><Link href="/contact">Contact Us</Link></li>
-              <li>Privacy Policy</li>
-              <li>Terms of Service</li>
+              <li><Link href="/privacy">Privacy Policy</Link></li>
+              <li><Link href="/terms">Terms of Service</Link></li>
             </ul>
           </div>
         </div>
         <div className="footer-bottom">
-          <p>&copy; 2025 My Styled Wardrobe. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} My Styled Wardrobe. All rights reserved.</p>
         </div>
       </footer>
     </div>

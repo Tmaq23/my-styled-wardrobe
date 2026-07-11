@@ -20,24 +20,31 @@ export async function GET() {
       return NextResponse.json({ user: null });
     }
 
-    // Fetch additional user data from database including subscription
+    // Fetch additional user data from database including subscription.
+    // Time-boxed so a slow/unreachable database can never hang the session
+    // check (which would leave the whole UI stuck in a loading state).
     try {
-      const dbUser = await prisma.user.findUnique({
-        where: { id: sessionData.user.id },
-        select: {
-          id: true,
-          email: true,
-          name: true,
-          isAdmin: true,
-          subscription: {
-            select: {
-              tier: true,
-              stripeSubscriptionId: true,
-              activeUntil: true,
+      const dbUser = await Promise.race([
+        prisma.user.findUnique({
+          where: { id: sessionData.user.id },
+          select: {
+            id: true,
+            email: true,
+            name: true,
+            isAdmin: true,
+            subscription: {
+              select: {
+                tier: true,
+                stripeSubscriptionId: true,
+                activeUntil: true,
+              },
             },
           },
-        },
-      });
+        }),
+        new Promise<null>((_, reject) =>
+          setTimeout(() => reject(new Error('Session DB lookup timed out')), 3000)
+        ),
+      ]);
 
       if (dbUser) {
         return NextResponse.json({
