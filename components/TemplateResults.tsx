@@ -175,7 +175,13 @@ function getBodyShapeMoodBoardItems(bodyShape: string): string[] {
   
   return result;
 }
-import Image from 'next/image';
+
+// Capsule wardrobe imagery for each colour season, in that season's palette
+function getSeasonCapsuleImage(season: string): string | null {
+  const normalized = season.trim().toLowerCase();
+  const seasons = ['spring', 'summer', 'autumn', 'winter'];
+  return seasons.includes(normalized) ? `/palettes/${normalized}.jpg` : null;
+}
 
 interface Template {
   id: string;
@@ -224,8 +230,8 @@ export default function TemplateResults({
   message,
   onRequestCustomShop
 }: TemplateResultsProps) {
-  const [expandedTemplate, setExpandedTemplate] = useState<string | null>(null);
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
+  const seasonCapsuleImage = getSeasonCapsuleImage(stylingGuidance.colourPalette.season);
 
   return (
     <div className="template-results">
@@ -342,6 +348,38 @@ export default function TemplateResults({
             </ul>
           </div>
         </div>
+
+        {/* Season capsule wardrobe visual */}
+        {seasonCapsuleImage && (
+          <div style={{ padding: '0 1.5rem 1.5rem' }}>
+            <h4 style={{
+              marginBottom: '1rem',
+              color: '#1c1a17',
+              fontSize: '1.1rem',
+              fontWeight: '700',
+              borderBottom: '2px solid #1c1a17',
+              paddingBottom: '0.5rem'
+            }}>
+              Your {stylingGuidance.colourPalette.season} Capsule Colours
+            </h4>
+            <img
+              src={seasonCapsuleImage}
+              alt={`Capsule wardrobe in ${stylingGuidance.colourPalette.season} palette colours`}
+              onClick={() => setLightboxImage(seasonCapsuleImage)}
+              style={{
+                width: '100%',
+                maxHeight: '420px',
+                objectFit: 'cover',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                display: 'block'
+              }}
+            />
+            <p style={{ margin: '0.75rem 0 0', fontSize: '0.85rem', color: '#6b655d', textAlign: 'center' }}>
+              An example capsule wardrobe in your {stylingGuidance.colourPalette.season} season colours — these are the tones that will flatter you most.
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Middle Section: Style Templates */}
@@ -373,17 +411,17 @@ export default function TemplateResults({
         >
           {/* Template Header */}
           <div style={{ padding: '1.5rem' }}>
-            <h3 style={{ marginBottom: '0.5rem', fontSize: '1.25rem', color: '#1e293b' }}>
+            <h3 style={{ marginBottom: '0.5rem', fontSize: '1.25rem', color: '#1c1a17' }}>
               {template.name}
             </h3>
-            <p style={{ color: '#64748b', fontSize: '0.875rem', marginBottom: '1rem' }}>
+            <p style={{ color: '#6b655d', fontSize: '0.875rem', marginBottom: '1rem' }}>
               {template.description}
             </p>
           </div>
 
           {/* Template Items */}
           <div style={{ padding: '0 1.5rem 1.5rem' }}>
-            <h4 style={{ marginBottom: '0.75rem', fontSize: '1rem', color: '#475569' }}>
+            <h4 style={{ marginBottom: '0.75rem', fontSize: '1rem', color: '#403c36' }}>
               Outfit Components:
             </h4>
             <ul style={{ listStyle: 'none', padding: 0 }}>
@@ -393,13 +431,13 @@ export default function TemplateResults({
                   style={{
                     marginBottom: '0.75rem',
                     padding: '0.75rem',
-                    background: '#f8fafc',
+                    background: '#f5f2ec',
                     borderRadius: '8px',
                     borderLeft: '3px solid #1c1a17'
                   }}
                 >
-                  <strong style={{ color: '#1e293b' }}>{item.category}:</strong>
-                  <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.875rem', color: '#475569' }}>
+                  <strong style={{ color: '#1c1a17' }}>{item.category}:</strong>
+                  <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.875rem', color: '#403c36' }}>
                     {item.description}
                   </p>
                 </li>
@@ -439,7 +477,7 @@ export default function TemplateResults({
           gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))',
           gap: '0.75rem',
           padding: '1.5rem',
-          background: '#f8fafc'
+          background: '#f5f2ec'
         }}>
           {getBodyShapeMoodBoardItems(stylingGuidance.bodyShape.type).map((imageUrl, index) => (
             <div
@@ -452,7 +490,7 @@ export default function TemplateResults({
                 overflow: 'hidden',
                 boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
                 background: 'white',
-                border: '1px solid #e2e8f0',
+                border: '1px solid #e5dfd4',
                 cursor: 'pointer',
                 transition: 'all 0.2s'
               }}
@@ -533,7 +571,7 @@ export default function TemplateResults({
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: '#475569',
+                color: '#403c36',
                 fontWeight: '700'
               }}
             >

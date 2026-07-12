@@ -175,74 +175,62 @@ export default function StyleInterfacePage() {
       {/* Header */}
       <header className="interface-header">
         <div className="header-content">
-          <h1>My Styled Wardrobe</h1>
-          <p>AI-Powered Personal Styling</p>
+          <h1>Your Personal Styling Studio</h1>
+          <p>Three simple steps to recommendations tailored to your shape, colouring and lifestyle</p>
         </div>
       </header>
 
       {/* Main Content */}
       <div className="main-content">
 
-        {/* Main Content Grid */}
-        <div className="content-grid">
-          {/* Left Column - AI-Powered Profile Analysis */}
-          <div className="profile-section">
-            <div className="analysis-card">
-              <h3><span className="icon-inline"><Image src="/icons/target.svg" alt="AI camera" width={28} height={28} /></span> AI Body Shape and Season Generator</h3>
-              <p className="upload-instruction">UPLOAD FULL-BODY PICTURE</p>
-              
-              <ProfileCapture 
-                palette={colorPalette as 'Spring'|'Summer'|'Autumn'|'Winter'}
-                shape={bodyShape as any}
-                onPalette={(p) => setColorPalette(p)}
-                onShape={(s) => setBodyShape(s)}
-                onAiAnalysis={(analysis) => setAiAnalysis(analysis)}
-              />
+        {/* Step 1: Style Profile */}
+        <div className="step-section">
+          <div className="analysis-card">
+            <div className="step-heading">
+              <span className="step-badge">1</span>
+              <div>
+                <h3>Discover Your Style Profile</h3>
+                <p className="step-caption">Let the AI analyse your body shape and colour season, or select them yourself</p>
+              </div>
             </div>
+            
+            <ProfileCapture 
+              palette={colorPalette as 'Spring'|'Summer'|'Autumn'|'Winter'}
+              shape={bodyShape as any}
+              onPalette={(p) => setColorPalette(p)}
+              onShape={(s) => setBodyShape(s)}
+              onAiAnalysis={(analysis) => setAiAnalysis(analysis)}
+            />
+
+            {/* Verification Request - offered after an AI analysis */}
+            {aiAnalysis?.bodyShape && aiAnalysis?.colorPalette && (
+              <VerificationRequest
+                bodyShape={aiAnalysis.bodyShape}
+                colorPalette={aiAnalysis.colorPalette}
+                bodyImageUrl={aiAnalysis.bodyImageUrl}
+                faceImageUrl={aiAnalysis.faceImageUrl}
+                onVerificationComplete={() => {
+                  console.log('Verification requested successfully');
+                }}
+              />
+            )}
           </div>
         </div>
 
-        {/* Analysis Results Section */}
-        {aiAnalysis && (
-          <div className="analysis-results-section">
-            <div className="results-card">
-              <h3>AI Analysis Results</h3>
-              <div className="results-grid">
-                <div className="result-item">
-                  <span className="result-label">Body Shape:</span>
-                  <span className="result-value">{aiAnalysis.bodyShape}</span>
-                </div>
-                <div className="result-item">
-                  <span className="result-label">Colour Palette:</span>
-                  <span className="result-value">{aiAnalysis.colorPalette}</span>
-                </div>
-              </div>
-              
-              {/* Verification Request Component */}
-              {aiAnalysis?.bodyShape && aiAnalysis?.colorPalette && (
-                <VerificationRequest
-                  bodyShape={aiAnalysis.bodyShape}
-                  colorPalette={aiAnalysis.colorPalette}
-                  bodyImageUrl={aiAnalysis.bodyImageUrl}
-                  faceImageUrl={aiAnalysis.faceImageUrl}
-                  onVerificationComplete={() => {
-                    // Refresh or update UI after verification
-                    console.log('Verification requested successfully');
-                  }}
-                />
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Shop Preferences Section */}
-        <div className="preferences-section">
+        {/* Step 2: Preferences */}
+        <div className="step-section">
           <div className="preferences-card">
-            <h3>Shopping & Occasion Preferences</h3>
+            <div className="step-heading">
+              <span className="step-badge">2</span>
+              <div>
+                <h3>Tell Us What You&apos;re Dressing For</h3>
+                <p className="step-caption">We&apos;ll match outfit ideas to the occasion and your budget</p>
+              </div>
+            </div>
             
             <div className="preferences-grid">
               <div className="preference-group">
-                <label>OCCASION</label>
+                <label>Occasion</label>
                 <div className="button-group">
                   {['Casual', 'Business', 'Formal', 'Sporty', 'Evening'].map((occ) => (
                     <button
@@ -257,22 +245,26 @@ export default function StyleInterfacePage() {
               </div>
 
               <div className="preference-group">
-                <label>BUDGET</label>
+                <label>Budget</label>
                 <div className="button-group">
-                  {['£', '££', '£££'].map((bud) => (
+                  {[
+                    { value: '£', label: '£ High street' },
+                    { value: '££', label: '££ Mid-range' },
+                    { value: '£££', label: '£££ Premium' },
+                  ].map((bud) => (
                     <button
-                      key={bud}
-                      className={`preference-btn ${budget === bud ? 'active' : ''}`}
-                      onClick={() => setBudget(bud)}
+                      key={bud.value}
+                      className={`preference-btn ${budget === bud.value ? 'active' : ''}`}
+                      onClick={() => setBudget(bud.value)}
                     >
-                      {bud}
+                      {bud.label}
                     </button>
                   ))}
                 </div>
               </div>
 
               <div className="preference-group">
-                <label>GENDER</label>
+                <label>Shopping for</label>
                 <div className="button-group">
                   {['Women', 'Men', 'Unisex'].map((gen) => (
                     <button
@@ -285,10 +277,21 @@ export default function StyleInterfacePage() {
                   ))}
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
 
-              {/* RETAILERS preference group moved to Custom Shop Request Modal */}
-              {/* MOOD preference group removed */}
-              {/* WEATHER & LOCATION preference groups removed */}
+        {/* Step 3: Get recommendations */}
+        <div className="step-section">
+          <div className="preferences-card">
+            <div className="step-heading">
+              <span className="step-badge">3</span>
+              <div>
+                <h3>Get Your Style Guide</h3>
+                <p className="step-caption">
+                  Personalised for your {bodyShape || 'body'} shape, {colorPalette || 'colour'} season and {occasion.toLowerCase()} occasions
+                </p>
+              </div>
             </div>
 
             <button 
@@ -296,19 +299,20 @@ export default function StyleInterfacePage() {
               className="get-recommendations-btn"
               disabled={isLoading}
             >
-              {isLoading ? 'Processing...' : 'Get Recommendations'}
+              {isLoading ? 'Preparing your style guide…' : 'Get My Recommendations'}
             </button>
-            <button 
-              onClick={() => {
-                setShopResults(null);
-                setErrorMessage('');
-                console.log('🧹 Cleared shop results - ready for fresh recommendations');
-              }} 
-              className="clear-results-btn"
-              type="button"
-            >
-              Clear Results
-            </button>
+            {shopResults && !isLoading && (
+              <button 
+                onClick={() => {
+                  setShopResults(null);
+                  setErrorMessage('');
+                }} 
+                className="clear-results-btn"
+                type="button"
+              >
+                Clear Results
+              </button>
+            )}
           </div>
         </div>
 
@@ -317,7 +321,7 @@ export default function StyleInterfacePage() {
           <div className="loading-section">
             <div className="loading-card">
               <div className="loading-spinner"></div>
-              <h3>🛍️ Finding Your Perfect Style</h3>
+              <h3>Preparing Your Style Guide</h3>
               <p className="loading-step">{loadingStep}</p>
               <div className="loading-info">
                 <p><strong>What we&apos;re doing:</strong></p>
@@ -511,9 +515,8 @@ export default function StyleInterfacePage() {
             e.currentTarget.style.boxShadow = '0 4px 15px rgba(28, 26, 23, 0.15)';
           }}
         >
-          <span style={{ fontSize: '1.5rem' }}>👗</span>
           <span>Create Wardrobe Ideas & Outfit Combinations</span>
-          <span>→</span>
+          <span aria-hidden="true">→</span>
         </Link>
       </div>
 

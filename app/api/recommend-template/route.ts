@@ -104,10 +104,24 @@ export async function POST(request: NextRequest) {
     
     console.log('🔍 Parameters:', { occasion, palette, shape, budget });
     
+    // Map UI occasion labels to template occasion values
+    const OCCASION_MAP: Record<string, string[]> = {
+      'casual': ['Casual', 'Smart Casual'],
+      'business': ['Work', 'Smart Casual'],
+      'work': ['Work', 'Smart Casual'],
+      'formal': ['Formal'],
+      'evening': ['Formal', 'Date'],
+      'date': ['Date'],
+      'sporty': ['Active'],
+      'active': ['Active'],
+    };
+    
+    const wantedOccasions = OCCASION_MAP[occasion.toLowerCase()] || [occasion];
+    
     // Find templates that match the occasion
-    const matchingTemplates = templates.templates.filter(template => 
-      template.occasion.toLowerCase() === occasion.toLowerCase() ||
-      occasion.toLowerCase() === 'any'
+    const matchingTemplates = templates.templates.filter(template =>
+      occasion.toLowerCase() === 'any' ||
+      wantedOccasions.some(w => template.occasion.toLowerCase() === w.toLowerCase())
     );
     
     // If no specific match, provide all templates

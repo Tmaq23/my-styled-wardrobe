@@ -7,10 +7,17 @@ import { PaletteSwatches } from './PaletteSwatches';
 type Palette = 'Spring'|'Summer'|'Autumn'|'Winter';
 
 const defaultSwatches: Record<Palette, string[]> = {
-  Spring: ['#f7d6a1','#ffe9c9','#f6aa1c','#6cc551','#70c9e8','#f77aa1'],
-  Summer: ['#e5d4ff','#c8d4f0','#a3c1d1','#90b4c1','#f3b0c3','#9abf8f'],
-  Autumn: ['#f2c792','#e2a36b','#c27b48','#6c8a45','#8f5d3f','#3f5a5a'],
-  Winter: ['#f2f2f2','#c9d6ff','#3a86ff','#8338ec','#ff006e','#0b0c0e'],
+	Spring: ['#f7d6a1','#ffe9c9','#f6aa1c','#6cc551','#70c9e8','#f77aa1'],
+	Summer: ['#e5d4ff','#c8d4f0','#a3c1d1','#90b4c1','#f3b0c3','#9abf8f'],
+	Autumn: ['#f2c792','#e2a36b','#c27b48','#6c8a45','#8f5d3f','#3f5a5a'],
+	Winter: ['#f2f2f2','#c9d6ff','#3a86ff','#8338ec','#ff006e','#0b0c0e'],
+};
+
+const paletteDescriptions: Record<Palette, string> = {
+	Spring: 'Warm and bright — coral, peach, golden yellow and fresh greens',
+	Summer: 'Cool and soft — rose pink, lavender, powder blue and muted tones',
+	Autumn: 'Warm and rich — rust, olive, chocolate brown and spicy earth tones',
+	Winter: 'Cool and bold — jewel tones, true red, royal blue, black and pure white',
 };
 
 export default function ProfileCapture({
@@ -32,7 +39,6 @@ export default function ProfileCapture({
 	const [analysisLimit, setAnalysisLimit] = useState<number>(1);
 	const [loadingCount, setLoadingCount] = useState(true);
 	const [showUpgradePrompt, setShowUpgradePrompt] = useState(false);
-	const [debugInfo, setDebugInfo] = useState<string>('');
 	const bodyFileRef = useRef<HTMLInputElement>(null);
 	const faceFileRef = useRef<HTMLInputElement>(null);
 
@@ -63,7 +69,6 @@ export default function ProfileCapture({
 		
 		setBodyPreview(URL.createObjectURL(f));
 		setAnalysisComplete(false);
-		setDebugInfo('');
 		setErr(null);
 		
 		// Check if both images are uploaded before analyzing
@@ -81,7 +86,6 @@ export default function ProfileCapture({
 		
 		setFacePreview(URL.createObjectURL(f));
 		setAnalysisComplete(false);
-		setDebugInfo('');
 		setErr(null);
 		
 		// Check if both images are uploaded before analyzing
@@ -102,7 +106,6 @@ export default function ProfileCapture({
 		
 		setBusy(true); 
 		setErr(null);
-		setDebugInfo('');
 		
 		try {
 			// Convert both images to base64 for API
@@ -129,15 +132,6 @@ export default function ProfileCapture({
 
 			const result = await response.json();
 			
-			// Set debug information
-			const debug = `AI Analysis Results:
-Body Shape: ${result.bodyShape}
-Color Palette: ${result.colorPalette}
-Confidence: ${result.confidence}%
-Analysis: ${result.analysis}`;
-			
-			setDebugInfo(debug);
-			
 			// Update state with AI results
 			onPalette(result.colorPalette);
 			onShape(result.bodyShape);
@@ -150,8 +144,6 @@ Analysis: ${result.analysis}`;
 			if (onAiAnalysis) {
 				onAiAnalysis(result);
 			}
-			
-			console.log('AI analysis complete:', result);
 			
 		} catch (e:any) {
 			setErr(e.message || 'AI analysis failed');
@@ -178,224 +170,151 @@ Analysis: ${result.analysis}`;
 		});
 	}
 
+	const bothUploaded = Boolean(bodyPreview && facePreview);
+
 	return (
-		<div className="card section compact-section profile-analysis">
+		<div className="profile-analysis">
 			
-		{/* Free analysis usage indicator */}
-		{!loadingCount && analysisCount < analysisLimit && (
-			<div style={{
-				padding: '0.75rem 1rem',
-				background: 'rgba(76, 175, 80, 0.15)',
-				border: '1px solid rgba(76, 175, 80, 0.3)',
-				borderRadius: '8px',
-				marginBottom: '1.5rem',
-				textAlign: 'center',
-				fontSize: '0.9rem',
-				color: 'rgba(255, 255, 255, 0.9)'
-			}}>
-				🎉 <strong>Free Trial:</strong> You have {analysisLimit - analysisCount} complimentary AI {analysisLimit - analysisCount === 1 ? 'analysis' : 'analyses'} available
-			</div>
-		)}
-			
-			<div className="pa-upload-block">
-				<label style={{fontWeight: '600', marginBottom: '0.5rem', display: 'block'}}>1. Body Photo (in gym clothes)</label>
-				<input 
-					ref={bodyFileRef} 
-					className="input mt-1" 
-					type="file" 
-					accept="image/*" 
-					aria-label="Upload body picture in gym clothes"
-					title="Upload body picture in gym clothes"
-					onChange={onBodyFileChange}
-				/>
-				<div className="pa-hint">
-					Upload a full-body photo in fitted gym clothes for accurate body shape analysis
-				</div>
-			</div>
-
-			<div className="pa-upload-block" style={{marginTop: '1.5rem'}}>
-				<label style={{fontWeight: '600', marginBottom: '0.5rem', display: 'block'}}>2. Face Photo (no makeup)</label>
-				<input 
-					ref={faceFileRef} 
-					className="input mt-1" 
-					type="file" 
-					accept="image/*" 
-					aria-label="Upload face picture without makeup"
-					title="Upload face picture without makeup"
-					onChange={onFaceFileChange}
-				/>
-				<div className="pa-hint">
-					Upload a clear face photo without makeup for accurate colour palette analysis
-				</div>
-			</div>
-
-			<div className="pa-tip" style={{marginTop: '1rem'}}>
-				<span className="icon-inline small"><img src="/icons/bulb.svg" alt="Tip" width={18} height={18} /></span><strong>Tips:</strong> Use clear photos with good lighting. Body photo should show your full figure in fitted clothing. Face photo should be well-lit and makeup-free.
-			</div>
-
-			{(bodyPreview || facePreview) && (
-				<div className="pa-preview">
-					<label>Previews</label>
-					<div style={{display: 'flex', gap: '1rem', flexWrap: 'wrap'}}>
-						{bodyPreview && (
-							<div className="pa-preview-frame">
-								<img 
-									src={bodyPreview} 
-									alt="body preview" 
-									className="pa-preview-img" 
-									style={{maxWidth: '150px'}}
-								/>
-								<div style={{textAlign: 'center', fontSize: '0.875rem', marginTop: '0.5rem'}}>Body</div>
-							</div>
-						)}
-						{facePreview && (
-							<div className="pa-preview-frame">
-								<img 
-									src={facePreview} 
-									alt="face preview" 
-									className="pa-preview-img" 
-									style={{maxWidth: '150px'}}
-								/>
-								<div style={{textAlign: 'center', fontSize: '0.875rem', marginTop: '0.5rem'}}>Face</div>
-							</div>
-						)}
-					</div>
-					{/* AI Analysed badge hidden after completion */}
+			{/* Free analysis usage indicator */}
+			{!loadingCount && analysisCount < analysisLimit && (
+				<div className="pa-trial-banner">
+					<strong>Free trial:</strong>&nbsp;you have {analysisLimit - analysisCount} complimentary AI {analysisLimit - analysisCount === 1 ? 'analysis' : 'analyses'} remaining
 				</div>
 			)}
 
-			<div className="pa-actions">
-				<button 
-					className="button pa-reanalyze" 
-					disabled={!bodyFileRef.current?.files?.[0] || !faceFileRef.current?.files?.[0] || busy} 
-					onClick={() => { 
-						const bodyFile = bodyFileRef.current?.files?.[0]; 
-						const faceFile = faceFileRef.current?.files?.[0]; 
-						if (bodyFile && faceFile) analyzeWithAI(bodyFile, faceFile); 
-					}}
-				>
-					{busy ? 'AI Analysing...' : 'Re-analyse with AI'}
-				</button>
-				
-				{err && (
-					<div className="status error pa-inline-alert">
-						<span className="icon-inline small"><img src="/icons/x.svg" alt="Error" width={16} height={16} /></span>{err}
-						<button 
-							onClick={() => { 
-								const bodyFile = bodyFileRef.current?.files?.[0]; 
-								const faceFile = faceFileRef.current?.files?.[0]; 
-								if (bodyFile && faceFile) analyzeWithAI(bodyFile, faceFile); 
-							}}
-							className="pa-retry-btn"
-						>
-							Retry
+			<p className="pa-intro">
+				Upload two photos and our AI will identify your body shape and colour
+				season, then tailor every recommendation to you.
+			</p>
+
+			<div className="pa-upload-grid">
+				<div className={`pa-upload-tile ${bodyPreview ? 'has-file' : ''}`}>
+					<label htmlFor="pa-body-input" className="pa-upload-label">
+						{bodyPreview ? (
+							<img src={bodyPreview} alt="Full-body photo preview" className="pa-upload-preview" />
+						) : (
+							<span className="pa-upload-placeholder">
+								<span className="pa-upload-icon" aria-hidden="true">
+									<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 16V4m0 0-4 4m4-4 4 4"/><path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+								</span>
+								<span className="pa-upload-title">Full-body photo</span>
+								<span className="pa-upload-sub">Fitted clothing, full figure visible</span>
+								<span className="pa-upload-cta">Choose photo</span>
+							</span>
+						)}
+					</label>
+					{bodyPreview && <span className="pa-upload-check">✓ Full-body photo added — click to replace</span>}
+					<input 
+						id="pa-body-input"
+						ref={bodyFileRef} 
+						type="file" 
+						accept="image/*" 
+						aria-label="Upload full-body photo in fitted clothing"
+						onChange={onBodyFileChange}
+						className="pa-upload-input"
+					/>
+				</div>
+
+				<div className={`pa-upload-tile ${facePreview ? 'has-file' : ''}`}>
+					<label htmlFor="pa-face-input" className="pa-upload-label">
+						{facePreview ? (
+							<img src={facePreview} alt="Face photo preview" className="pa-upload-preview" />
+						) : (
+							<span className="pa-upload-placeholder">
+								<span className="pa-upload-icon" aria-hidden="true">
+									<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-3.3 3.6-6 8-6s8 2.7 8 6"/></svg>
+								</span>
+								<span className="pa-upload-title">Face photo</span>
+								<span className="pa-upload-sub">Natural light, no makeup</span>
+								<span className="pa-upload-cta">Choose photo</span>
+							</span>
+						)}
+					</label>
+					{facePreview && <span className="pa-upload-check">✓ Face photo added — click to replace</span>}
+					<input 
+						id="pa-face-input"
+						ref={faceFileRef} 
+						type="file" 
+						accept="image/*" 
+						aria-label="Upload face photo without makeup"
+						onChange={onFaceFileChange}
+						className="pa-upload-input"
+					/>
+				</div>
+			</div>
+
+			{/* Status area: guides the user through the flow */}
+			{!bothUploaded && !busy && (
+				<div className="pa-status">
+					{bodyPreview || facePreview
+						? 'One more photo to go — the analysis starts automatically once both are added.'
+						: 'Add both photos and the AI analysis will start automatically.'}
+				</div>
+			)}
+
+			{busy && (
+				<div className="pa-status pa-status-busy">
+					<span className="pa-spinner" aria-hidden="true"></span>
+					Analysing your photos… this takes a few seconds
+				</div>
+			)}
+
+			{err && (
+				<div className="pa-status pa-status-error">
+					{err}
+					<button 
+						onClick={() => { 
+							const bodyFile = bodyFileRef.current?.files?.[0]; 
+							const faceFile = faceFileRef.current?.files?.[0]; 
+							if (bodyFile && faceFile) analyzeWithAI(bodyFile, faceFile); 
+						}}
+						className="pa-retry-btn"
+					>
+						Retry
+					</button>
+				</div>
+			)}
+
+			{analysisComplete && !busy && (
+				<div className="pa-status pa-status-success">
+					✓ Analysis complete — you&apos;re a <strong>&nbsp;{shape}&nbsp;</strong> shape with a <strong>&nbsp;{palette}&nbsp;</strong> colour season
+				</div>
+			)}
+
+			{/* Upgrade prompt for users who have used their free analysis */}
+			{showUpgradePrompt && (
+				<div className="pa-upgrade-prompt">
+					<h3>Free analysis used</h3>
+					<p>
+						You&apos;ve already used your complimentary AI analysis.
+						Upgrade to unlock unlimited analyses and premium features.
+					</p>
+					<div className="pa-upgrade-actions">
+						<a href="/pricing" className="pa-upgrade-btn">View Pricing Plans</a>
+						<button onClick={() => setShowUpgradePrompt(false)} className="pa-upgrade-dismiss">
+							Maybe Later
 						</button>
 					</div>
-				)}
-				
-				{/* Upgrade prompt for users who have used their free analysis */}
-				{showUpgradePrompt && (
-					<div className="upgrade-prompt-inline" style={{
-						marginTop: '1rem',
-						padding: '1.5rem',
-						background: '#f4f0e9',
-						border: '2px solid rgba(28, 26, 23, 0.12)',
-						borderRadius: '12px',
-						textAlign: 'center'
-					}}>
-						<div style={{fontSize: '1.5rem', marginBottom: '0.5rem'}}>🎁</div>
-						<h3 style={{margin: '0 0 0.75rem 0', color: 'rgba(255, 255, 255, 0.95)', fontSize: '1.1rem'}}>
-							Free Analysis Used
-						</h3>
-						<p style={{margin: '0 0 1rem 0', color: 'rgba(255, 255, 255, 0.85)', fontSize: '0.95rem', lineHeight: '1.5'}}>
-							You&apos;ve already used your complimentary AI body shape and colour palette analysis. 
-							Upgrade to unlock unlimited AI analyses and premium features!
-						</p>
-						<div style={{display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap'}}>
-							<a 
-								href="/pricing" 
-								style={{
-									padding: '0.75rem 1.5rem',
-									background: '#1c1a17',
-									color: 'white',
-									textDecoration: 'none',
-									borderRadius: '8px',
-									fontWeight: '600',
-									fontSize: '0.95rem',
-									transition: 'all 0.3s',
-									display: 'inline-block'
-								}}
-								onMouseEnter={(e) => {
-									e.currentTarget.style.transform = 'translateY(-2px)';
-									e.currentTarget.style.boxShadow = '0 8px 20px rgba(28, 26, 23, 0.15)';
-								}}
-								onMouseLeave={(e) => {
-									e.currentTarget.style.transform = 'translateY(0)';
-									e.currentTarget.style.boxShadow = 'none';
-								}}
-							>
-								View Pricing Plans
-							</a>
-							<button 
-								onClick={() => setShowUpgradePrompt(false)}
-								style={{
-									padding: '0.75rem 1.5rem',
-									background: 'rgba(255, 255, 255, 0.1)',
-									color: 'rgba(255, 255, 255, 0.85)',
-									border: '1px solid rgba(255, 255, 255, 0.3)',
-									borderRadius: '8px',
-									fontWeight: '600',
-									fontSize: '0.95rem',
-									cursor: 'pointer',
-									transition: 'all 0.3s'
-								}}
-								onMouseEnter={(e) => {
-									e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)';
-								}}
-								onMouseLeave={(e) => {
-									e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
-								}}
-							>
-								Maybe Later
-							</button>
-						</div>
-						<div style={{marginTop: '1rem', fontSize: '0.85rem', color: 'rgba(255, 255, 255, 0.7)'}}>
-							✨ Unlimited AI analyses • Priority support • Advanced styling features
-						</div>
-					</div>
-				)}
-				
-				{/* AI analysis complete message hidden - results shown below */}
-			</div>
-
-				{analysisComplete && (
-					<div className="pa-results">
-					<div className="pa-results-heading">
-						AI Analysis Results:
-					</div>
-						<div className="pa-summary">
-						<span><strong>Palette:</strong> {palette}</span>
-						<span><strong>Body Shape:</strong> {shape}</span>
-					</div>
 				</div>
 			)}
 
-				{/* Colour Palette & Body Shape Section */}
-				<div className="pa-preferences">
-					<h4 className="pa-subtitle">
-					Based on this analysis, here is your colour palette and body shape details.
+			{/* Colour Palette & Body Shape Section */}
+			<div className="pa-preferences">
+				<h4 className="pa-subtitle">
+					{analysisComplete
+						? 'The AI has selected these for you — adjust them if you know your profile better.'
+						: 'Already know your profile? Select your colour season and body shape manually below.'}
 				</h4>
 				
-				{/* Palette and Body Shape Selection */}
-					<div className="pa-options-grid">
+				<div className="pa-options-grid">
 					<div>
-						<label>Colour Palette</label>
+						<label>Colour Season</label>
 						<div className="pa-option-buttons">
 							{(['Spring','Summer','Autumn','Winter'] as Palette[]).map(p => (
 								<button 
 									key={p} 
 									onClick={() => onPalette(p)} 
-									className={`button text-xs ${palette === p ? '' : 'secondary'}`}
+									className={`preference-btn ${palette === p ? 'active' : ''}`}
 								>
 									{p}
 								</button>
@@ -404,17 +323,18 @@ Analysis: ${result.analysis}`;
 						<div className="pa-swatches">
 							<PaletteSwatches colors={defaultSwatches[palette] || defaultSwatches['Winter']} />
 						</div>
+						<p className="pa-palette-note">{paletteDescriptions[palette] || paletteDescriptions['Winter']}</p>
 					</div>
 
 					<div>
 						<label>Body Shape</label>
 						<div className="pa-option-buttons">
-								{['Hourglass','Triangle','Inverted Triangle','Rectangle','Round'].map((s) => (
-									<button 
-										key={s} 
-										onClick={() => onShape(s as any)} 
-										className={`button text-xs ${shape === s ? '' : 'secondary'}`}
-									>
+							{['Hourglass','Triangle','Inverted Triangle','Rectangle','Round'].map((s) => (
+								<button 
+									key={s} 
+									onClick={() => onShape(s as any)} 
+									className={`preference-btn ${shape === s ? 'active' : ''}`}
+								>
 									{s}
 								</button>
 							))}
