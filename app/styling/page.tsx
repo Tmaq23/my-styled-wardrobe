@@ -19,7 +19,7 @@ export default function StylingPage() {
         <div className="container">
           <div className="section-header">
             <span className="section-kicker">What we offer</span>
-            <h2>Tailored styling support, powered by AI</h2>
+            <h2>Tailored styling support by AI, verified by real stylist</h2>
             <p>Every tool is designed to help you understand your shape, refine your palette, and build outfits that feel effortlessly you.</p>
           </div>
           <div className="services-grid">
