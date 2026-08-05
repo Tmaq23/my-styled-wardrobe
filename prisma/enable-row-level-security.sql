@@ -1,19 +1,42 @@
--- The application accesses these tables only through server-side Prisma queries.
--- Enabling RLS without policies prevents Supabase's anon and authenticated API
--- roles from reading or modifying application data. The database owner and
--- Supabase service role continue to bypass RLS for trusted server-side access.
+-- Fixes Supabase advisors:
+--   - rls_disabled_in_public
+--   - sensitive_columns_exposed
+--
+-- This app accesses Postgres only through server-side Prisma.
+-- Enabling RLS with no policies denies PostgREST access for the
+-- `anon` and `authenticated` roles. The `postgres` / service-role
+-- connections used by the server continue to work.
+--
+-- Also revoke table grants from API roles so sensitive columns are
+-- not reachable through the public Data API.
 
-ALTER TABLE IF EXISTS public.users ENABLE ROW LEVEL SECURITY;
-ALTER TABLE IF EXISTS public.accounts ENABLE ROW LEVEL SECURITY;
-ALTER TABLE IF EXISTS public.sessions ENABLE ROW LEVEL SECURITY;
-ALTER TABLE IF EXISTS public.verificationtokens ENABLE ROW LEVEL SECURITY;
-ALTER TABLE IF EXISTS public.user_subscriptions ENABLE ROW LEVEL SECURITY;
-ALTER TABLE IF EXISTS public.user_limits ENABLE ROW LEVEL SECURITY;
-ALTER TABLE IF EXISTS public.wardrobe_items ENABLE ROW LEVEL SECURITY;
-ALTER TABLE IF EXISTS public.outfits ENABLE ROW LEVEL SECURITY;
-ALTER TABLE IF EXISTS public.affiliate_clicks ENABLE ROW LEVEL SECURITY;
-ALTER TABLE IF EXISTS public.lookbooks ENABLE ROW LEVEL SECURITY;
-ALTER TABLE IF EXISTS public.blog_posts ENABLE ROW LEVEL SECURITY;
-ALTER TABLE IF EXISTS public.blog_comments ENABLE ROW LEVEL SECURITY;
-ALTER TABLE IF EXISTS public.analysis_verifications ENABLE ROW LEVEL SECURITY;
-ALTER TABLE IF EXISTS public.custom_shop_requests ENABLE ROW LEVEL SECURITY;
+DO $$
+DECLARE
+  table_name text;
+  app_tables text[] := ARRAY[
+    'users',
+    'accounts',
+    'sessions',
+    'verificationtokens',
+    'user_subscriptions',
+    'user_limits',
+    'wardrobe_items',
+    'outfits',
+    'affiliate_clicks',
+    'lookbooks',
+    'blog_posts',
+    'blog_comments',
+    'analysis_verifications',
+    'custom_shop_requests'
+  ];
+BEGIN
+  FOREACH table_name IN ARRAY app_tables
+  LOOP
+    IF to_regclass(format('public.%I', table_name)) IS NOT NULL THEN
+      EXECUTE format('ALTER TABLE public.%I ENABLE ROW LEVEL SECURITY', table_name);
+      EXECUTE format('REVOKE ALL ON TABLE public.%I FROM anon', table_name);
+      EXECUTE format('REVOKE ALL ON TABLE public.%I FROM authenticated', table_name);
+      EXECUTE format('REVOKE ALL ON TABLE public.%I FROM PUBLIC', table_name);
+    END IF;
+  END LOOP;
+END $$;
