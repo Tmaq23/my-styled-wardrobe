@@ -1,7 +1,10 @@
 import { PrismaClient } from '@prisma/client';
 
+import { ensureRowLevelSecurity } from '@/lib/ensureRls';
+
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
+  rlsEnsured?: boolean;
 };
 
 export const prisma = globalForPrisma.prisma ?? new PrismaClient({
@@ -13,13 +16,18 @@ export const prisma = globalForPrisma.prisma ?? new PrismaClient({
   },
 });
 
-// Ensure connection is established
 if (!globalForPrisma.prisma) {
-  prisma.$connect().catch((err) => {
-    console.error('Failed to connect to database:', err);
-});
-}
+  globalForPrisma.prisma = prisma;
 
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
+  prisma.$connect()
+    .then(async () => {
+      if (globalForPrisma.rlsEnsured) return;
+      await ensureRowLevelSecurity(prisma);
+      globalForPrisma.rlsEnsured = true;
+    })
+    .catch((err) => {
+      console.error('Failed to connect to database or enable RLS:', err);
+    });
+}
 
 export default prisma;
