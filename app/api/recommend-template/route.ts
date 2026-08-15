@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import templates from '@/data/outfit-templates.json';
+import { normalizeBodyShape } from '@/lib/bodyShapeAliases';
 
 // Body shape styling guidance
 const BODY_SHAPE_TIPS: Record<string, string[]> = {
@@ -102,6 +103,7 @@ export async function POST(request: NextRequest) {
       budget = body.budget || '££';
     }
     
+    shape = normalizeBodyShape(shape);
     console.log('🔍 Parameters:', { occasion, palette, shape, budget });
     
     // Map UI occasion labels to template occasion values

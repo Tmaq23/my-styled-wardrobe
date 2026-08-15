@@ -2,6 +2,7 @@ import { cookies } from 'next/headers';
 import type { NextRequest } from 'next/server';
 
 import prisma from '@/lib/prisma';
+import { ensureDemoUser, isDemoEmail, isDemoUser } from '@/lib/demoUser';
 import {
   SESSION_COOKIE_NAME,
   type SessionPayload,
@@ -59,6 +60,14 @@ export async function getSessionContext(req?: NextRequest): Promise<AuthContext 
     });
 
     if (!userRecord) {
+      if (isDemoUser(session.user) || isDemoEmail(session.user.email)) {
+        const demoUser = await ensureDemoUser();
+        return {
+          user: demoUser,
+          session,
+        };
+      }
+
       if (isAdminEmail(session.user.email)) {
         const adminEmail = session.user.email as string;
 

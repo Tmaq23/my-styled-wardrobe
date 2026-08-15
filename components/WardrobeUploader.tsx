@@ -39,7 +39,7 @@ export default function WardrobeUploader({ onChange }: { onChange: (files: File[
   // Fetch wardrobe generation count on mount
   const fetchWardrobeCount = async () => {
     try {
-      const response = await fetch('/api/user/wardrobe-count');
+      const response = await fetch('/api/user/wardrobe-count', { credentials: 'include', cache: 'no-store' });
       if (response.ok) {
         const data = await response.json();
         setWardrobeOutfitsGenerated(data.wardrobeOutfitsGenerated);

@@ -49,7 +49,7 @@ export default function ProfileCapture({
 
 	async function fetchAnalysisCount() {
 		try {
-			const response = await fetch('/api/user/analysis-count');
+			const response = await fetch('/api/user/analysis-count', { credentials: 'include', cache: 'no-store' });
 			const data = await response.json();
 			
 			if (data.success) {

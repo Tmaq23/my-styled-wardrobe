@@ -33,7 +33,7 @@ export default function StyleInterfacePage() {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const res = await fetch('/api/simple-auth/session');
+        const res = await fetch('/api/simple-auth/session', { credentials: 'include', cache: 'no-store' });
         const data = await res.json();
         if (!data.user) {
           router.push('/auth/signin?redirect=/style-interface');
@@ -388,7 +388,7 @@ export default function StyleInterfacePage() {
                           )}
                         </div>
                     <div className="product-tags">
-                      {product.tags.map((tag: any, tagIndex: any) => (
+                      {(product.tags || []).map((tag: any, tagIndex: any) => (
                         <span key={tagIndex} className="product-tag">{tag}</span>
                       ))}
                     </div>

@@ -5,6 +5,7 @@ import bcrypt from 'bcryptjs';
 import prisma from '@/lib/prisma';
 import { consumeRateLimit } from '@/lib/rateLimit';
 import { createSessionValue, writeSessionCookie } from '@/lib/session';
+import { DEMO_EMAIL, DEMO_NAME, DEMO_PASSWORD, ensureDemoUser } from '@/lib/demoUser';
 
 const WINDOW_MS = 60_000; // 1 minute
 const MAX_ATTEMPTS_PER_WINDOW = 5;
@@ -55,13 +56,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check for demo account first (no database lookup needed)
-    if (normalizedEmail === 'demo@mystyledwardrobe.com' && password === 'demo123') {
+    // Persist the advertised demo account so session-backed APIs can resolve it
+    if (normalizedEmail === DEMO_EMAIL && password === DEMO_PASSWORD) {
+      const demoUser = await ensureDemoUser();
       const cookieStore = await cookies();
       const sessionValue = createSessionValue({
-        id: 'demo-user-1',
-        email: 'demo@mystyledwardrobe.com',
-        name: 'Demo User',
+        id: demoUser.id,
+        email: demoUser.email,
+        name: demoUser.name ?? DEMO_NAME,
       });
 
       writeSessionCookie(cookieStore, sessionValue);
@@ -69,8 +71,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({
         success: true,
         user: {
-          email: 'demo@mystyledwardrobe.com',
-          name: 'Demo User',
+          email: demoUser.email,
+          name: demoUser.name ?? DEMO_NAME,
         },
       });
     }

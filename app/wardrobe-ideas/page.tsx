@@ -13,7 +13,7 @@ export default function WardrobeIdeasPage() {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const res = await fetch('/api/simple-auth/session');
+        const res = await fetch('/api/simple-auth/session', { credentials: 'include', cache: 'no-store' });
         const data = await res.json();
         if (!data.user) {
           router.push('/auth/signin?redirect=/wardrobe-ideas');

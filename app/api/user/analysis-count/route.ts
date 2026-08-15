@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 
 import prisma from '@/lib/prisma';
 import { getSessionContext } from '@/lib/apiAuth';
+import { isDemoUser } from '@/lib/demoUser';
 
 export async function GET() {
   try {
@@ -17,8 +18,7 @@ export async function GET() {
 
     const userId = context.user.id;
 
-    // Check if this is the demo user
-    if (userId === 'demo-user-1') {
+    if (isDemoUser(context.user)) {
       return NextResponse.json({
         success: true,
         analysisCount: 0, // Demo user always has unlimited analyses

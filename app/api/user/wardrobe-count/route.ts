@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import prisma from '@/lib/prisma';
 import { getSessionContext } from '@/lib/apiAuth';
+import { isDemoUser } from '@/lib/demoUser';
 
 export async function GET(req: NextRequest) {
   try {
@@ -16,8 +17,7 @@ export async function GET(req: NextRequest) {
 
     const userId = context.user.id;
 
-    // Check if user is demo user or admin
-    if (userId === 'demo-user-1') {
+    if (isDemoUser(context.user)) {
       return NextResponse.json({
         wardrobeOutfitsGenerated: 0,
         wardrobeOutfitsLimit: 999
