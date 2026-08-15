@@ -1,6 +1,6 @@
-// Subscription management and tier limits
-import { getServerSession } from 'next-auth';
-import { authOptions } from './auth';
+import prisma from '@/lib/prisma';
+import { getSessionContext } from '@/lib/apiAuth';
+import { isDemoUser } from '@/lib/demoUser';
 
 export type UserTier = 'free' | 'premium' | 'stylist_pro';
 
@@ -33,47 +33,78 @@ export const TIER_PRICING = {
   stylist_pro: { monthly: 19.99, yearly: 199.99 }
 };
 
-// Get user tier (with authentication check)
-export async function getUserTier(): Promise<{ tier: UserTier; userId: string | null; isAuthenticated: boolean }> {
-  const session = await getServerSession(authOptions);
-  
-  if (!session?.user?.id) {
-    return { tier: 'free', userId: null, isAuthenticated: false };
-  }
-  
-  // TODO: Query user's subscription tier from database
-  // For now, demo users get premium tier, others get free
-  const userTier: UserTier = session.user.email === 'demo@mystyledwardrobe.com' ? 'premium' : 'free';
-  
-  return { tier: userTier, userId: session.user.id, isAuthenticated: true };
+function resolveTier(subscription?: { tier?: string | null; stripeSubscriptionId?: string | null } | null): UserTier {
+  if (subscription?.tier === 'stylist_pro') return 'stylist_pro';
+  if (subscription?.tier === 'premium' && subscription.stripeSubscriptionId) return 'premium';
+  return 'free';
 }
 
-// Check if user can perform action
+export async function getUserTier(): Promise<{ tier: UserTier; userId: string | null; isAuthenticated: boolean }> {
+  const context = await getSessionContext();
+
+  if (!context) {
+    return { tier: 'free', userId: null, isAuthenticated: false };
+  }
+
+  if (isDemoUser(context.user)) {
+    return { tier: 'premium', userId: context.user.id, isAuthenticated: true };
+  }
+
+  const record = await prisma.user.findUnique({
+    where: { id: context.user.id },
+    select: {
+      subscription: {
+        select: {
+          tier: true,
+          stripeSubscriptionId: true,
+        },
+      },
+    },
+  });
+
+  return {
+    tier: resolveTier(record?.subscription),
+    userId: context.user.id,
+    isAuthenticated: true,
+  };
+}
+
 export async function checkUserLimits(action: 'upload_item' | 'generate_outfit'): Promise<{ allowed: boolean; tier: UserTier; reason?: string; isAuthenticated: boolean }> {
   const { tier: userTier, userId, isAuthenticated } = await getUserTier();
-  
-  // For unauthenticated users, allow limited access
-  if (!isAuthenticated) {
+
+  if (!isAuthenticated || !userId) {
     if (action === 'upload_item') {
       return { allowed: false, tier: userTier, reason: 'Please sign in to upload items to your wardrobe.', isAuthenticated };
     }
-    // Allow outfit generation for unauthenticated users but with limitations
     return { allowed: true, tier: userTier, isAuthenticated };
   }
-  
-  // TODO: Query user's current usage from database
-  const currentUsage = { items: 5, outfits: 8 }; // placeholder
-  
+
+  if (userTier === 'premium' || userTier === 'stylist_pro') {
+    return { allowed: true, tier: userTier, isAuthenticated };
+  }
+
   const limits = TIER_LIMITS[userTier];
-  
+  const usage = await prisma.userLimit.findUnique({
+    where: { userId },
+    select: {
+      itemsUploaded: true,
+      outfitsGenerated: true,
+    },
+  });
+
+  const currentUsage = {
+    items: usage?.itemsUploaded ?? 0,
+    outfits: usage?.outfitsGenerated ?? 0,
+  };
+
   if (action === 'upload_item' && limits.maxItems !== -1 && currentUsage.items >= limits.maxItems) {
     return { allowed: false, tier: userTier, reason: `${userTier} tier limited to ${limits.maxItems} items. Upgrade to Premium for 30 items.`, isAuthenticated };
   }
-  
+
   if (action === 'generate_outfit' && limits.maxOutfits !== -1 && currentUsage.outfits >= limits.maxOutfits) {
     return { allowed: false, tier: userTier, reason: `${userTier} tier limited to ${limits.maxOutfits} outfits. Upgrade for unlimited outfits.`, isAuthenticated };
   }
-  
+
   return { allowed: true, tier: userTier, isAuthenticated };
 }
 

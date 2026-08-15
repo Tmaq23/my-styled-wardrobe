@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import prisma from '@/lib/prisma';
 import { getSessionContext } from '@/lib/apiAuth';
+import { getAppBaseUrl } from '@/lib/appUrl';
 
 const STRIPE_SECRET_KEY = process.env['STRIPE_SECRET_KEY'];
 const CUSTOM_SHOP_AMOUNT = 120.0; // £120
@@ -90,7 +91,7 @@ export async function POST(request: NextRequest) {
     });
 
     // Create Stripe Checkout Session
-    const baseUrl = 'https://www.mystyledwardrobe.com';
+    const baseUrl = getAppBaseUrl(request);
     const successUrl = `${baseUrl}/custom-shop/success?session_id={CHECKOUT_SESSION_ID}`;
     const cancelUrl = `${baseUrl}/custom-shop/cancel`;
 

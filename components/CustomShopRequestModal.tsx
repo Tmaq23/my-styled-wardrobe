@@ -174,7 +174,7 @@ export default function CustomShopRequestModal({
                   Body Shape *
                 </label>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-                  {['Hourglass', 'Pear', 'Apple', 'Rectangle', 'Inverted Triangle'].map((shape) => (
+                  {['Hourglass', 'Triangle', 'Inverted Triangle', 'Rectangle', 'Round'].map((shape) => (
                     <button
                       key={shape}
                       type="button"

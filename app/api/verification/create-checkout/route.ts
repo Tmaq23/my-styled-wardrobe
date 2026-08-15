@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import prisma from '@/lib/prisma';
 import { getSessionContext } from '@/lib/apiAuth';
+import { getAppBaseUrl } from '@/lib/appUrl';
 
 const STRIPE_SECRET_KEY = process.env['STRIPE_SECRET_KEY'];
 const VERIFICATION_AMOUNT = 30.0;
@@ -82,8 +83,7 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Always use the production domain to avoid DNS issues
-    const baseUrl = 'https://www.mystyledwardrobe.com';
+    const baseUrl = getAppBaseUrl(request);
     
     console.log('Creating Stripe checkout with baseUrl:', baseUrl);
 

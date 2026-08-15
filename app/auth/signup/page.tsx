@@ -24,8 +24,8 @@ export default function SignUp() {
       return;
     }
 
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters long');
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters long');
       setIsLoading(false);
       return;
     }
@@ -36,6 +36,7 @@ export default function SignUp() {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({ email, password, name }),
       });
 

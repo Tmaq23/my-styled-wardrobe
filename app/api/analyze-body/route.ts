@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
 import prisma from '@/lib/prisma';
 import { getSessionContext } from '@/lib/apiAuth';
+import { isDemoUser } from '@/lib/demoUser';
 
 function hasValidOpenAiKey(): boolean {
   const apiKey = process.env['OPENAI_API_KEY'];
@@ -201,7 +202,7 @@ Respond with ONLY this JSON:
       if (context) {
         const userId = context.user.id;
 
-        if (userId && userId !== 'demo-user-1' && !context.user.isAdmin) {
+        if (userId && !isDemoUser(context.user) && !context.user.isAdmin) {
           const userLimit = await prisma.userLimit.findUnique({
             where: { userId },
           });

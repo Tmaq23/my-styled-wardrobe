@@ -1,7 +1,8 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { getAppBaseUrl } from '@/lib/appUrl';
 
-export async function GET() {
-  const baseUrl = 'https://www.mystyledwardrobe.com';
+export async function GET(request: NextRequest) {
+  const baseUrl = getAppBaseUrl(request);
   
   return NextResponse.json({
     baseUrl,

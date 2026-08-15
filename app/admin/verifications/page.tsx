@@ -51,12 +51,30 @@ export default function VerificationsAdminPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    fetchVerifications();
-  }, []);
+    const checkAdmin = async () => {
+      try {
+        const sessionRes = await fetch('/api/admin/check-session', {
+          credentials: 'include',
+          cache: 'no-store',
+        });
+        if (!sessionRes.ok) {
+          router.push('/admin');
+          return;
+        }
+        await fetchVerifications();
+      } catch (error) {
+        router.push('/admin');
+      }
+    };
+    checkAdmin();
+  }, [router]);
 
   const fetchVerifications = async () => {
     try {
-      const response = await fetch('/api/verification/list?admin=true');
+      const response = await fetch('/api/verification/list?admin=true', {
+        credentials: 'include',
+        cache: 'no-store',
+      });
       const data = await response.json();
       if (response.ok) {
         setVerifications(data.verifications || []);
@@ -86,6 +104,7 @@ export default function VerificationsAdminPage() {
       const response = await fetch('/api/verification/submit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({
           verificationId: selectedVerification.id,
           verifiedBodyShape: formData.verifiedBodyShape,

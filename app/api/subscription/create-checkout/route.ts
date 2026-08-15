@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { getSessionContext } from '@/lib/apiAuth';
+import { getAppBaseUrl } from '@/lib/appUrl';
 
 const STRIPE_SECRET_KEY = process.env['STRIPE_SECRET_KEY'];
 
@@ -44,7 +45,7 @@ export async function POST(request: NextRequest) {
     });
 
     // Create Stripe Checkout Session for subscription using REST API
-    const baseUrl = 'https://www.mystyledwardrobe.com';
+    const baseUrl = getAppBaseUrl(request);
     const successUrl = `${baseUrl}/subscription/success?session_id={CHECKOUT_SESSION_ID}`;
     const cancelUrl = `${baseUrl}/subscription/cancel`;
 
