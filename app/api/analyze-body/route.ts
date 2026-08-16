@@ -16,25 +16,36 @@ function hasValidOpenAiKey(): boolean {
 
 export async function POST(request: NextRequest) {
   try {
-    const { bodyImage, faceImage } = await request.json();
+    const { bodyImage, bodyImages, faceImage } = await request.json();
 
-    if (!bodyImage || !faceImage) {
+    // Accept one or more body photos (more angles give a better result)
+    const bodyImageList: string[] = (
+      Array.isArray(bodyImages) && bodyImages.length > 0
+        ? bodyImages
+        : bodyImage
+          ? [bodyImage]
+          : []
+    ).filter((img: unknown): img is string => typeof img === 'string' && img.length > 0).slice(0, 3);
+
+    if (bodyImageList.length === 0 || !faceImage) {
       return NextResponse.json({ error: 'Both body and face images are required' }, { status: 400 });
     }
 
-    // Basic image validation for body image
-    if (bodyImage.length < 1000) {
-      return NextResponse.json({ 
-        error: 'Body image too small', 
-        details: 'Please provide a higher quality body image for better analysis' 
-      }, { status: 400 });
-    }
+    // Basic image validation for body images
+    for (const img of bodyImageList) {
+      if (img.length < 1000) {
+        return NextResponse.json({ 
+          error: 'Body image too small', 
+          details: 'Please provide a higher quality body image for better analysis' 
+        }, { status: 400 });
+      }
 
-    if (bodyImage.length > 10000000) { // 10MB limit
-      return NextResponse.json({ 
-        error: 'Body image too large', 
-        details: 'Please provide a body image smaller than 10MB' 
-      }, { status: 400 });
+      if (img.length > 10000000) { // 10MB limit
+        return NextResponse.json({ 
+          error: 'Body image too large', 
+          details: 'Please provide a body image smaller than 10MB' 
+        }, { status: 400 });
+      }
     }
 
     // Basic image validation for face image
@@ -56,9 +67,9 @@ export async function POST(request: NextRequest) {
     let result;
     let usingFallback = false;
 
-    const prompt = `Analyze these two images:
-1. The BODY image (in gym clothes) - for body shape analysis
-2. The FACE image (no makeup) - for colour palette analysis
+    const prompt = `Analyze these images:
+1. The BODY image${bodyImageList.length > 1 ? `s (${bodyImageList.length} photos from different angles)` : ' (in gym clothes)'} - for body shape analysis
+2. The FACE image (no makeup, always the final image) - for colour palette analysis
 
 Classify:
 
@@ -98,7 +109,10 @@ Respond with ONLY this JSON:
               role: 'user',
               content: [
                 { type: 'text', text: prompt },
-                { type: 'image_url', image_url: { url: `data:image/jpeg;base64,${bodyImage}`, detail: 'high' } },
+                ...bodyImageList.map((img) => ({
+                  type: 'image_url' as const,
+                  image_url: { url: `data:image/jpeg;base64,${img}`, detail: 'high' as const },
+                })),
                 { type: 'image_url', image_url: { url: `data:image/jpeg;base64,${faceImage}`, detail: 'high' } },
               ]
             }
@@ -128,7 +142,7 @@ Respond with ONLY this JSON:
           body: JSON.stringify({
             model: 'llama3.2:3b',
             prompt: prompt,
-            images: [bodyImage, faceImage],
+            images: [...bodyImageList, faceImage],
             format: 'json',
             stream: false,
             options: {
@@ -164,13 +178,13 @@ Respond with ONLY this JSON:
     // 3) Statistical fallback so the flow never hard-fails
     if (!result) {
       usingFallback = true;
-      result = generateSmartFallbackAnalysis(bodyImage, faceImage);
+      result = generateSmartFallbackAnalysis(bodyImageList[0], faceImage);
     }
 
     // Validate the response structure
     if (!result.bodyShape || !result.colorPalette || !result.confidence || !result.analysis) {
       console.log('Invalid result structure, regenerating...');
-      result = generateSmartFallbackAnalysis(bodyImage, faceImage);
+      result = generateSmartFallbackAnalysis(bodyImageList[0], faceImage);
       usingFallback = true;
     }
 
@@ -244,7 +258,7 @@ Respond with ONLY this JSON:
     // Include image data URLs in the response for verification purposes
     const resultWithImages = {
       ...result,
-      bodyImageUrl: `data:image/jpeg;base64,${bodyImage}`,
+      bodyImageUrl: `data:image/jpeg;base64,${bodyImageList[0]}`,
       faceImageUrl: `data:image/jpeg;base64,${faceImage}`,
     };
     

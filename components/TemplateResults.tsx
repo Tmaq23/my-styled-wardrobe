@@ -467,8 +467,11 @@ export default function TemplateResults({
           textAlign: 'center'
         }}>
           <h3 style={{ margin: 0, fontSize: '1.5rem', fontWeight: '700' }}>
-            Fashion Inspiration for {stylingGuidance.bodyShape.type}
+            Suggested Items for Your Wardrobe
           </h3>
+          <p style={{ margin: '0.5rem 0 0', fontSize: '0.95rem', opacity: 0.85 }}>
+            Hand-picked pieces that flatter a {stylingGuidance.bodyShape.type} body shape
+          </p>
         </div>
         
         {/* Mood Board Grid */}
