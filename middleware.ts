@@ -40,6 +40,6 @@ export const config = {
      * - favicon.ico (favicon file)
      * - public folder
      */
-    "/((?!api|_next/static|_next/image|favicon.ico|icon.png|apple-icon.png|logo.png|public).*)",
+    "/((?!api|_next/static|_next/image|favicon.ico|icon.png|apple-icon.png|logo.png|logo-header.png|logo-dark.png|public).*)",
   ]
 }
