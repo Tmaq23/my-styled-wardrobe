@@ -82,13 +82,13 @@ export default function Header() {
       <div className="nav-container">
         <Link href="/" className="nav-brand" style={{ textDecoration: 'none', cursor: 'pointer' }}>
           <img 
-            src="/logo.png" 
+            src="/logo-header.png" 
             alt="My Styled Wardrobe Logo" 
             style={{ 
               height: '50px',
               width: 'auto',
               objectFit: 'contain',
-              borderRadius: '12px'
+              borderRadius: '8px'
             }} 
           />
           <div className="brand-name">My Styled Wardrobe</div>
