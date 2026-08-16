@@ -6,6 +6,8 @@ import { PaletteSwatches } from './PaletteSwatches';
 
 type Palette = 'Spring'|'Summer'|'Autumn'|'Winter';
 
+const MAX_BODY_PHOTOS = 3;
+
 const defaultSwatches: Record<Palette, string[]> = {
 	Spring: ['#f7d6a1','#ffe9c9','#f6aa1c','#6cc551','#70c9e8','#f77aa1'],
 	Summer: ['#e5d4ff','#c8d4f0','#a3c1d1','#90b4c1','#f3b0c3','#9abf8f'],
@@ -31,7 +33,8 @@ export default function ProfileCapture({
 	onAiAnalysis?: (analysis: any)=>void;
 }) {
 	const [busy, setBusy] = useState(false);
-	const [bodyPreview, setBodyPreview] = useState<string | null>(null);
+	const [bodyFiles, setBodyFiles] = useState<File[]>([]);
+	const [bodyPreviews, setBodyPreviews] = useState<string[]>([]);
 	const [facePreview, setFacePreview] = useState<string | null>(null);
 	const [err, setErr] = useState<string | null>(null);
 	const [analysisComplete, setAnalysisComplete] = useState(false);
@@ -39,6 +42,7 @@ export default function ProfileCapture({
 	const [analysisLimit, setAnalysisLimit] = useState<number>(1);
 	const [loadingCount, setLoadingCount] = useState(true);
 	const [showUpgradePrompt, setShowUpgradePrompt] = useState(false);
+	const [showManualSelection, setShowManualSelection] = useState(false);
 	const bodyFileRef = useRef<HTMLInputElement>(null);
 	const faceFileRef = useRef<HTMLInputElement>(null);
 
@@ -63,21 +67,32 @@ export default function ProfileCapture({
 		}
 	}
 
-	async function onBodyFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-		const f = e.target.files?.[0];
-		if (!f) return;
-		
-		setBodyPreview(URL.createObjectURL(f));
+	async function onBodyFilesChange(e: React.ChangeEvent<HTMLInputElement>) {
+		const selected = Array.from(e.target.files || []);
+		if (!selected.length) return;
+
+		const combined = [...bodyFiles, ...selected].slice(0, MAX_BODY_PHOTOS);
+		setBodyFiles(combined);
+		setBodyPreviews(combined.map(f => URL.createObjectURL(f)));
 		setAnalysisComplete(false);
 		setErr(null);
-		
-		// Check if both images are uploaded before analyzing
+
+		// Allow re-selecting the same file later
+		e.target.value = '';
+
 		const faceFile = faceFileRef.current?.files?.[0];
 		if (faceFile) {
 			setTimeout(() => {
-				analyzeWithAI(f, faceFile);
+				analyzeWithAI(combined, faceFile);
 			}, 100);
 		}
+	}
+
+	function removeBodyPhoto(index: number) {
+		const remaining = bodyFiles.filter((_, i) => i !== index);
+		setBodyFiles(remaining);
+		setBodyPreviews(remaining.map(f => URL.createObjectURL(f)));
+		setAnalysisComplete(false);
 	}
 
 	async function onFaceFileChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -88,16 +103,14 @@ export default function ProfileCapture({
 		setAnalysisComplete(false);
 		setErr(null);
 		
-		// Check if both images are uploaded before analyzing
-		const bodyFile = bodyFileRef.current?.files?.[0];
-		if (bodyFile) {
+		if (bodyFiles.length > 0) {
 			setTimeout(() => {
-				analyzeWithAI(bodyFile, f);
+				analyzeWithAI(bodyFiles, f);
 			}, 100);
 		}
 	}
 
-	async function analyzeWithAI(bodyFile: File, faceFile: File) {
+	async function analyzeWithAI(bodyPhotoFiles: File[], faceFile: File) {
 		// Check if user has exceeded free analysis limit
 		if (analysisCount >= analysisLimit) {
 			setShowUpgradePrompt(true);
@@ -108,26 +121,36 @@ export default function ProfileCapture({
 		setErr(null);
 		
 		try {
-			// Convert both images to base64 for API
-			const bodyImageBase64 = await fileToBase64(bodyFile);
-			const faceImageBase64 = await fileToBase64(faceFile);
+			// Compress photos client-side so the request stays under
+			// serverless body-size limits (large phone photos caused failures)
+			const bodyImagesBase64 = await Promise.all(bodyPhotoFiles.map(f => fileToCompressedBase64(f)));
+			const faceImageBase64 = await fileToCompressedBase64(faceFile);
 			
-			// Call our AI analysis API with both images
 			const response = await fetch('/api/analyze-body', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
 				},
+				credentials: 'include',
 				body: JSON.stringify({
-					bodyImage: bodyImageBase64,
+					bodyImages: bodyImagesBase64,
+					bodyImage: bodyImagesBase64[0],
 					faceImage: faceImageBase64,
-					bodyFilename: bodyFile.name,
+					bodyFilename: bodyPhotoFiles[0]?.name,
 					faceFilename: faceFile.name
 				})
 			});
 
 			if (!response.ok) {
-				throw new Error(`Analysis failed: ${response.statusText}`);
+				if (response.status === 413) {
+					throw new Error('Your photos are too large to upload. Please try smaller photos.');
+				}
+				let serverError = '';
+				try {
+					const data = await response.json();
+					serverError = data?.details || data?.error || '';
+				} catch {}
+				throw new Error(serverError || `Analysis failed: ${response.statusText}`);
 			}
 
 			const result = await response.json();
@@ -152,6 +175,51 @@ export default function ProfileCapture({
 		}
 	}
 
+	// Downscale and re-encode a photo, then return raw base64 (no data: prefix).
+	// Keeps uploads small enough for serverless request limits.
+	function fileToCompressedBase64(file: File, maxDimension = 1280, quality = 0.82): Promise<string> {
+		return new Promise((resolve, reject) => {
+			const objectUrl = URL.createObjectURL(file);
+			const img = new Image();
+
+			img.onload = () => {
+				URL.revokeObjectURL(objectUrl);
+				try {
+					const scale = Math.min(1, maxDimension / Math.max(img.width, img.height));
+					const width = Math.max(1, Math.round(img.width * scale));
+					const height = Math.max(1, Math.round(img.height * scale));
+
+					const canvas = document.createElement('canvas');
+					canvas.width = width;
+					canvas.height = height;
+					const ctx = canvas.getContext('2d');
+					if (!ctx) {
+						fileToBase64(file).then(resolve, reject);
+						return;
+					}
+					ctx.drawImage(img, 0, 0, width, height);
+					const dataUrl = canvas.toDataURL('image/jpeg', quality);
+					const base64 = dataUrl.split(',')[1] || '';
+					if (!base64) {
+						fileToBase64(file).then(resolve, reject);
+						return;
+					}
+					resolve(base64);
+				} catch {
+					fileToBase64(file).then(resolve, reject);
+				}
+			};
+
+			img.onerror = () => {
+				URL.revokeObjectURL(objectUrl);
+				// Not a decodable image (e.g. HEIC in some browsers) — send as-is
+				fileToBase64(file).then(resolve, reject);
+			};
+
+			img.src = objectUrl;
+		});
+	}
+
 	// Helper function to convert file to base64
 	function fileToBase64(file: File): Promise<string> {
 		return new Promise((resolve, reject) => {
@@ -170,7 +238,8 @@ export default function ProfileCapture({
 		});
 	}
 
-	const bothUploaded = Boolean(bodyPreview && facePreview);
+	const bothUploaded = Boolean(bodyPreviews.length && facePreview);
+	const manualVisible = showManualSelection || analysisComplete;
 
 	return (
 		<div className="profile-analysis">
@@ -183,34 +252,59 @@ export default function ProfileCapture({
 			)}
 
 			<p className="pa-intro">
-				Upload two photos and our AI will identify your body shape and colour
-				season, then tailor every recommendation to you.
+				Upload your photos and our AI will identify your body shape and colour
+				season, then tailor every recommendation to you. Add up to {MAX_BODY_PHOTOS} body
+				photos from different angles for a more accurate result.
 			</p>
 
 			<div className="pa-upload-grid">
-				<div className={`pa-upload-tile ${bodyPreview ? 'has-file' : ''}`}>
+				<div className={`pa-upload-tile ${bodyPreviews.length ? 'has-file' : ''}`}>
 					<label htmlFor="pa-body-input" className="pa-upload-label">
-						{bodyPreview ? (
-							<img src={bodyPreview} alt="Full-body photo preview" className="pa-upload-preview" />
+						{bodyPreviews.length ? (
+							<span style={{ display: 'grid', gridTemplateColumns: bodyPreviews.length > 1 ? '1fr 1fr' : '1fr', gap: '0.4rem', width: '100%' }}>
+								{bodyPreviews.map((src, i) => (
+									<img key={i} src={src} alt={`Full-body photo ${i + 1} preview`} className="pa-upload-preview" style={{ maxHeight: bodyPreviews.length > 1 ? '130px' : undefined, objectFit: 'cover' }} />
+								))}
+							</span>
 						) : (
 							<span className="pa-upload-placeholder">
 								<span className="pa-upload-icon" aria-hidden="true">
 									<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 16V4m0 0-4 4m4-4 4 4"/><path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
 								</span>
-								<span className="pa-upload-title">Full-body photo</span>
-								<span className="pa-upload-sub">Fitted clothing, full figure visible</span>
-								<span className="pa-upload-cta">Choose photo</span>
+								<span className="pa-upload-title">Full-body photos</span>
+								<span className="pa-upload-sub">Fitted clothing, full figure visible — up to {MAX_BODY_PHOTOS} angles</span>
+								<span className="pa-upload-cta">Choose photos</span>
 							</span>
 						)}
 					</label>
-					{bodyPreview && <span className="pa-upload-check">✓ Full-body photo added — click to replace</span>}
+					{bodyPreviews.length > 0 && (
+						<span className="pa-upload-check">
+							✓ {bodyPreviews.length} of {MAX_BODY_PHOTOS} body {bodyPreviews.length === 1 ? 'photo' : 'photos'} added
+							{bodyPreviews.length < MAX_BODY_PHOTOS ? ' — click to add another angle' : ''}
+						</span>
+					)}
+					{bodyPreviews.length > 0 && (
+						<span style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', marginTop: '0.35rem' }}>
+							{bodyPreviews.map((_, i) => (
+								<button
+									key={i}
+									type="button"
+									onClick={(e) => { e.preventDefault(); removeBodyPhoto(i); }}
+									style={{ background: 'none', border: 'none', color: '#8a8378', fontSize: '0.75rem', cursor: 'pointer', textDecoration: 'underline' }}
+								>
+									Remove photo {i + 1}
+								</button>
+							))}
+						</span>
+					)}
 					<input 
 						id="pa-body-input"
 						ref={bodyFileRef} 
 						type="file" 
 						accept="image/*" 
-						aria-label="Upload full-body photo in fitted clothing"
-						onChange={onBodyFileChange}
+						multiple
+						aria-label="Upload full-body photos in fitted clothing (up to 3)"
+						onChange={onBodyFilesChange}
 						className="pa-upload-input"
 					/>
 				</div>
@@ -246,7 +340,7 @@ export default function ProfileCapture({
 			{/* Status area: guides the user through the flow */}
 			{!bothUploaded && !busy && (
 				<div className="pa-status">
-					{bodyPreview || facePreview
+					{bodyPreviews.length || facePreview
 						? 'One more photo to go — the analysis starts automatically once both are added.'
 						: 'Add both photos and the AI analysis will start automatically.'}
 				</div>
@@ -264,9 +358,8 @@ export default function ProfileCapture({
 					{err}
 					<button 
 						onClick={() => { 
-							const bodyFile = bodyFileRef.current?.files?.[0]; 
 							const faceFile = faceFileRef.current?.files?.[0]; 
-							if (bodyFile && faceFile) analyzeWithAI(bodyFile, faceFile); 
+							if (bodyFiles.length && faceFile) analyzeWithAI(bodyFiles, faceFile); 
 						}}
 						className="pa-retry-btn"
 					>
@@ -300,47 +393,68 @@ export default function ProfileCapture({
 
 			{/* Colour Palette & Body Shape Section */}
 			<div className="pa-preferences">
-				<h4 className="pa-subtitle">
-					{analysisComplete
-						? 'The AI has selected these for you — adjust them if you know your profile better.'
-						: 'Already know your profile? Select your colour season and body shape manually below.'}
-				</h4>
-				
-				<div className="pa-options-grid">
-					<div>
-						<label>Colour Season</label>
-						<div className="pa-option-buttons">
-							{(['Spring','Summer','Autumn','Winter'] as Palette[]).map(p => (
-								<button 
-									key={p} 
-									onClick={() => onPalette(p)} 
-									className={`preference-btn ${palette === p ? 'active' : ''}`}
-								>
-									{p}
-								</button>
-							))}
-						</div>
-						<div className="pa-swatches">
-							<PaletteSwatches colors={defaultSwatches[palette] || defaultSwatches['Winter']} />
-						</div>
-						<p className="pa-palette-note">{paletteDescriptions[palette] || paletteDescriptions['Winter']}</p>
-					</div>
+				{!manualVisible ? (
+					<button
+						type="button"
+						onClick={() => setShowManualSelection(true)}
+						style={{
+							background: 'none',
+							border: 'none',
+							padding: 0,
+							font: 'inherit',
+							color: '#1c1a17',
+							cursor: 'pointer',
+							textDecoration: 'underline',
+							fontSize: '1rem',
+						}}
+					>
+						Already know your profile? Click here to select your colour season and body shape.
+					</button>
+				) : (
+					<>
+						<h4 className="pa-subtitle">
+							{analysisComplete
+								? 'The AI has selected these for you — adjust them if you know your profile better.'
+								: 'Select your colour season and body shape below.'}
+						</h4>
+						
+						<div className="pa-options-grid">
+							<div>
+								<label>Colour Season</label>
+								<div className="pa-option-buttons">
+									{(['Spring','Summer','Autumn','Winter'] as Palette[]).map(p => (
+										<button 
+											key={p} 
+											onClick={() => onPalette(p)} 
+											className={`preference-btn ${palette === p ? 'active' : ''}`}
+										>
+											{p}
+										</button>
+									))}
+								</div>
+								<div className="pa-swatches">
+									<PaletteSwatches colors={defaultSwatches[palette] || defaultSwatches['Winter']} />
+								</div>
+								<p className="pa-palette-note">{paletteDescriptions[palette] || paletteDescriptions['Winter']}</p>
+							</div>
 
-					<div>
-						<label>Body Shape</label>
-						<div className="pa-option-buttons">
-							{['Hourglass','Triangle','Inverted Triangle','Rectangle','Round'].map((s) => (
-								<button 
-									key={s} 
-									onClick={() => onShape(s as any)} 
-									className={`preference-btn ${shape === s ? 'active' : ''}`}
-								>
-									{s}
-								</button>
-							))}
+							<div>
+								<label>Body Shape</label>
+								<div className="pa-option-buttons">
+									{['Hourglass','Triangle','Inverted Triangle','Rectangle','Round'].map((s) => (
+										<button 
+											key={s} 
+											onClick={() => onShape(s as any)} 
+											className={`preference-btn ${shape === s ? 'active' : ''}`}
+										>
+											{s}
+										</button>
+									))}
+								</div>
+							</div>
 						</div>
-					</div>
-				</div>
+					</>
+				)}
 			</div>
 		</div>
 	);

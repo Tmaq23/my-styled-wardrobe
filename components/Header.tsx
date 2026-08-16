@@ -82,7 +82,7 @@ export default function Header() {
       <div className="nav-container">
         <Link href="/" className="nav-brand" style={{ textDecoration: 'none', cursor: 'pointer' }}>
           <img 
-            src="/logo.svg" 
+            src="/logo.png" 
             alt="My Styled Wardrobe Logo" 
             style={{ 
               height: '50px',

@@ -17,9 +17,9 @@ function SubscriptionMessage() {
         maxWidth: '800px',
         margin: '2rem auto 0',
         padding: '1.5rem',
-        background: 'rgba(255, 255, 255, 0.1)',
-        border: '1px solid rgba(255, 255, 255, 0.25)',
-        borderRadius: '4px',
+        background: '#1c1a17',
+        border: '1px solid #1c1a17',
+        borderRadius: '8px',
         textAlign: 'center',
       }}>
         <p style={{
@@ -28,6 +28,13 @@ function SubscriptionMessage() {
           margin: 0,
         }}>
           🔒 <strong>Subscription Required:</strong> Subscribe to access our exclusive style blog with unlimited content!
+        </p>
+        <p style={{
+          fontSize: '0.95rem',
+          color: 'rgba(255, 255, 255, 0.85)',
+          margin: '0.5rem 0 0',
+        }}>
+          Choose the <strong>Subscribe</strong> plan below (£5.99/month) to unlock the blog.
         </p>
       </div>
     );

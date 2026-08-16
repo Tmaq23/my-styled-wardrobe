@@ -24,13 +24,13 @@ export default function StylingPage() {
           </div>
           <div className="services-grid">
             <div className="service-card">
-              <div className="service-icon"><Image src="/icons/target.svg" alt="Target icon" width={48} height={48} /></div>
+              <div className="service-icon"><Image src="/icons/camera.svg" alt="Camera icon" width={48} height={48} /></div>
               <h3>Body Shape Analysis</h3>
               <p>Discover your unique body proportions and learn how to dress to flatter your figure</p>
             </div>
             
             <div className="service-card">
-              <div className="service-icon"><Image src="/icons/palette.svg" alt="Color palette icon" width={48} height={48} /></div>
+              <div className="service-icon"><Image src="/icons/sparkles.svg" alt="Sparkles icon" width={48} height={48} /></div>
               <h3>Color Palette Discovery</h3>
               <p>Find your perfect color season and learn which hues make you glow</p>
             </div>
