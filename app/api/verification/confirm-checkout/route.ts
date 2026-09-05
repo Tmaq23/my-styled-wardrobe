@@ -1,22 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 import prisma from '@/lib/prisma';
-import { getSessionContext } from '@/lib/apiAuth';
 import { sendVerificationRequestToAdmin, sendVerificationConfirmationToCustomer } from '@/lib/email';
 
 const STRIPE_SECRET_KEY = process.env['STRIPE_SECRET_KEY'];
 
 export async function GET(request: NextRequest) {
   try {
-    const context = await getSessionContext(request);
-
-    if (!context) {
-      return NextResponse.json(
-        { error: 'Authentication required' },
-        { status: 401 }
-      );
-    }
-
+    // A paid Stripe Checkout session is the proof of ownership here. The
+    // customer's cookie may be missing after the Stripe redirect, so we must
+    // not depend on it or the paid request would never be marked as paid.
     const { searchParams } = new URL(request.url);
     const sessionId = searchParams.get('session_id');
 
@@ -64,14 +57,30 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    const existing = await prisma.analysisVerification.findUnique({
+      where: { id: verificationId },
+      select: { id: true, paymentStatus: true },
+    });
+
+    if (!existing) {
+      return NextResponse.json(
+        { error: 'Verification request not found' },
+        { status: 404 }
+      );
+    }
+
+    const alreadyPaid = existing.paymentStatus === 'paid';
+
     // Update verification status
     const verification = await prisma.analysisVerification.update({
       where: { id: verificationId },
-      data: {
-        paymentStatus: 'paid',
-        status: 'in_review',
-        stripePaymentIntentId: session.payment_intent || null,
-      },
+      data: alreadyPaid
+        ? { stripePaymentIntentId: session.payment_intent || undefined }
+        : {
+            paymentStatus: 'paid',
+            status: 'in_review',
+            stripePaymentIntentId: session.payment_intent || null,
+          },
       select: {
         id: true,
         bodyShape: true,
@@ -94,6 +103,15 @@ export async function GET(request: NextRequest) {
     const imageUrls: string[] = [];
     if (verification.bodyImageUrl) imageUrls.push(verification.bodyImageUrl);
     if (verification.faceImageUrl) imageUrls.push(verification.faceImageUrl);
+
+    if (alreadyPaid) {
+      return NextResponse.json({
+        success: true,
+        verification,
+        alreadyConfirmed: true,
+        message: 'Payment already confirmed. Your analysis is in review.',
+      });
+    }
 
     console.log('📧 Sending emails with', imageUrls.length, 'images');
 

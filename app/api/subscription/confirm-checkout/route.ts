@@ -72,6 +72,13 @@ export async function GET(request: NextRequest) {
 
     console.log('Updating database for user:', userId);
 
+    const existingSubscription = await prisma.userSubscription.findUnique({
+      where: { userId },
+      select: { stripeSubscriptionId: true },
+    });
+    const alreadyConfirmed =
+      Boolean(subscriptionId) && existingSubscription?.stripeSubscriptionId === subscriptionId;
+
     // Update user subscription in database and get user info for emails
     const updatedSubscription = await prisma.userSubscription.upsert({
       where: { userId },
@@ -104,6 +111,14 @@ export async function GET(request: NextRequest) {
       subscriptionId,
       sessionId,
     });
+
+    if (alreadyConfirmed) {
+      return NextResponse.json({
+        success: true,
+        alreadyConfirmed: true,
+        message: 'Subscription already active',
+      });
+    }
 
     // Send emails asynchronously (don't block the response)
     Promise.all([

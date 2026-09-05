@@ -229,7 +229,7 @@ export default function SubscriptionSuccessPage() {
         justifyContent: 'center',
         background: '#1c1a17',
       }}>
-        <div style={{ color: '#1c1a17', fontSize: '1.5rem' }}>Loading...</div>
+        <div style={{ color: 'white', fontSize: '1.5rem' }}>Loading...</div>
       </div>
     }>
       <SuccessContent />
