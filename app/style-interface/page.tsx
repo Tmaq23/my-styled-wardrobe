@@ -27,7 +27,74 @@ export default function StyleInterfacePage() {
   const [retailers, setRetailers] = useState(['ASOS']);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [paymentSuccessMessage, setPaymentSuccessMessage] = useState('');
+  const [savedProfile, setSavedProfile] = useState<{ bodyShape: string | null; colorPalette: string | null } | null>(null);
+  const [profileLoaded, setProfileLoaded] = useState(false);
+  const [profileSaveState, setProfileSaveState] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+  const [showSavedProfileBanner, setShowSavedProfileBanner] = useState(false);
   // mood selection removed
+
+  // Load the user's saved style profile so returning users can skip step 1
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    let cancelled = false;
+    const loadProfile = async () => {
+      try {
+        const res = await fetch('/api/user/profile', { credentials: 'include', cache: 'no-store' });
+        const data = await res.json().catch(() => ({}));
+        if (cancelled) return;
+
+        if (res.ok && data.profile) {
+          const saved = {
+            bodyShape: data.profile.bodyShape ?? null,
+            colorPalette: data.profile.colorPalette ?? null,
+          };
+          setSavedProfile(saved);
+
+          if (saved.bodyShape && saved.colorPalette) {
+            setBodyShape((current) => current || saved.bodyShape || '');
+            setColorPalette((current) => current || saved.colorPalette || '');
+            setShowSavedProfileBanner(true);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to load saved style profile:', error);
+      } finally {
+        if (!cancelled) setProfileLoaded(true);
+      }
+    };
+
+    loadProfile();
+    return () => {
+      cancelled = true;
+    };
+  }, [isAuthenticated]);
+
+  // Persist the profile whenever both values are known and differ from what is saved
+  useEffect(() => {
+    if (!profileLoaded || !bodyShape || !colorPalette) return;
+    if (savedProfile?.bodyShape === bodyShape && savedProfile?.colorPalette === colorPalette) return;
+
+    const timer = setTimeout(async () => {
+      setProfileSaveState('saving');
+      try {
+        const res = await fetch('/api/user/profile', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ bodyShape, colorPalette }),
+        });
+        if (!res.ok) throw new Error(`Save failed (${res.status})`);
+        setSavedProfile({ bodyShape, colorPalette });
+        setProfileSaveState('saved');
+      } catch (error) {
+        console.error('Failed to save style profile:', error);
+        setProfileSaveState('error');
+      }
+    }, 800);
+
+    return () => clearTimeout(timer);
+  }, [bodyShape, colorPalette, profileLoaded, savedProfile]);
 
   // Check authentication on mount
   useEffect(() => {
@@ -193,6 +260,46 @@ export default function StyleInterfacePage() {
                 <p className="step-caption">Let the AI analyse your body shape and colour season, or select them yourself</p>
               </div>
             </div>
+
+            {showSavedProfileBanner && savedProfile?.bodyShape && savedProfile?.colorPalette && (
+              <div
+                role="status"
+                style={{
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  gap: '0.75rem',
+                  marginBottom: '1.25rem',
+                  padding: '0.9rem 1.1rem',
+                  background: '#f4efe6',
+                  border: '1px solid #e5dfd4',
+                  borderRadius: '6px',
+                  color: '#1c1a17',
+                }}
+              >
+                <div style={{ lineHeight: 1.5 }}>
+                  <strong>Welcome back.</strong> We&apos;ve loaded your saved profile:{' '}
+                  <strong>{bodyShape}</strong> shape · <strong>{colorPalette}</strong> season.
+                  You can skip straight to step 2, or re-run the analysis below.
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowSavedProfileBanner(false)}
+                  style={{
+                    background: 'transparent',
+                    border: '1px solid rgba(28, 26, 23, 0.3)',
+                    borderRadius: '4px',
+                    padding: '0.35rem 0.75rem',
+                    color: '#1c1a17',
+                    cursor: 'pointer',
+                    fontSize: '0.85rem',
+                  }}
+                >
+                  Dismiss
+                </button>
+              </div>
+            )}
             
             <ProfileCapture 
               palette={colorPalette as 'Spring'|'Summer'|'Autumn'|'Winter'}
@@ -290,6 +397,8 @@ export default function StyleInterfacePage() {
                 <h3>Get Your Style Guide</h3>
                 <p className="step-caption">
                   Personalised for your {bodyShape || 'body'} shape, {colorPalette || 'colour'} season and {occasion.toLowerCase()} occasions
+                  {profileSaveState === 'saved' && ' · profile saved to your account'}
+                  {profileSaveState === 'saving' && ' · saving profile…'}
                 </p>
               </div>
             </div>

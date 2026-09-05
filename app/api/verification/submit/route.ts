@@ -84,6 +84,14 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    // Stylist-verified results become the customer's saved profile
+    await prisma.user.update({
+      where: { id: verification.userId },
+      data: { bodyShape: verifiedBodyShape, colorPalette: verifiedColorPalette },
+    }).catch((error) => {
+      console.error('Failed to persist verified profile to user (non-blocking):', error);
+    });
+
     // Send completion notification to customer (non-blocking)
     sendVerificationCompleteToCustomer({
       customerEmail: updatedVerification.user.email || 'Unknown',
