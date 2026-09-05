@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { verifyAdminAccess } from '@/lib/apiAuth';
+import { sendCustomShopCompleteToCustomer } from '@/lib/email';
 
 export async function POST(request: NextRequest) {
   // Verify admin access
@@ -13,7 +14,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const { requestId, status, estimatedDelivery } = await request.json();
+    const { requestId, status, estimatedDelivery, message } = await request.json();
 
     if (!requestId || !status) {
       return NextResponse.json(
@@ -47,6 +48,15 @@ export async function POST(request: NextRequest) {
       updateData.estimatedDelivery = estimatedDelivery;
     }
 
+    const previous = await prisma.customShopRequest.findUnique({
+      where: { id: requestId },
+      select: { status: true },
+    });
+
+    if (!previous) {
+      return NextResponse.json({ error: 'Custom shop request not found' }, { status: 404 });
+    }
+
     const updatedRequest = await prisma.customShopRequest.update({
       where: { id: requestId },
       data: updateData,
@@ -63,9 +73,23 @@ export async function POST(request: NextRequest) {
 
     console.log('✅ Custom shop request status updated:', {
       requestId,
-      oldStatus: status,
+      oldStatus: previous.status,
       newStatus: updatedRequest.status,
     });
+
+    // Tell the customer once, when the request first becomes completed.
+    if (status === 'completed' && previous.status !== 'completed') {
+      const customerEmail = updatedRequest.user?.email || updatedRequest.userEmail;
+      if (customerEmail) {
+        sendCustomShopCompleteToCustomer({
+          customerEmail,
+          customerName: updatedRequest.user?.name || updatedRequest.userName,
+          occasion: updatedRequest.occasion,
+          requestId: updatedRequest.id,
+          message: typeof message === 'string' && message.trim() ? message.trim().slice(0, 2000) : undefined,
+        }).catch((err) => console.error('Custom shop completion email error (non-blocking):', err));
+      }
+    }
 
     return NextResponse.json({
       success: true,
