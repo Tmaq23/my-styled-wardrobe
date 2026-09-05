@@ -318,11 +318,11 @@ export default function PricingPage() {
             </div>
             <div className="faq-item">
               <h3>Is there a free trial?</h3>
-              <p>Yes, all plans start with a 7-day free trial to experience our services.</p>
+              <p>Yes. Every account includes one complimentary AI style analysis and one wardrobe outfit generation, no card required. Subscribe when you want unlimited access.</p>
             </div>
             <div className="faq-item">
               <h3>What payment methods do you accept?</h3>
-              <p>We accept all major credit cards, PayPal, and Apple Pay.</p>
+              <p>Payments are processed securely by Stripe. We accept all major credit and debit cards, and you can cancel anytime.</p>
             </div>
           </div>
         </div>
@@ -334,7 +334,7 @@ export default function PricingPage() {
           <h2>Ready to Start Your Style Journey?</h2>
           <p>Join thousands of people who have discovered their perfect style</p>
           <Link href="/auth/signup" className="cta-button">
-            Start Free Trial
+            Start with a Free Analysis
           </Link>
         </div>
       </div>

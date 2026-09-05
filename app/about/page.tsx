@@ -55,7 +55,7 @@ export default function AboutPage() {
         <div className="container">
           <h2>Ready to Start Your Style Journey?</h2>
           <p>Join thousands of people who have discovered their perfect style</p>
-          <Link href="/" className="cta-button">
+          <Link href="/style-interface" className="cta-button">
             Get Started
           </Link>
         </div>

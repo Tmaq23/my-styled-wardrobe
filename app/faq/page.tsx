@@ -98,11 +98,11 @@ export default function FAQPage() {
           <div className="contact-methods">
             <div className="contact-method">
               <h3>📧 Email Support</h3>
-              <p>support@mystyledwardrobe.com</p>
+              <p><a href="mailto:info@mystyledwardrobe.com">info@mystyledwardrobe.com</a></p>
             </div>
             <div className="contact-method">
-              <h3>💬 Live Chat</h3>
-              <p>Available during business hours</p>
+              <h3>💬 Contact Form</h3>
+              <p><Link href="/contact">Send us a message</Link> and we&apos;ll reply within one business day</p>
             </div>
             <div className="contact-method">
               <h3>📱 Social Media</h3>
