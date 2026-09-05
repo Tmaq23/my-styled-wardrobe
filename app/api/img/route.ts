@@ -13,7 +13,7 @@ export async function GET(req: Request) {
   // Basic allowlist to prevent open proxy abuse
   const allowedHosts = [
     "images.asos-media.com",
-    "lp2.hm.com",
+    "hm.com", // lp.hm.com, lp2.hm.com, image.hm.com
     "static.zara.net",
     "images.topshop.com",
     "images.riverisland.com",
@@ -21,13 +21,24 @@ export async function GET(req: Request) {
     "images.marksandspencer.com",
     "oaidalleapiprodscus.blob.core.windows.net", // OpenAI DALL-E images
     "picsum.photos", // Fallback placeholder images
+    "images.unsplash.com", // Editorial fallbacks used by /api/recommend
+    "cdn.styled-wardrobe.com",
+    "supabase.co", // Blog images in Supabase Storage
     // add more as needed
   ];
 
   try {
     const url = new URL(src);
-    
-    if (!allowedHosts.some(h => url.hostname.endsWith(h))) {
+
+    if (url.protocol !== "https:") {
+      return new NextResponse("Only https sources are allowed", { status: 400 });
+    }
+
+    const hostAllowed = allowedHosts.some(
+      (h) => url.hostname === h || url.hostname.endsWith(`.${h}`)
+    );
+
+    if (!hostAllowed) {
       return new NextResponse("Host not allowed", { status: 403 });
     }
 

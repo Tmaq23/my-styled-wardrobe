@@ -1,22 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 import prisma from '@/lib/prisma';
-import { getSessionContext } from '@/lib/apiAuth';
 import { sendCustomShopRequestToAdmin, sendCustomShopConfirmationToCustomer } from '@/lib/email';
 
 const STRIPE_SECRET_KEY = process.env['STRIPE_SECRET_KEY'];
 
 export async function GET(request: NextRequest) {
   try {
-    const context = await getSessionContext(request);
-
-    if (!context) {
-      return NextResponse.json(
-        { error: 'Authentication required' },
-        { status: 401 }
-      );
-    }
-
+    // A paid Stripe Checkout session is the proof of ownership here. The
+    // customer's cookie may be missing after the Stripe redirect, so we must
+    // not depend on it or the paid request would never be marked as paid.
     const { searchParams } = new URL(request.url);
     const sessionId = searchParams.get('session_id');
 
@@ -64,14 +57,30 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    const existing = await prisma.customShopRequest.findUnique({
+      where: { id: customShopRequestId },
+      select: { id: true, paymentStatus: true },
+    });
+
+    if (!existing) {
+      return NextResponse.json(
+        { error: 'Custom shop request not found' },
+        { status: 404 }
+      );
+    }
+
+    const alreadyPaid = existing.paymentStatus === 'paid';
+
     // Update custom shop request status
     const customShopRequest = await prisma.customShopRequest.update({
       where: { id: customShopRequestId },
-      data: {
-        paymentStatus: 'paid',
-        status: 'in_progress',
-        stripePaymentIntentId: session.payment_intent || null,
-      },
+      data: alreadyPaid
+        ? { stripePaymentIntentId: session.payment_intent || undefined }
+        : {
+            paymentStatus: 'paid',
+            status: 'in_progress',
+            stripePaymentIntentId: session.payment_intent || null,
+          },
       include: {
         user: {
           select: {
@@ -88,6 +97,15 @@ export async function GET(request: NextRequest) {
       userEmail: customShopRequest.userEmail,
       amount: customShopRequest.amount,
     });
+
+    if (alreadyPaid) {
+      return NextResponse.json({
+        success: true,
+        customShopRequest,
+        alreadyConfirmed: true,
+        message: 'Payment already confirmed. Your custom shop request is being processed.',
+      });
+    }
 
     // Send confirmation emails asynchronously
     Promise.all([

@@ -2,17 +2,17 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import prisma from '@/lib/prisma';
 import { verifyAdminAccess } from '@/lib/apiAuth';
+import { buildPreview, getBlogAccess } from '@/lib/blogAccess';
 
 // GET all published blog posts (or all if admin)
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const includeUnpublished = searchParams.get('includeUnpublished') === 'true';
-    const access = await verifyAdminAccess(req);
-    const isAdmin = access.status === 'ok';
+    const access = await getBlogAccess(req);
 
     const posts = await prisma.blogPost.findMany({
-      where: (includeUnpublished && isAdmin) ? {} : { published: true },
+      where: (includeUnpublished && access.isAdmin) ? {} : { published: true },
       include: {
         author: {
           select: {
@@ -31,8 +31,20 @@ export async function GET(req: NextRequest) {
         publishedAt: 'desc'
       }
     });
-    
-    return NextResponse.json({ posts });
+
+    if (access.canRead) {
+      return NextResponse.json({ posts });
+    }
+
+    // Non-subscribers only get teasers; the full article body stays server-side.
+    const previews = posts.map(({ content, ...post }) => ({
+      ...post,
+      content: '',
+      excerpt: buildPreview(content, post.excerpt),
+      locked: true,
+    }));
+
+    return NextResponse.json({ posts: previews, locked: true });
   } catch (error) {
     console.error('Error fetching blog posts:', error);
     return NextResponse.json({ error: 'Failed to fetch posts' }, { status: 500 });

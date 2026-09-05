@@ -2,7 +2,8 @@ import { cookies } from 'next/headers';
 import type { NextRequest } from 'next/server';
 
 import prisma from '@/lib/prisma';
-import { ensureDemoUser, isDemoEmail, isDemoUser } from '@/lib/demoUser';
+import { isDatabaseUnavailableError } from '@/lib/dbHealth';
+import { DEMO_FALLBACK_USER, ensureDemoUser, isDemoEmail, isDemoUser } from '@/lib/demoUser';
 import {
   SESSION_COOKIE_NAME,
   type SessionPayload,
@@ -49,15 +50,24 @@ export async function getSessionContext(req?: NextRequest): Promise<AuthContext 
       return null;
     }
 
-    const userRecord = await prisma.user.findUnique({
-      where: { id: session.user.id },
-      select: {
-        id: true,
-        email: true,
-        name: true,
-        isAdmin: true,
-      },
-    });
+    let userRecord: AuthenticatedUser | null;
+    try {
+      userRecord = await prisma.user.findUnique({
+        where: { id: session.user.id },
+        select: {
+          id: true,
+          email: true,
+          name: true,
+          isAdmin: true,
+        },
+      });
+    } catch (error) {
+      // Keep the demo account usable while the database is unreachable.
+      if (isDatabaseUnavailableError(error) && (isDemoUser(session.user) || isDemoEmail(session.user.email))) {
+        return { user: { ...DEMO_FALLBACK_USER }, session };
+      }
+      throw error;
+    }
 
     if (!userRecord) {
       if (isDemoUser(session.user) || isDemoEmail(session.user.email)) {

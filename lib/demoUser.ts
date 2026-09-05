@@ -7,6 +7,17 @@ export const DEMO_PASSWORD = 'demo123';
 export const DEMO_NAME = 'Demo User';
 export const LEGACY_DEMO_USER_ID = 'demo-user-1';
 
+/**
+ * In-memory stand-in used when the database is unreachable so the demo
+ * account can still be shown around the site.
+ */
+export const DEMO_FALLBACK_USER = {
+  id: LEGACY_DEMO_USER_ID,
+  email: DEMO_EMAIL,
+  name: DEMO_NAME,
+  isAdmin: false,
+} as const;
+
 export function isDemoEmail(email?: string | null): boolean {
   return (email || '').toLowerCase() === DEMO_EMAIL;
 }

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { verifyAdminAccess } from '@/lib/apiAuth';
+import { buildPreview, getBlogAccess } from '@/lib/blogAccess';
 
 // GET a single blog post by slug
 export async function GET(
@@ -9,6 +10,7 @@ export async function GET(
 ) {
   try {
     const { slug } = await params;
+    const access = await getBlogAccess(req);
     
     const post = await prisma.blogPost.findUnique({
       where: { slug },
@@ -37,8 +39,28 @@ export async function GET(
       }
     });
     
-    if (!post) {
+    // Drafts are only visible to admins.
+    if (!post || (!post.published && !access.isAdmin)) {
       return NextResponse.json({ error: 'Post not found' }, { status: 404 });
+    }
+
+    if (!access.canRead) {
+      const { content, comments, ...rest } = post;
+      return NextResponse.json(
+        {
+          post: {
+            ...rest,
+            content: '',
+            excerpt: buildPreview(content, rest.excerpt),
+            comments: [],
+            commentCount: comments.length,
+            locked: true,
+          },
+          locked: true,
+          error: 'Subscription required to read this article',
+        },
+        { status: 403 }
+      );
     }
     
     // Increment view count

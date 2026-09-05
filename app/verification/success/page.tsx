@@ -9,26 +9,34 @@ function VerificationSuccessContent() {
   const router = useRouter();
   const [verification, setVerification] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     const sessionId = searchParams.get('session_id');
     if (sessionId) {
       confirmVerification(sessionId);
     } else {
+      setError('We could not find your payment session. If you were charged, please contact us and we will sort it out.');
       setIsLoading(false);
     }
   }, [searchParams]);
 
   const confirmVerification = async (sessionId: string) => {
     try {
-      const response = await fetch(`/api/verification/confirm-checkout?session_id=${sessionId}`);
-      const data = await response.json();
+      const response = await fetch(
+        `/api/verification/confirm-checkout?session_id=${encodeURIComponent(sessionId)}`,
+        { credentials: 'include', cache: 'no-store' }
+      );
+      const data = await response.json().catch(() => ({}));
 
       if (response.ok && data.success) {
         setVerification(data.verification);
+      } else {
+        setError(data.error || 'We could not confirm your payment yet.');
       }
-    } catch (error) {
-      console.error('Error confirming verification:', error);
+    } catch (err) {
+      console.error('Error confirming verification:', err);
+      setError('We could not reach the server to confirm your payment.');
     } finally {
       setIsLoading(false);
     }
@@ -46,6 +54,73 @@ function VerificationSuccessContent() {
         <div style={{ textAlign: 'center', color: '#1c1a17' }}>
           <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>⏳</div>
           <p style={{ fontSize: '1.2rem' }}>Processing your payment...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="home-page" style={{
+        minHeight: '100vh',
+        paddingTop: '140px',
+        paddingBottom: '2rem',
+        paddingLeft: '1rem',
+        paddingRight: '1rem'
+      }}>
+        <div style={{
+          maxWidth: '600px',
+          margin: '0 auto',
+          padding: '2.5rem 2rem',
+          background: 'rgba(255, 255, 255, 0.95)',
+          borderRadius: '16px',
+          border: '1px solid rgba(0, 0, 0, 0.1)',
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+          textAlign: 'center',
+        }}>
+          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>⚠️</div>
+          <h1 style={{ margin: '0 0 0.75rem 0', fontSize: '1.75rem', fontWeight: 700, color: '#1a1a1a' }}>
+            We couldn&apos;t confirm your payment yet
+          </h1>
+          <p style={{ color: '#374151', lineHeight: 1.7, margin: '0 0 1.5rem 0' }}>{error}</p>
+          <p style={{ color: '#6b7280', fontSize: '0.95rem', lineHeight: 1.7, margin: '0 0 1.5rem 0' }}>
+            If your card was charged, your request is safe: email{' '}
+            <a href="mailto:info@mystyledwardrobe.com" style={{ color: '#1c1a17', fontWeight: 600 }}>
+              info@mystyledwardrobe.com
+            </a>{' '}
+            with the email address you used and we will confirm it manually.
+          </p>
+          <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <button
+              type="button"
+              onClick={() => window.location.reload()}
+              style={{
+                padding: '0.85rem 1.75rem',
+                background: '#1c1a17',
+                color: 'white',
+                border: 'none',
+                borderRadius: '10px',
+                fontWeight: 600,
+                cursor: 'pointer',
+              }}
+            >
+              Try again
+            </button>
+            <Link
+              href="/style-interface"
+              style={{
+                padding: '0.85rem 1.75rem',
+                background: 'transparent',
+                color: '#1c1a17',
+                border: '1px solid rgba(28, 26, 23, 0.3)',
+                borderRadius: '10px',
+                fontWeight: 600,
+                textDecoration: 'none',
+              }}
+            >
+              Back to Style Interface
+            </Link>
+          </div>
         </div>
       </div>
     );
@@ -74,7 +149,10 @@ function VerificationSuccessContent() {
             Payment Successful!
           </h1>
           <p style={{ margin: 0, opacity: 0.95, fontSize: '1.1rem', lineHeight: '1.6' }}>
-            Your verification request has been submitted. A qualified stylist will review your analysis.
+            Your verification request has been submitted. A qualified stylist will review your analysis
+            {verification?.bodyShape && verification?.colorPalette
+              ? ` (${verification.bodyShape} · ${verification.colorPalette}).`
+              : '.'}
           </p>
         </div>
 
@@ -124,7 +202,7 @@ function VerificationSuccessContent() {
         }}>
           <p style={{ 
             margin: 0, 
-            color: 'white',
+            color: '#1c1a17',
             fontSize: '0.95rem',
             lineHeight: '1.6'
           }}>

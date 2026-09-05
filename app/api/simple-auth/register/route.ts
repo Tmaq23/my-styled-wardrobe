@@ -6,6 +6,7 @@ import prisma from '@/lib/prisma';
 import { consumeRateLimit } from '@/lib/rateLimit';
 import { createSessionValue, writeSessionCookie } from '@/lib/session';
 import { sendNewSignupAlert, sendWelcomeEmail } from '@/lib/email';
+import { DATABASE_UNAVAILABLE_MESSAGE, isDatabaseUnavailableError } from '@/lib/dbHealth';
 
 const WINDOW_MS = 15 * 60 * 1000; // 15 minutes
 const MAX_ATTEMPTS_PER_WINDOW = 10;
@@ -155,6 +156,14 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error('Registration error:', error);
+
+    if (isDatabaseUnavailableError(error)) {
+      return NextResponse.json(
+        { success: false, error: DATABASE_UNAVAILABLE_MESSAGE, code: 'database_unavailable' },
+        { status: 503 }
+      );
+    }
+
     return NextResponse.json(
       { success: false, error: 'Registration failed' },
       { status: 500 }

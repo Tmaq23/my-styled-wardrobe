@@ -43,21 +43,3 @@ export async function generateAffiliateLink(productUrl: string): Promise<Affilia
     return { originalUrl: productUrl, affiliateUrl: productUrl };
   }
 }
-
-export async function trackAffiliateClick(userId: string, productUrl: string, affiliateUrl: string) {
-  try {
-    // Log click for analytics
-    await fetch('/api/affiliate/track-click', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        userId,
-        productUrl,
-        affiliateUrl,
-        timestamp: new Date().toISOString()
-      })
-    });
-  } catch (error) {
-    console.error('Failed to track affiliate click:', error);
-  }
-}

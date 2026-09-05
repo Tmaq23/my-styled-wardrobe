@@ -700,6 +700,79 @@ export async function sendCustomShopConfirmationToCustomer({
 }
 
 /**
+ * Notify the customer that their custom shop has been completed by a stylist.
+ */
+export async function sendCustomShopCompleteToCustomer({
+  customerEmail,
+  customerName,
+  occasion,
+  requestId,
+  message,
+}: {
+  customerEmail: string;
+  customerName?: string;
+  occasion: string;
+  requestId: string;
+  message?: string;
+}) {
+  try {
+    const emailResult = await resend.emails.send({
+      from: FROM_EMAIL,
+      to: customerEmail,
+      subject: '🛍️ Your Custom Shop is Ready! - MyStyled Wardrobe',
+      html: `
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          </head>
+          <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9fafb;">
+            <div style="background: linear-gradient(135deg, #1c1a17 0%, #3d3934 100%); padding: 30px; border-radius: 16px 16px 0 0; text-align: center;">
+              <h1 style="color: white; margin: 0; font-size: 26px;">🛍️ Your Custom Shop is Ready</h1>
+            </div>
+
+            <div style="background: white; padding: 30px; border-radius: 0 0 16px 16px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+              <p style="font-size: 16px; color: #374151; margin-top: 0;">Hi ${customerName || 'there'},</p>
+              <p style="font-size: 16px; color: #374151;">
+                Our stylist has finished curating your personalised shop for <strong>${occasion}</strong>.
+                Your hand-picked selection, with direct purchase links, is on its way to this inbox from our styling team.
+              </p>
+
+              ${message ? `
+              <div style="background: #f0fdf4; border-left: 4px solid #10b981; padding: 15px; margin: 20px 0; border-radius: 4px;">
+                <h3 style="margin-top: 0; color: #065f46;">A note from your stylist</h3>
+                <p style="margin: 0; color: #047857; line-height: 1.8;">${message}</p>
+              </div>
+              ` : ''}
+
+              <p style="font-size: 14px; color: #6b7280;">
+                Request ID: <span style="font-family: monospace;">${requestId}</span>
+              </p>
+
+              <div style="text-align: center; margin-top: 30px;">
+                <a href="https://www.mystyledwardrobe.com/style-interface" style="display: inline-block; padding: 14px 32px; background: #1c1a17; color: white; text-decoration: none; border-radius: 8px; font-weight: 600;">Back to Your Style Interface →</a>
+              </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 20px; color: #9ca3af; font-size: 14px;">
+              <p>Questions? Reply to this email or contact <a href="mailto:info@mystyledwardrobe.com" style="color: #1c1a17; text-decoration: none;">info@mystyledwardrobe.com</a></p>
+              <p style="margin-top: 10px;">MyStyled Wardrobe</p>
+            </div>
+          </body>
+        </html>
+      `,
+    });
+
+    console.log('✅ Custom shop completion email sent to customer. Email ID:', emailResult.data?.id);
+    return { success: true, emailId: emailResult.data?.id };
+  } catch (error) {
+    console.error('❌ Failed to send custom shop completion email to customer:', error);
+    return { success: false, error };
+  }
+}
+
+/**
  * Send subscription notification to admin
  */
 export async function sendSubscriptionNotificationToAdmin({

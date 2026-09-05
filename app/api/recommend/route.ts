@@ -1,10 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generateAffiliateLink } from '../../../lib/affiliate';
-import OpenAI from 'openai';
-
-const openai = new OpenAI({
-  apiKey: process.env['OPENAI_API_KEY'],
-});
+import { getOpenAIClient } from '@/lib/openai';
 
 // Type definitions for better type safety
 type BodyShape = 'Pear' | 'Hourglass' | 'Rectangle' | 'Triangle' | 'Inverted Triangle' | 'Round';
@@ -451,7 +447,7 @@ async function generateAIProductImage(type: string, color: string, style: string
 
     console.log(`🤖 DALL-E prompt: ${prompt}`);
 
-    const response = await openai.images.generate({
+    const response = await getOpenAIClient().images.generate({
       model: "dall-e-3",
       prompt: prompt,
       n: 1,
@@ -908,7 +904,7 @@ Respond with ONLY this JSON format:
   "overallAdvice": "General styling advice for this client profile"
 }`;
 
-    const response = await openai.chat.completions.create({
+    const response = await getOpenAIClient().chat.completions.create({
       model: "gpt-4-turbo",
       messages: [
         {
