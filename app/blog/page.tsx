@@ -30,6 +30,7 @@ export default function BlogPage() {
   const [user, setUser] = useState<any>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [checkingAuth, setCheckingAuth] = useState(true);
+  const [loadError, setLoadError] = useState('');
 
   useEffect(() => {
     checkAuth();
@@ -82,11 +83,16 @@ export default function BlogPage() {
 
   const fetchPosts = async () => {
     try {
-      const response = await fetch('/api/blog/posts');
-      const data = await response.json();
+      const response = await fetch('/api/blog/posts', { credentials: 'include', cache: 'no-store' });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to load posts');
+      }
       setPosts(data.posts || []);
+      setLoadError('');
     } catch (error) {
       console.error('Error fetching posts:', error);
+      setLoadError('We couldn\'t load the blog right now. Please try again in a moment.');
     } finally {
       setLoading(false);
     }
@@ -171,6 +177,37 @@ export default function BlogPage() {
         {loading ? (
           <div style={{ textAlign: 'center', padding: '4rem 0' }}>
             <p style={{ fontSize: '1.1rem', color: '#6b655d' }}>Loading posts...</p>
+          </div>
+        ) : loadError ? (
+          <div style={{
+            textAlign: 'center',
+            padding: '4rem 2rem',
+            background: '#ffffff',
+            borderRadius: '4px',
+            border: '1px solid #e5dfd4',
+            boxShadow: '0 2px 8px rgba(28,26,23,0.07)'
+          }}>
+            <p style={{ fontSize: '1.2rem', color: '#1c1a17', marginBottom: '1rem' }}>
+              Something went wrong
+            </p>
+            <p style={{ fontSize: '0.95rem', color: '#9a9389', marginBottom: '1.5rem' }}>
+              {loadError}
+            </p>
+            <button
+              type="button"
+              onClick={() => { setLoading(true); fetchPosts(); }}
+              style={{
+                padding: '0.75rem 1.5rem',
+                background: '#1c1a17',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                fontWeight: 600,
+                cursor: 'pointer'
+              }}
+            >
+              Retry
+            </button>
           </div>
         ) : posts.length === 0 ? (
           <div style={{

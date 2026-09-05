@@ -5,7 +5,14 @@ import bcrypt from 'bcryptjs';
 import prisma from '@/lib/prisma';
 import { consumeRateLimit } from '@/lib/rateLimit';
 import { createSessionValue, writeSessionCookie } from '@/lib/session';
-import { DEMO_EMAIL, DEMO_NAME, DEMO_PASSWORD, ensureDemoUser } from '@/lib/demoUser';
+import { DATABASE_UNAVAILABLE_MESSAGE, isDatabaseUnavailableError } from '@/lib/dbHealth';
+import {
+  DEMO_EMAIL,
+  DEMO_FALLBACK_USER,
+  DEMO_NAME,
+  DEMO_PASSWORD,
+  ensureDemoUser,
+} from '@/lib/demoUser';
 
 const WINDOW_MS = 60_000; // 1 minute
 const MAX_ATTEMPTS_PER_WINDOW = 5;
@@ -56,9 +63,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Persist the advertised demo account so session-backed APIs can resolve it
+    // Persist the advertised demo account so session-backed APIs can resolve it.
+    // If the database is down, still issue a stateless demo session so the
+    // site can be demonstrated.
     if (normalizedEmail === DEMO_EMAIL && password === DEMO_PASSWORD) {
-      const demoUser = await ensureDemoUser();
+      let demoUser: { id: string; email: string | null; name: string | null };
+      try {
+        demoUser = await ensureDemoUser();
+      } catch (error) {
+        if (!isDatabaseUnavailableError(error)) throw error;
+        console.error('Database unavailable during demo login; using stateless demo session');
+        demoUser = DEMO_FALLBACK_USER;
+      }
       const cookieStore = await cookies();
       const sessionValue = createSessionValue({
         id: demoUser.id,
@@ -125,6 +141,14 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('Login error:', error);
+
+    if (isDatabaseUnavailableError(error)) {
+      return NextResponse.json(
+        { success: false, error: DATABASE_UNAVAILABLE_MESSAGE, code: 'database_unavailable' },
+        { status: 503 }
+      );
+    }
+
     return NextResponse.json(
       { success: false, error: 'Login failed' },
       { status: 500 }

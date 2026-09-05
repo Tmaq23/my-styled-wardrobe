@@ -1,9 +1,6 @@
 import { NextRequest } from 'next/server';
-import OpenAI from 'openai';
 
-const openai = new OpenAI({
-  apiKey: process.env['OPENAI_API_KEY'],
-});
+import { getOpenAIClient } from '@/lib/openai';
 
 export const runtime = 'nodejs';
 
@@ -39,7 +36,7 @@ export async function POST(req: NextRequest) {
     const buffer = Buffer.from(bytes);
     const base64 = buffer.toString('base64');
 
-    const response = await openai.chat.completions.create({
+    const response = await getOpenAIClient().chat.completions.create({
       model: "gpt-4o",
       messages: [
         {
