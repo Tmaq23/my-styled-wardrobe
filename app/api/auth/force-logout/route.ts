@@ -1,9 +1,11 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
+
+import { getAppBaseUrl } from '@/lib/appUrl';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     // Get the cookies
     const cookieStore = await cookies();
@@ -29,7 +31,7 @@ export async function GET() {
     });
 
     // Return a response that forces a redirect to home
-    return NextResponse.redirect(new URL('/', process.env.NEXTAUTH_URL || 'http://localhost:3000'), {
+    return NextResponse.redirect(new URL('/', getAppBaseUrl(request)), {
       headers: {
         'Clear-Site-Data': '"cookies", "storage"',
       },
